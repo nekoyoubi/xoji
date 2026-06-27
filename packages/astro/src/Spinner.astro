@@ -1,0 +1,37 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	tone?: Tone;
+	size?: Size;
+	"aria-label"?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	tone = "accent",
+	size = "md",
+	"aria-label": ariaLabel = "Loading",
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	tone,
+	size,
+	label: ariaLabel,
+};
+const composed = await renderFragmentLight("spinner", bindings);
+---
+
+<xoji-spinner tone={tone} size={size} aria-label={ariaLabel} class={extra} set:html={composed} {...rest} />
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

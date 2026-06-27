@@ -1,0 +1,93 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	value?: number;
+	min?: number;
+	max?: number;
+	step?: number;
+	disabled?: boolean;
+	size?: Size;
+	tone?: Tone;
+	label?: string;
+	labelledby?: string;
+	name?: string;
+	showValue?: boolean;
+	hideLabel?: boolean;
+	/** Reset value for a double-click on the thumb. Defaults to the initial `value`. */
+	default?: number;
+	/** Disable click-to-edit on the shown value (it is on by default when `showValue` is set). */
+	staticValue?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	value = 0,
+	min = 0,
+	max = 100,
+	step = 1,
+	disabled = false,
+	size = "md",
+	tone = "accent",
+	label,
+	labelledby,
+	name,
+	showValue = false,
+	hideLabel = false,
+	default: defaultValue,
+	staticValue = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const elementId = `xoji-slider-${Math.random().toString(36).slice(2, 8)}`;
+const editableValue = showValue && !staticValue;
+
+const bindings = {
+	value,
+	min,
+	max,
+	step,
+	disabled,
+	size,
+	tone,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	showValue,
+	hideLabel,
+	valueText: String(value),
+	elementId,
+	editableValue,
+};
+const light = await renderFragmentLight("slider", bindings);
+---
+
+<xoji-slider
+	value={value}
+	min={min}
+	max={max}
+	step={step}
+	disabled={disabled || undefined}
+	size={size}
+	tone={tone}
+	label={label}
+	labelledby={labelledby}
+	name={name}
+	show-value={showValue || undefined}
+	hide-label={hideLabel || undefined}
+	default={defaultValue}
+	static-value={staticValue || undefined}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

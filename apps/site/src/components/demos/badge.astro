@@ -1,0 +1,91 @@
+---
+import Badge from "@xoji/astro/Badge.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const variants = ["solid", "soft", "outline"] as const;
+const semantic = ["accent", "neutral", "success", "warn", "danger", "info"] as const;
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">Three fills, six semantic tones</Heading>
+		<Stack gap={4}>
+			{
+				variants.map((variant) => (
+					<Stack gap={2}>
+						<Text size="xs" tone="muted" mono>{variant}</Text>
+						<Cluster gap={2} align="center">
+							{semantic.map((tone) => (
+								<Badge variant={variant} tone={tone}>
+									{tone}
+								</Badge>
+							))}
+						</Cluster>
+					</Stack>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={2} align="center">
+						{group.tones.map((tone) => <Badge variant="soft" tone={tone}>{tone}</Badge>)}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Sizes, dots, counts, and dismissal</Heading>
+		<Stack gap={4}>
+			<Cluster gap={3} align="center">
+				<Badge size="sm" tone="accent">small</Badge>
+				<Badge size="md" tone="accent">medium</Badge>
+				<Badge size="lg" tone="accent">large</Badge>
+			</Cluster>
+			<Cluster gap={3} align="center">
+				<Badge variant="soft" tone="success" dot>Live</Badge>
+				<Badge variant="soft" tone="warn" dot>Degraded</Badge>
+				<Badge variant="soft" tone="danger" dot>Offline</Badge>
+				<Badge variant="solid" tone="info" count={12}>Inbox</Badge>
+				<Badge variant="outline" tone="neutral" count="99+">Alerts</Badge>
+			</Cluster>
+			<Cluster gap={3} align="center" class="demo-removable">
+				<Badge variant="soft" tone="blue" removable>design</Badge>
+				<Badge variant="soft" tone="purple" removable>frontend</Badge>
+				<Badge variant="soft" tone="green" removable>tokens</Badge>
+			</Cluster>
+		</Stack>
+	</Card>
+</Stack>
+
+<script>
+	function initRemovableBadges(): void {
+		for (const cluster of document.querySelectorAll<HTMLElement>(".demo-removable")) {
+			cluster.addEventListener("click", (event) => {
+				const button = (event.target as HTMLElement).closest(".xoji-badge__remove");
+				button?.closest(".xoji-badge")?.remove();
+			});
+		}
+	}
+
+	document.addEventListener("astro:page-load", initRemovableBadges);
+	initRemovableBadges();
+</script>

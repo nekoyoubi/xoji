@@ -1,0 +1,87 @@
+---
+import Radio from "@xoji/astro/Radio.astro";
+import RadioGroup from "@xoji/astro/RadioGroup.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">A single-choice group</Heading>
+		<RadioGroup label="Billing plan">
+			<Radio name="plan" value="free" label="Free">Free</Radio>
+			<Radio name="plan" value="pro" checked label="Pro">Pro</Radio>
+			<Radio name="plan" value="team" label="Team">Team</Radio>
+		</RadioGroup>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">Horizontal</Heading>
+		<RadioGroup orientation="horizontal" label="Density">
+			<Radio name="density" value="compact" label="Compact">Compact</Radio>
+			<Radio name="density" value="cozy" checked label="Cozy">Cozy</Radio>
+			<Radio name="density" value="roomy" label="Roomy">Roomy</Radio>
+		</RadioGroup>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => (
+							<Radio name={`tone-${tone}`} value={tone} tone={tone} checked label={tone}>{tone}</Radio>
+						))}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">Sizes &amp; states</Heading>
+		<Cluster gap={5} align="center">
+			<Stack gap={2} align="center">
+				<Radio name="s" value="sm" size="sm" checked label="Small" />
+				<Text size="xs" tone="subtle">sm</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Radio name="m" value="md" size="md" checked label="Medium" />
+				<Text size="xs" tone="subtle">md</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Radio name="l" value="lg" size="lg" checked label="Large" />
+				<Text size="xs" tone="subtle">lg</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Radio name="iv" value="iv" invalid label="Invalid" />
+				<Text size="xs" tone="subtle">invalid</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Radio name="ds" value="ds" disabled checked label="Disabled" />
+				<Text size="xs" tone="subtle">disabled</Text>
+			</Stack>
+		</Cluster>
+	</section>
+</Stack>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+</style>

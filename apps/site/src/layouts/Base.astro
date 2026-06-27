@@ -1,0 +1,344 @@
+---
+import { ClientRouter } from "astro:transitions";
+import { emit } from "@xoji/core";
+import { utilitiesCss, componentsCss } from "@xoji/core/css";
+import { getStats, displayStats } from "../data/stats";
+import AppShell from "@xoji/astro/AppShell.astro";
+import Toolbar from "@xoji/astro/Toolbar.astro";
+import Dock from "@xoji/astro/Dock.astro";
+import Panel from "@xoji/astro/Panel.astro";
+import Statusbar from "@xoji/astro/Statusbar.astro";
+import Splitter from "@xoji/astro/Splitter.astro";
+import Stat from "@xoji/astro/Stat.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Text from "@xoji/astro/Text.astro";
+import SiteNav from "../components/SiteNav.astro";
+import ThemeReapply from "../components/ThemeReapply.astro";
+import Logo from "../components/Logo.astro";
+import ThemeSwitcher from "../components/ThemeSwitcher.svelte";
+import "@fontsource/teko/600.css";
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/700.css";
+import "@fontsource-variable/rem";
+import "@fontsource/sigmar";
+import "../styles/global.css";
+
+interface Props {
+	title: string;
+	description?: string;
+}
+const { title, description } = Astro.props;
+
+const SITE_TAGLINE = "A themable-derivation engine and component contract.";
+const ogDescription = description ?? SITE_TAGLINE;
+const canonicalUrl = new URL(
+	Astro.url.pathname,
+	Astro.site ?? "https://xoji.dev",
+).href;
+
+const site = await getStats();
+const themeCss = emit(site.register, "css");
+const baseCss = `${utilitiesCss(site.algorithm.produces, site.algorithm.categories)}\n${componentsCss}`;
+const numberStats = displayStats(site).map((s) => ({
+	label: s.label,
+	value: s.value,
+	delta: site.delta(s.key),
+}));
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const buildIso = new Date().toISOString();
+const buildLabel = new Date(buildIso).toLocaleString("en-US", {
+	dateStyle: "medium",
+	timeStyle: "short",
+});
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{title}</title>
+		<meta name="description" content={ogDescription} />
+		<link rel="canonical" href={canonicalUrl} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="xoji" />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={ogDescription} />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={ogDescription} />
+		<script is:inline>
+			(function () {
+				try {
+					var raw = localStorage.getItem("xoji.theme.active-vars");
+					if (!raw) return;
+					var vars = JSON.parse(raw);
+					var root = document.documentElement;
+					for (var k in vars) {
+						if (Object.prototype.hasOwnProperty.call(vars, k)) {
+							root.style.setProperty(k.indexOf("--") === 0 ? k : "--" + k, vars[k]);
+						}
+					}
+				} catch (e) {}
+			})();
+		</script>
+		<ClientRouter />
+		<style is:global set:html={themeCss}></style>
+		<style is:global set:html={baseCss}></style>
+		<ThemeReapply />
+	</head>
+	<body>
+		<AppShell skipLink leftSize={288}>
+			<Toolbar slot="toolbar">
+				<a slot="start" class="x-brand" href="/" aria-label="xoji home">
+					<Logo size={22} />
+					<span class="x-brand__word">xoji</span>
+				</a>
+				<Cluster slot="end" gap={3} align="center">
+					<a
+						class="x-iconlink x-iconlink--xript"
+						href="https://xript.dev"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Built on xript"
+						title="Built on xript"
+					>
+						<span aria-hidden="true">xr</span>
+					</a>
+					<a
+						class="x-iconlink"
+						href="https://www.npmjs.com/package/@xoji/core"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="@xoji/core on npm"
+						title="npm"
+					>
+						<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+							<path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0H1.763zM5.13 5.323h13.741v10.288h-3.435V8.748h-3.43v6.863H5.13V5.323z" />
+						</svg>
+					</a>
+					<a
+						class="x-iconlink"
+						href="https://github.com/nekoyoubi/xoji"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="xoji on GitHub"
+						title="GitHub"
+					>
+						<svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true">
+							<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+						</svg>
+					</a>
+					<ThemeSwitcher client:only="svelte" />
+				</Cluster>
+			</Toolbar>
+
+			<Fragment slot="left">
+				<input type="checkbox" id="x-nav-toggle" class="x-nav-toggle" aria-label="Toggle navigation" />
+				<label class="x-nav-burger" for="x-nav-toggle">
+					<span aria-hidden="true">☰</span> Menu
+				</label>
+				<Dock nav label="Navigate" hideHeader class="x-nav-dock">
+					<Stack gap={6}>
+						<SiteNav currentPath={path} />
+						<Panel label="About">
+							<Text as="span" size="xs" tone="subtle" class="x-about-label">About</Text>
+							<Text size="sm" tone="muted">
+								A themable-derivation engine and component contract. A named algorithm
+								maps a few anchors into a full token set; the components honor it. No
+								hand-tuning every variable. This whole app runs on one xoji theme, built
+								from the very components it ships.
+							</Text>
+						</Panel>
+					</Stack>
+				</Dock>
+				<Splitter
+					var="--xoji-app-left"
+					value={288}
+					min={208}
+					max={440}
+					step={8}
+					default={288}
+					size="sm"
+					line
+					label="Resize navigation"
+					class="x-nav-splitter"
+				/>
+			</Fragment>
+
+			<slot />
+
+			{Astro.slots.has("right") && (
+				<Fragment slot="right"><slot name="right" /></Fragment>
+			)}
+
+			<Statusbar slot="statusbar" live separated label="Theme status" overflow="collapse">
+				<span class="xoji-statusbar__item" data-priority="8"><Stat label="algorithm" inline class="x-status-stat"><span id="x-status-algo" data-default="xoji-default">xoji-default</span></Stat></span>
+				<span class="xoji-statusbar__item" data-priority="4"><Stat label="scheme" inline class="x-status-stat"><span id="x-status-scheme" data-default="dark">dark</span></Stat></span>
+				<span class="xoji-statusbar__spacer"></span>
+				{numberStats.map((s) => (
+					<span class="xoji-statusbar__item" data-priority={s.label === "components" ? "9" : "6"}>
+						<Stat
+							label={s.label}
+							inline
+							class="x-status-stat"
+							delta={s.delta > 0 ? `+${s.delta}` : undefined}
+							trend={s.delta > 0 ? "up" : "flat"}
+						>{s.value}</Stat>
+					</span>
+				))}
+				<span class="xoji-statusbar__item" data-priority="3"><Stat label="license" inline class="x-status-stat">MIT</Stat></span>
+				<span class="xoji-statusbar__item" data-priority="2"><Stat label="updated" inline class="x-status-stat"><a class="x-status-link" href="/changelog"><span id="x-build-rel" data-build={buildIso} title={buildLabel}>{buildLabel}</span></a></Stat></span>
+			</Statusbar>
+		</AppShell>
+		<script>
+			function relativeTime(iso: string): string {
+				const then = new Date(iso).getTime();
+				if (Number.isNaN(then)) return "";
+				const seconds = Math.round((Date.now() - then) / 1000);
+				const steps: [number, Intl.RelativeTimeFormatUnit][] = [
+					[60, "second"],
+					[60, "minute"],
+					[24, "hour"],
+					[30, "day"],
+					[12, "month"],
+					[Number.POSITIVE_INFINITY, "year"],
+				];
+				let value = -seconds;
+				let unit: Intl.RelativeTimeFormatUnit = "second";
+				for (const [span, nextUnit] of steps) {
+					if (Math.abs(value) < span) break;
+					value = Math.round(value / span);
+					unit = nextUnit;
+				}
+				return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(
+					value,
+					unit,
+				);
+			}
+
+			function syncBuildTime(): void {
+				const el = document.getElementById("x-build-rel");
+				const iso = el?.dataset.build;
+				if (!el || !iso) return;
+				const rel = relativeTime(iso);
+				if (rel) el.textContent = rel;
+			}
+
+			syncBuildTime();
+			document.addEventListener("astro:page-load", syncBuildTime);
+			document.addEventListener("astro:after-swap", syncBuildTime);
+		</script>
+	</body>
+</html>
+
+<style>
+	.x-brand {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		color: var(--fg-0);
+		text-decoration: none;
+		font-weight: var(--weight-bold);
+		font-size: var(--text-lg);
+		letter-spacing: -0.01em;
+		filter: drop-shadow(0 0 2px color-mix(in oklab, var(--accent) 70%, transparent))
+			drop-shadow(0 0 7px color-mix(in oklab, var(--accent) 45%, transparent));
+		animation: x-brand-bias 7s ease-in-out infinite;
+	}
+	@keyframes x-brand-bias {
+		0%,
+		100% {
+			filter: drop-shadow(0 0 2px color-mix(in oklab, var(--accent) 60%, transparent))
+				drop-shadow(0 0 6px color-mix(in oklab, var(--accent) 40%, transparent));
+		}
+		50% {
+			filter: drop-shadow(0 0 3px color-mix(in oklab, var(--accent-2) 85%, transparent))
+				drop-shadow(0 0 10px color-mix(in oklab, var(--accent-2) 62%, transparent));
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.x-brand {
+			animation: none;
+			filter: drop-shadow(0 0 3px color-mix(in oklab, var(--accent) 70%, transparent))
+				drop-shadow(0 0 7px color-mix(in oklab, var(--accent) 45%, transparent));
+		}
+	}
+	.x-brand:hover {
+		color: var(--fg-0);
+		text-decoration: none;
+	}
+	.x-brand__word {
+		line-height: 1;
+		font-family: "Teko", var(--font-sans);
+		font-weight: 600;
+		font-size: var(--text-2xl);
+		letter-spacing: 0.01em;
+		position: relative;
+		top: 2px;
+		-webkit-text-stroke: 0.25px var(--bg-0);
+		paint-order: stroke;
+	}
+	.x-iconlink {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--fg-2);
+		text-decoration: none;
+		border-radius: var(--radius-md);
+		padding: var(--space-1);
+		transition: color 0.15s ease;
+	}
+	.x-iconlink:hover {
+		color: var(--fg-0);
+		text-decoration: none;
+	}
+	.x-iconlink:focus-visible {
+		outline: var(--focus-ring, 2px solid var(--accent));
+		outline-offset: 2px;
+	}
+	.x-iconlink--xript span {
+		font-family: "Sigmar", var(--font-sans), sans-serif;
+		font-size: 1.1rem;
+		line-height: 1;
+		letter-spacing: -0.02em;
+	}
+	.x-status-stat {
+		position: relative;
+		top: 1px;
+	}
+	.x-status-link {
+		color: inherit;
+		text-decoration: none;
+	}
+	.x-status-link:hover {
+		color: var(--fg-0);
+		text-decoration: underline;
+	}
+	.x-about-label {
+		display: block;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-weight: var(--weight-semibold);
+		margin-bottom: var(--space-2);
+	}
+	.x-nav-dock {
+		width: 100%;
+	}
+	.x-nav-splitter {
+		height: 100%;
+	}
+	@media (max-width: 900px) {
+		.x-nav-splitter {
+			display: none;
+		}
+	}
+</style>

@@ -1,0 +1,85 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	value?: number | string;
+	min?: number;
+	max?: number;
+	step?: number;
+	altStep?: number;
+	altDefault?: boolean;
+	modifier?: "shift" | "alt" | "ctrl" | "meta";
+	disabled?: boolean;
+	size?: Size;
+	label?: string;
+	labelledby?: string;
+	name?: string;
+	placeholder?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	value,
+	min,
+	max,
+	step,
+	altStep,
+	altDefault = false,
+	modifier,
+	disabled = false,
+	size = "md",
+	label,
+	labelledby,
+	name,
+	placeholder,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const valueStr = value === undefined || value === "" ? undefined : String(value);
+const elementId = `xoji-number-${Math.random().toString(36).slice(2, 8)}`;
+
+const numeric = valueStr !== undefined && !Number.isNaN(Number(valueStr)) ? Number(valueStr) : (min ?? 0);
+const bindings = {
+	value: valueStr ?? "",
+	min,
+	max,
+	disabled,
+	size,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	placeholder: placeholder ?? null,
+	elementId,
+	canDec: !(disabled || (min !== undefined && numeric <= min)),
+	canInc: !(disabled || (max !== undefined && numeric >= max)),
+};
+const light = await renderFragmentLight("number-input", bindings);
+---
+
+<xoji-number-input
+	value={valueStr}
+	min={min}
+	max={max}
+	step={step}
+	alt-step={altStep}
+	alt-default={altDefault || undefined}
+	modifier={modifier}
+	disabled={disabled || undefined}
+	size={size}
+	label={label}
+	labelledby={labelledby}
+	name={name}
+	placeholder={placeholder}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

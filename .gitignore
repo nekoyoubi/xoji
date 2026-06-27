@@ -1,0 +1,55 @@
+# secrets - matches .secret*, .secret/, .secret-anything
+.secret*
+**/.secret*
+
+# consumer feedback log - embeds consuming-app identities; a local working queue, never shipped
+docs/feedback.md
+
+# claude local settings (CLAUDE.md is intentionally NOT ignored - it's project context)
+.claude/
+
+# build output
+dist/
+.astro/
+.svelte-kit/
+
+# playwright mcp local snapshots
+.playwright-mcp/
+
+# scratch screenshots / throwaway previews at the repo root
+/*.png
+/*.jpg
+/*.jpeg
+/logo-preview.html
+
+# dependencies
+node_modules/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.idea/
+*.swp
+*.swo
+
+# typescript build info
+*.tsbuildinfo
+
+# test coverage
+coverage/
+
+NUL

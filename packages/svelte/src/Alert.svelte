@@ -1,0 +1,55 @@
+<script lang="ts">
+	import "./register.js";
+	import type { Snippet } from "svelte";
+	import type { FullTone } from "@xoji/core";
+	type AlertSeverity = "success" | "warn" | "danger" | "info";
+
+	type AlertVariant = "soft" | "solid";
+
+	interface Props {
+		/** Color — any semantic role, accent variant, or named hue. Defaults to the severity color. */
+		tone?: FullTone;
+		/** Meaning — drives the glyph + politeness, independent of color. Omit for a color-only notice. */
+		severity?: AlertSeverity;
+		variant?: AlertVariant;
+		dismissible?: boolean;
+		dismissLabel?: string;
+		ondismiss?: (event: CustomEvent) => void;
+		title?: Snippet;
+		actions?: Snippet;
+		/** Overrides the built-in severity glyph. */
+		icon?: Snippet;
+		children?: Snippet;
+		/** Any other attribute (`title`, `id`, `data-*`, `aria-*`, …) passes through to the element. */
+		[key: string]: unknown;
+	}
+
+	let {
+		tone,
+		severity,
+		variant = "soft",
+		dismissible = false,
+		dismissLabel,
+		ondismiss,
+		title,
+		actions,
+		icon,
+		children,
+		...rest
+	}: Props = $props();
+</script>
+
+<xoji-alert
+	{...rest}
+	{tone}
+	{severity}
+	{variant}
+	dismissible={dismissible || undefined}
+	dismiss-label={dismissLabel}
+	{ondismiss}
+>
+	{#if icon}<span slot="icon">{@render icon()}</span>{/if}
+	{#if title}<span slot="title">{@render title()}</span>{/if}
+	{@render children?.()}
+	{#if actions}<span slot="actions">{@render actions()}</span>{/if}
+</xoji-alert>

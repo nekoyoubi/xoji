@@ -1,0 +1,30 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type EyebrowTag = "p" | "span" | "div";
+type EyebrowTone = "accent" | "muted" | "subtle";
+type EyebrowTracking = "normal" | "wide";
+
+interface Props {
+	as?: EyebrowTag;
+	tone?: EyebrowTone;
+	tracking?: EyebrowTracking;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { as = "p", tone = "accent", tracking = "normal", static: isStatic = false, class: extra, ...rest } =
+	Astro.props;
+
+const bindings = { as, tone, tracking };
+const chrome = await renderFragmentLight("eyebrow", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-eyebrow as={as} tone={tone} tracking={tracking} class={extra} set:html={composed} {...rest} />
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

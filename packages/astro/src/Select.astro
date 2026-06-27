@@ -1,0 +1,79 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	label?: string;
+	name?: string;
+	value?: string;
+	size?: Size;
+	invalid?: boolean;
+	error?: string;
+	disabled?: boolean;
+	required?: boolean;
+	ariaLabel?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	label,
+	name,
+	value,
+	size = "md",
+	invalid = false,
+	error,
+	disabled = false,
+	required = false,
+	ariaLabel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const fieldId = `xoji-select-${Math.random().toString(36).slice(2, 9)}`;
+const errorId = `${fieldId}-error`;
+
+// The consumer's `<option>`/`<optgroup>` children populate the rendered `<select>` (via
+// `bindings.optionsHtml`) AND ride along as hidden light-DOM children after the chrome, so the
+// element can re-read them on a rebuild. `xoji-select > option` is `display:none` (see
+// `hostDisplayCss`), so the bare copies never show.
+const optionsHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+
+const bindings = {
+	label: label ?? null,
+	value: value ?? null,
+	size,
+	disabled,
+	invalid,
+	required,
+	error: error ?? null,
+	name: name ?? null,
+	fieldId,
+	errorId,
+	optionsHtml,
+};
+const light = await renderFragmentLight("select", bindings);
+const composed = light + optionsHtml;
+---
+
+<xoji-select
+	label={label}
+	value={value}
+	size={size}
+	name={name}
+	disabled={disabled || undefined}
+	invalid={invalid || undefined}
+	required={required || undefined}
+	error={error}
+	aria-label={ariaLabel}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

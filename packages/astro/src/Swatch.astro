@@ -1,0 +1,69 @@
+---
+import { formatColor, parseColor, type ColorFormat } from "@xoji/core";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type SwatchSize = "sm" | "md" | "lg";
+
+interface Props {
+	color: string;
+	label?: string;
+	value?: string;
+	size?: SwatchSize;
+	interactive?: boolean;
+	selected?: boolean;
+	details?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	color,
+	label,
+	value,
+	size = "md",
+	interactive = false,
+	selected = false,
+	details = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const detailsId = `xoji-swatch-details-${crypto.randomUUID().slice(0, 8)}`;
+
+const DETAIL_FORMATS: ColorFormat[] = ["hex", "rgb", "hsl", "oklch"];
+const rgb = details ? parseColor(color ?? "") : null;
+const showsDetails = !!rgb;
+const detailRows = rgb ? DETAIL_FORMATS.map((format) => ({ model: format, value: formatColor(rgb, format) })) : [];
+
+const bindings = {
+	color,
+	label: label ?? null,
+	value: value ?? null,
+	size,
+	interactive,
+	selected,
+	showsDetails,
+	detailRows,
+	detailsId,
+};
+const light = await renderFragmentLight("swatch", bindings);
+---
+
+<xoji-swatch
+	color={color}
+	label={label ?? undefined}
+	value={value ?? undefined}
+	size={size}
+	interactive={interactive || undefined}
+	selected={selected || undefined}
+	details={details || undefined}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

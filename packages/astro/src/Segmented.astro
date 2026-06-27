@@ -1,0 +1,68 @@
+---
+import { parseSegments } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	value?: string;
+	options?: string;
+	disabled?: boolean;
+	size?: Size;
+	tone?: Tone;
+	label?: string;
+	labelledby?: string;
+	name?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	value,
+	options,
+	disabled = false,
+	size = "md",
+	tone = "accent",
+	label,
+	labelledby,
+	name,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const elementId = `xoji-segmented-${Math.random().toString(36).slice(2, 8)}`;
+const segments = parseSegments(options ?? "");
+
+const bindings = {
+	segments,
+	value: value ?? null,
+	disabled,
+	size,
+	tone,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	elementId,
+};
+const light = await renderFragmentLight("segmented", bindings);
+---
+
+<xoji-segmented
+	value={value}
+	options={options}
+	disabled={disabled || undefined}
+	size={size}
+	tone={tone}
+	label={label}
+	labelledby={labelledby}
+	name={name}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

@@ -1,0 +1,39 @@
+---
+import { toastRegionMarkup, toastRegionHostCss } from "@xoji/core/markup";
+import { toastCss } from "@xoji/core/css";
+
+interface Props {
+	placement?: string;
+	max?: number;
+	label?: string;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	placement = "bottom-right",
+	max,
+	label,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const shadow = `<style>${toastRegionHostCss}${toastCss}</style>${toastRegionMarkup({ placement, label })}`;
+---
+
+<xoji-toast-region
+	placement={placement}
+	max={max}
+	label={label}
+	class={extra}
+	{...rest}
+>
+	<template shadowrootmode="open" set:html={shadow}></template>
+	<slot />
+</xoji-toast-region>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

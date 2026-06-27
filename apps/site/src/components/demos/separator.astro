@@ -1,0 +1,69 @@
+---
+import Separator from "@xoji/astro/Separator.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Link from "@xoji/astro/Link.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Stack gap={4}>
+			<Heading level={2} size="md">Horizontal rules</Heading>
+			<Stack gap={3}>
+				<Text tone="muted" size="sm">Normal weight — the standard line color.</Text>
+				<Separator />
+				<Text tone="muted" size="sm">Thin weight — the fainter <code>--line-2</code>.</Text>
+				<Separator size="thin" />
+			</Stack>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<Heading level={2} size="md">Labeled divider</Heading>
+			<Text>
+				A separator can carry a centered label to break up a stacked layout into
+				named sections.
+			</Text>
+			<Separator variant="with-label">Account</Separator>
+			<Text tone="muted" size="sm">Settings that scope to your profile.</Text>
+			<Separator variant="with-label">Danger zone</Separator>
+			<Text tone="muted" size="sm">Irreversible actions live below.</Text>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<Heading level={2} size="md">Vertical separators</Heading>
+			<Text tone="muted" size="sm">
+				A vertical rule divides items in an inline group — breadcrumbs, meta
+				rows, toolbars.
+			</Text>
+			<Cluster gap={3} align="center" class="demo-sep__inline">
+				<Link href="#">Overview</Link>
+				<Separator orientation="vertical" />
+				<Link href="#">Pricing</Link>
+				<Separator orientation="vertical" />
+				<Link href="#">Docs</Link>
+				<Separator orientation="vertical" size="thin" />
+				<Text size="sm" tone="subtle">v0.2.0</Text>
+			</Cluster>
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	:global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		background: var(--bg-2);
+		padding: 0.08em 0.32em;
+		border-radius: var(--radius-sm);
+	}
+	.demo-sep__inline {
+		min-height: 1.5rem;
+	}
+</style>

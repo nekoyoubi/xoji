@@ -1,0 +1,87 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type SplitterOrientation = "vertical" | "horizontal";
+type SplitterSize = "sm" | "md" | "lg";
+
+interface Props {
+	orientation?: SplitterOrientation;
+	size?: SplitterSize;
+	line?: boolean;
+	min?: number;
+	max?: number;
+	step?: number;
+	value: number;
+	default?: number;
+	disabled?: boolean;
+	reversed?: boolean;
+	/** The CSS custom property the splitter writes the pane size into. */
+	var?: string;
+	/** The id of the element the var is set on; defaults to the splitter's parent. */
+	for?: string;
+	label?: string;
+	labelledby?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	orientation = "vertical",
+	size = "md",
+	line = false,
+	min = 0,
+	max,
+	step = 1,
+	value,
+	default: defaultValue,
+	disabled = false,
+	reversed = false,
+	var: varName,
+	for: forId,
+	label,
+	labelledby,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const ariaMax = max ?? value;
+
+const bindings = {
+	orientation,
+	size,
+	line,
+	value,
+	min,
+	max: ariaMax,
+	disabled,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+};
+const light = await renderFragmentLight("splitter", bindings);
+---
+
+<xoji-splitter
+	orientation={orientation}
+	size={size}
+	line={line || undefined}
+	min={min}
+	max={max ?? undefined}
+	step={step}
+	value={value}
+	default={defaultValue ?? undefined}
+	disabled={disabled || undefined}
+	reversed={reversed || undefined}
+	var={varName}
+	for={forId}
+	label={label}
+	labelledby={labelledby}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

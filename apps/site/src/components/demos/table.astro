@@ -1,0 +1,155 @@
+---
+import Table from "@xoji/astro/Table.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+
+type Row = {
+	algorithm: string;
+	tone: "accent" | "info" | "warn" | "success";
+	tokens: number;
+	coverage: number;
+	status: "Blessed" | "Draft" | "Community";
+};
+
+const rows: Row[] = [
+	{ algorithm: "xoji-default", tone: "accent", tokens: 142, coverage: 100, status: "Blessed" },
+	{ algorithm: "xoji-quiet", tone: "info", tokens: 138, coverage: 98, status: "Blessed" },
+	{ algorithm: "xoji-loud", tone: "warn", tokens: 151, coverage: 96, status: "Draft" },
+	{ algorithm: "xoji-hc", tone: "success", tokens: 147, coverage: 100, status: "Blessed" },
+	{ algorithm: "aurora", tone: "info", tokens: 129, coverage: 91, status: "Community" },
+];
+
+const statusTone: Record<Row["status"], "success" | "warn" | "neutral"> = {
+	Blessed: "success",
+	Draft: "warn",
+	Community: "neutral",
+};
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">Sortable, hover, sticky header</Heading>
+		<Text slot="header" size="xs" tone="muted">
+			Click a sortable column header (or focus it and press Enter) to re-order the rows.
+		</Text>
+		<Table variant="default" hover sticky maxHeight="18rem" ariaLabel="Built-in xoji algorithms">
+				<table>
+					<thead>
+						<tr>
+							<th data-sortable>Algorithm</th>
+							<th data-sortable data-sort-type="number">Tokens</th>
+							<th data-sortable data-sort-type="number">Coverage</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody>
+						{
+							rows.map((row) => (
+								<tr>
+									<td><Text as="span" weight="medium" mono>{row.algorithm}</Text></td>
+									<td data-sort-value={row.tokens}>{row.tokens}</td>
+									<td data-sort-value={row.coverage}>
+										<Badge
+											variant="soft"
+											tone={row.coverage === 100 ? "success" : "warn"}
+										>{row.coverage}%</Badge>
+									</td>
+									<td>
+										<Badge variant="soft" tone={statusTone[row.status]}>{row.status}</Badge>
+									</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
+		</Table>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Striped, compact</Heading>
+		<Table variant="striped" size="compact" ariaLabel="Token consumption by component">
+			<table>
+				<thead>
+					<tr>
+						<th>Component</th>
+						<th>Category</th>
+						<th>Consumed tokens</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>button</td><td>control</td><td>9</td></tr>
+					<tr><td>field</td><td>form</td><td>11</td></tr>
+					<tr><td>alert</td><td>feedback</td><td>7</td></tr>
+					<tr><td>dialog</td><td>overlay</td><td>8</td></tr>
+					<tr><td>table</td><td>data-display</td><td>12</td></tr>
+				</tbody>
+			</table>
+		</Table>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Bordered</Heading>
+		<Table variant="bordered" ariaLabel="Input tiers">
+			<table>
+				<thead>
+					<tr>
+						<th>Tier</th>
+						<th>Audience</th>
+						<th>Surface</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>Builders</td><td>algorithm authors</td><td>internal derivation</td></tr>
+					<tr><td>Knobs</td><td>everyone</td><td>declared inputs</td></tr>
+					<tr><td>Overrides</td><td>power users</td><td>any token, anywhere</td></tr>
+				</tbody>
+			</table>
+		</Table>
+	</Card>
+</Stack>
+
+<script>
+	type Dir = "ascending" | "descending";
+
+	function sortTable(table: HTMLTableElement, columnIndex: number, dir: Dir, numeric: boolean) {
+		const tbody = table.querySelector("tbody");
+		if (!tbody) return;
+		const rows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>("tr"));
+		const value = (row: HTMLTableRowElement) => {
+			const cell = row.cells[columnIndex];
+			const raw = cell?.getAttribute("data-sort-value") ?? cell?.textContent?.trim() ?? "";
+			return numeric ? Number.parseFloat(raw) || 0 : raw.toLowerCase();
+		};
+		rows.sort((a, b) => {
+			const av = value(a);
+			const bv = value(b);
+			const cmp = av < bv ? -1 : av > bv ? 1 : 0;
+			return dir === "ascending" ? cmp : -cmp;
+		});
+		for (const row of rows) tbody.appendChild(row);
+	}
+
+	for (const header of document.querySelectorAll<HTMLTableCellElement>("th[data-sortable]")) {
+		const activate = () => {
+			const table = header.closest("table");
+			if (!table) return;
+			const headers = Array.from(table.querySelectorAll<HTMLTableCellElement>("th"));
+			const index = headers.indexOf(header);
+			const current = header.getAttribute("aria-sort");
+			const next: Dir = current === "ascending" ? "descending" : "ascending";
+			for (const other of headers) other.setAttribute("aria-sort", "none");
+			header.setAttribute("aria-sort", next);
+			sortTable(table, index, next, header.dataset.sortType === "number");
+		};
+		header.addEventListener("click", activate);
+		header.addEventListener("keydown", (event) => {
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault();
+				activate();
+			}
+		});
+	}
+</script>

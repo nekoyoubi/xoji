@@ -1,0 +1,68 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Placement = "top" | "bottom" | "left" | "right";
+
+interface Props {
+	text?: string;
+	placement?: Placement;
+	open?: boolean;
+	tone?: string;
+	variant?: "soft" | "solid";
+	mode?: "hint" | "rich";
+	size?: "sm" | "md";
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	text,
+	placement = "top",
+	open = false,
+	tone,
+	variant,
+	mode,
+	size,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const hasContent = Astro.slots.has("content");
+const contentId = `xoji-tooltip-${Math.random().toString(36).slice(2, 8)}`;
+
+const bindings = {
+	text: text ?? null,
+	placement,
+	contentId,
+	open,
+	tone: tone ?? null,
+	variant: variant ?? null,
+	mode: mode ?? null,
+	size: size ?? null,
+};
+const light = await renderFragmentLight("tooltip", bindings);
+const triggerHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const contentHtml = hasContent ? await Astro.slots.render("content") : "";
+const composed = light
+	.replace('<slot name="content"></slot>', () => contentHtml)
+	.replace("<slot></slot>", () => triggerHtml);
+---
+
+<xoji-tooltip
+	text={text}
+	placement={placement}
+	open={open || undefined}
+	tone={tone}
+	variant={variant}
+	mode={mode}
+	size={size}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

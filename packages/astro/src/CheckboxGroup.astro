@@ -1,0 +1,54 @@
+---
+import { checkboxGroupMarkup, checkboxGroupHostCss } from "@xoji/core/markup";
+import { checkboxCss } from "@xoji/core/css";
+
+import type { FullTone as Tone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	label?: string;
+	labelledby?: string;
+	tone?: Tone;
+	size?: Size;
+	disabled?: boolean;
+	/** Keep the heading checkbox but stop the automatic all/some/none roll-up. */
+	manual?: boolean;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	label,
+	labelledby,
+	tone = "accent",
+	size = "md",
+	disabled = false,
+	manual = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const labelId = `xoji-checkbox-group-${Math.random().toString(36).slice(2, 8)}-label`;
+
+const shadow = `<style>${checkboxGroupHostCss}${checkboxCss}</style>${checkboxGroupMarkup({ label, labelledby, tone, size, disabled, labelId })}`;
+---
+
+<xoji-checkbox-group
+	label={label}
+	labelledby={labelledby}
+	tone={tone}
+	size={size}
+	disabled={disabled || undefined}
+	manual={manual || undefined}
+	class={extra}
+	{...rest}
+>
+	<template shadowrootmode="open" set:html={shadow}></template>
+	<slot />
+</xoji-checkbox-group>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

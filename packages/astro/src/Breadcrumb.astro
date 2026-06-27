@@ -1,0 +1,54 @@
+---
+import { type BreadcrumbItem } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+import type { Size, FullTone } from "@xoji/core";
+
+interface Props {
+	items?: BreadcrumbItem[];
+	separator?: string;
+	tone?: FullTone;
+	size?: Size;
+	label?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	items,
+	separator = "/",
+	tone = "accent",
+	size = "md",
+	label = "Breadcrumb",
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	items: items ?? [],
+	separator,
+	tone,
+	size,
+	label,
+};
+const light = await renderFragmentLight("breadcrumb", bindings);
+// only the no-items (consumer-slotted) render carries a marker; the items render fills the list
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = light.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-breadcrumb
+	items={items ? JSON.stringify(items) : undefined}
+	separator={separator}
+	tone={tone}
+	size={size}
+	label={label}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

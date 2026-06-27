@@ -1,0 +1,68 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type PanelVariant = "default" | "collapsible";
+
+interface Props {
+	title?: string;
+	/** Accessible name for a panel with no visible `title` — names the region without rendering a heading. */
+	label?: string;
+	level?: 1 | 2 | 3 | 4 | 5 | 6;
+	variant?: PanelVariant;
+	open?: boolean;
+	scroll?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	title,
+	label,
+	level = 2,
+	variant = "default",
+	open = false,
+	scroll = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const hasActions = Astro.slots.has("actions");
+const titleId = `xoji-panel-${Math.random().toString(36).slice(2, 9)}`;
+
+const bindings = {
+	title: title ?? null,
+	level,
+	variant,
+	open,
+	scrollable: scroll,
+	hasActions,
+	titleId,
+	label: label ?? null,
+};
+const chrome = await renderFragmentLight("panel", bindings);
+const actionsHtml = hasActions ? await Astro.slots.render("actions") : "";
+const bodyHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const footerHtml = Astro.slots.has("footer") ? await Astro.slots.render("footer") : "";
+const composed = chrome
+	.replace('<slot name="actions"></slot>', () => actionsHtml)
+	.replace('<slot name="footer"></slot>', () => footerHtml)
+	.replace("<slot></slot>", () => bodyHtml);
+---
+
+<xoji-panel
+	title={title}
+	label={label}
+	level={level}
+	variant={variant}
+	open={open || undefined}
+	scroll={scroll || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

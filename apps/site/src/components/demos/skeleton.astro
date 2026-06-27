@@ -1,0 +1,66 @@
+---
+import Skeleton from "@xoji/astro/Skeleton.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const shapes = ["text", "line", "block", "circle"] as const;
+---
+
+<Stack gap={6}>
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">Four shapes</Heading>
+		<Grid gap={5} minColWidth="180px" align="center">
+			{
+				shapes.map((shape) => (
+					<Stack gap={3} align="center">
+						<Skeleton shape={shape} />
+						<Text as="span" size="xs" tone="muted">{shape}</Text>
+					</Stack>
+				))
+			}
+		</Grid>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">Text in three sizes</Heading>
+		<Cluster gap={6} align="center">
+			{
+				(["sm", "md", "lg"] as const).map((size) => (
+					<Stack gap={2} align="start">
+						<Skeleton shape="text" size={size} />
+						<Skeleton shape="text" size={size} />
+						<Text as="span" size="xs" tone="muted">{size}</Text>
+					</Stack>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">A loading card</Heading>
+		<Card>
+			<Cluster gap={4} align="start">
+				<Skeleton shape="circle" size="lg" />
+				<Stack gap={3} class="demo-skeleton-grow">
+					<Skeleton shape="line" />
+					<Skeleton shape="text" />
+					<Skeleton shape="text" />
+				</Stack>
+			</Cluster>
+			<Skeleton shape="block" class="demo-skeleton-media" />
+		</Card>
+	</Card>
+</Stack>
+
+<style>
+	.demo-skeleton-grow {
+		flex: 1;
+	}
+	.demo-skeleton-media {
+		margin-top: 1rem;
+	}
+</style>

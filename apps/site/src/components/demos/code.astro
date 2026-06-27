@@ -1,0 +1,73 @@
+---
+import Code from "@xoji/astro/Code.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const tsSource = `type Theme = { bg: string; accent: string };
+
+const derive = (theme: Theme): string =>
+	\`--bg-0: \${theme.bg}; --accent: \${theme.accent};\`;
+
+console.log(derive({ bg: "#0f1115", accent: "#5b8cff" }));`;
+
+const rustSource = `fn main() {
+	let accent = "#5b8cff";
+	println!("derive from {accent}");
+}`;
+
+const cssSource = `.xoji-code {
+	color: var(--code-fg);
+	background: var(--code-bg);
+}`;
+
+const numberedSource = `function total(items) {
+	let sum = 0;
+	for (const n of items) sum += n;
+	return sum;
+}`;
+
+const wrapSource = `const message = "a deliberately long single line that would otherwise scroll sideways, but soft-wraps instead so the whole statement stays readable in a narrow column";`;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={2} size="sm">Themed highlighting, three languages</Heading>
+			<Text size="sm" tone="muted">
+				Every block colors itself from the <Text as="span" mono size="xs">--code-*</Text>
+				family the algorithm derives, so it re-themes with the rest of the chrome.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			<Code lang="ts" code={tsSource} />
+			<Code lang="rust" code={rustSource} />
+			<Code lang="css" code={cssSource} />
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={2} size="sm">Line numbers &amp; highlights</Heading>
+			<Text size="sm" tone="muted">
+				<Text as="span" mono size="xs">line-numbers</Text> adds a counter gutter;
+				<Text as="span" mono size="xs">highlight</Text> tints the lines that matter (here
+				<Text as="span" mono size="xs">2,4</Text>) with the derived
+				<Text as="span" mono size="xs">--code-line-highlight</Text>.
+			</Text>
+		</Stack>
+		<Code lang="ts" code={numberedSource} lineNumbers highlight="2,4" />
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={2} size="sm">Soft-wrap</Heading>
+			<Text size="sm" tone="muted">
+				<Text as="span" mono size="xs">wrap</Text> folds a long line instead of
+				scrolling it sideways: purely declarative, no JavaScript.
+			</Text>
+		</Stack>
+		<Code lang="ts" code={wrapSource} wrap />
+	</Card>
+</Stack>

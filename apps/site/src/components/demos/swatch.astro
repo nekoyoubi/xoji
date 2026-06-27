@@ -1,0 +1,91 @@
+---
+import Swatch from "@xoji/astro/Swatch.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const palette = [
+	{ color: "#ef4444", label: "Red" },
+	{ color: "#f97316", label: "Orange" },
+	{ color: "#eab308", label: "Yellow" },
+	{ color: "#22c55e", label: "Green" },
+	{ color: "#0ea5e9", label: "Sky" },
+	{ color: "#6366f1", label: "Indigo" },
+	{ color: "#a855f7", label: "Violet" },
+	{ color: "#ec4899", label: "Pink" },
+];
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={2} size="sm">Named colors</Heading>
+		<Stack gap={2}>
+			<Swatch color="#ff0099" label="Hot pink" value="#ff0099" />
+			<Swatch color="#0ea5e9" label="Sky" value="#0ea5e9" />
+			<Swatch color="#22c55e" label="Emerald" value="#22c55e" />
+			<Swatch color="#f59e0b" label="Amber" value="#f59e0b" />
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Palette rail</Heading>
+		<Cluster gap={1}>
+			<Swatch color="#ef4444" />
+			<Swatch color="#f97316" />
+			<Swatch color="#eab308" />
+			<Swatch color="#22c55e" />
+			<Swatch color="#0ea5e9" />
+			<Swatch color="#6366f1" />
+			<Swatch color="#a855f7" />
+			<Swatch color="#ec4899" />
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Pickable palette</Heading>
+		<Stack gap={3}>
+			<Text size="sm" tone="muted">
+				Each chip is a real button; click or focus and press Enter. The chosen one rings in the accent.
+			</Text>
+			<Cluster gap={2} class="demo-palette">
+				{palette.map((c, i) => <Swatch color={c.color} label={c.label} interactive selected={i === 4} />)}
+			</Cluster>
+			<Text size="sm">Selected: <strong class="demo-picked">Sky</strong></Text>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Color details</Heading>
+		<Stack gap={3}>
+			<Text size="sm" tone="muted">Hover or focus a chip to read its color across models, parsed and reformatted by the engine.</Text>
+			<Cluster gap={4}>
+				<Swatch color="#ff0099" label="Hot pink" details />
+				<Swatch color="oklch(0.7 0.15 200)" label="Teal" details />
+				<Swatch color="rgb(124 58 237 / 0.8)" label="Violet 80%" details />
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Sizes</Heading>
+		<Cluster gap={4} style="align-items: center;">
+			<Swatch color="#0ea5e9" size="sm" label="Small" />
+			<Swatch color="#0ea5e9" label="Medium" />
+			<Swatch color="#0ea5e9" size="lg" label="Large" />
+		</Cluster>
+	</Card>
+</Stack>
+
+<script>
+	const palette = document.querySelector(".demo-palette");
+	const picked = document.querySelector(".demo-picked");
+	palette?.addEventListener("select", (event) => {
+		const detail = (event as CustomEvent<{ color: string; label: string }>).detail;
+		for (const chip of palette.querySelectorAll("xoji-swatch")) {
+			(chip as HTMLElement & { selected: boolean }).selected = chip === event.target;
+		}
+		if (picked) picked.textContent = detail.label ?? detail.color;
+	});
+</script>

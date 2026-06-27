@@ -1,0 +1,64 @@
+---
+import Select from "@xoji/astro/Select.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Labelled selects</Heading>
+		<Grid minColWidth="15rem" gap={4}>
+			<Select label="Timezone" name="tz">
+				<option value="utc">UTC</option>
+				<option value="est" selected>Eastern (UTC−5)</option>
+				<option value="pst">Pacific (UTC−8)</option>
+				<option value="cet">Central European (UTC+1)</option>
+			</Select>
+			<Select label="Theme" name="theme">
+				<option value="auto" selected>Match system</option>
+				<option value="light">Light</option>
+				<option value="dark">Dark</option>
+			</Select>
+		</Grid>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Sizes</Heading>
+		<Grid minColWidth="12rem" gap={4} align="end">
+			<Select label="Small" name="s-sm" size="sm">
+				<option>One</option><option>Two</option><option>Three</option>
+			</Select>
+			<Select label="Medium" name="s-md" size="md">
+				<option>One</option><option>Two</option><option>Three</option>
+			</Select>
+			<Select label="Large" name="s-lg" size="lg">
+				<option>One</option><option>Two</option><option>Three</option>
+			</Select>
+		</Grid>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">States</Heading>
+		<Grid minColWidth="15rem" gap={4}>
+			<Select label="Region" name="region" invalid error="Pick a region to continue.">
+				<option value="" selected>Choose…</option>
+				<option value="na">North America</option>
+				<option value="eu">Europe</option>
+			</Select>
+			<Select label="Inherited" name="inherited" disabled>
+				<option selected>Set by workspace</option>
+			</Select>
+		</Grid>
+	</section>
+</Stack>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+</style>

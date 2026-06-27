@@ -1,0 +1,218 @@
+---
+import Statusbar from "@xoji/astro/Statusbar.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { getStats } from "../../data/stats";
+
+const { tokens } = await getStats();
+---
+
+<Stack gap={6} class="statusbar-demo">
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Editor strip — left / center / right via spacers</Heading>
+		<div class="statusbar-demo__frame">
+			<Statusbar label="Editor status">
+				<button type="button" class="xoji-statusbar__item xoji-statusbar__item--strong">
+					<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 3v12" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="6" r="3" /><path d="M18 9a9 9 0 0 1-9 9" /></svg>
+					main
+				</button>
+				<span class="xoji-statusbar__item">
+					<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2 4-4" /></svg>
+					0 errors
+				</span>
+				<span class="xoji-statusbar__spacer"></span>
+				<span class="xoji-statusbar__item">Ln 42, Col 7</span>
+				<span class="xoji-statusbar__item">UTF-8</span>
+				<span class="xoji-statusbar__spacer"></span>
+				<span class="xoji-statusbar__item">TypeScript</span>
+				<span class="xoji-statusbar__item xoji-statusbar__item--strong">Spaces: 2</span>
+			</Statusbar>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Inline glyphs — Badge dots for sync &amp; build</Heading>
+		<div class="statusbar-demo__frame">
+			<Statusbar>
+				<span class="xoji-statusbar__item">
+					<Badge tone="success" variant="soft" dot size="sm">Synced</Badge>
+				</span>
+				<span class="xoji-statusbar__item">
+					<Badge tone="info" variant="soft" dot size="sm">Build passing</Badge>
+				</span>
+				<span class="xoji-statusbar__spacer"></span>
+				<span class="xoji-statusbar__item">
+					<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3" /></svg>
+					0.4.0
+				</span>
+				<span class="xoji-statusbar__item xoji-statusbar__item--strong">100% coverage</span>
+			</Statusbar>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Live region — announces changes politely</Heading>
+		<div class="statusbar-demo__frame">
+			<Statusbar live label="Activity">
+				<span class="xoji-statusbar__item xoji-statusbar__item--strong">
+					<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.5" /><path d="M21 4v5h-5" /></svg>
+					Deriving theme…
+				</span>
+				<span class="xoji-statusbar__spacer"></span>
+				<span class="xoji-statusbar__item">{tokens} tokens</span>
+				<span class="xoji-statusbar__item">OKLCH</span>
+			</Statusbar>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Overflow — when content outruns the width</Heading>
+		<Text size="sm" tone="muted">
+			Constrained to a narrow frame so the modes diverge. <code>clip</code> (default) hides the spill,
+			<code>wrap</code> flows onto a second line, <code>scroll</code> adds a horizontal track.
+		</Text>
+		<Stack gap={3} class="statusbar-demo__narrow">
+			{(["clip", "wrap", "scroll"] as const).map((mode) => (
+				<div>
+					<Text size="xs" tone="muted"><code>overflow="{mode}"</code></Text>
+					<div class="statusbar-demo__frame">
+						<Statusbar overflow={mode} label={`Overflow ${mode}`}>
+							<span class="xoji-statusbar__item xoji-statusbar__item--strong">main.ts</span>
+							<span class="xoji-statusbar__item">UTF-8</span>
+							<span class="xoji-statusbar__item">Ln 42, Col 7</span>
+							<span class="xoji-statusbar__item">Spaces: 2</span>
+							<span class="xoji-statusbar__item">LF</span>
+							<span class="xoji-statusbar__item">TypeScript</span>
+							<span class="xoji-statusbar__item">Prettier</span>
+							<span class="xoji-statusbar__item xoji-statusbar__item--strong">0 errors</span>
+						</Statusbar>
+					</div>
+				</div>
+			))}
+		</Stack>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Collapse — rank, drop, and tuck into a <code>+N</code> popover</Heading>
+		<Text size="sm" tone="muted">
+			<code>collapse</code> measures the row with a <code>ResizeObserver</code> and drops the lowest
+			<code>data-priority</code> items first, folding them into a <code>+N</code> popover that escapes the
+			bar's clip. Items with <code>data-required</code> never drop. Drag the resize handle to watch it react;
+			click the <code>+N</code> to see what got tucked away. (JS-driven — the row renders un-collapsed until hydrated.)
+		</Text>
+		<div class="statusbar-demo__resizable">
+			<div class="statusbar-demo__frame">
+				<xoji-statusbar overflow="collapse" aria-label="Collapsing status">
+					<span class="xoji-statusbar__item xoji-statusbar__item--strong" data-required>main.ts</span>
+					<span class="xoji-statusbar__item" data-priority="90">0 errors</span>
+					<span class="xoji-statusbar__item" data-priority="20">Prettier</span>
+					<span class="xoji-statusbar__item" data-priority="30">LF</span>
+					<span class="xoji-statusbar__item" data-priority="60">UTF-8</span>
+					<span class="xoji-statusbar__item" data-priority="10">Spaces: 2</span>
+					<span class="xoji-statusbar__item" data-priority="40">Ln 42, Col 7</span>
+					<span class="xoji-statusbar__item xoji-statusbar__item--strong" data-priority="80">TypeScript</span>
+				</xoji-statusbar>
+			</div>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Manual overflow — the consumer owns the <code>+N</code> popover</Heading>
+		<Text size="sm" tone="muted">
+			<code>manual-overflow</code> keeps the ranking and dropping but renders no shadow popover: the element fires
+			<code>overflow-change</code> with the dropped cells' actual elements, and the host renders its own popover from
+			them — so styled, interactive cells keep their light-DOM styles and handlers. The blue cells below stay blue
+			(and clickable) when they collapse.
+		</Text>
+		<div class="statusbar-demo__resizable">
+			<div class="statusbar-demo__frame">
+				<xoji-statusbar overflow="collapse" manual-overflow aria-label="Manual collapsing status" id="manual-statusbar">
+					<span class="xoji-statusbar__item xoji-statusbar__item--strong" data-required>main.ts</span>
+					<button type="button" class="xoji-statusbar__item statusbar-demo__rich" data-priority="20">Errors: 0</button>
+					<button type="button" class="xoji-statusbar__item statusbar-demo__rich" data-priority="10">Warnings: 2</button>
+					<span class="xoji-statusbar__item" data-priority="60">UTF-8</span>
+					<span class="xoji-statusbar__item" data-priority="40">Ln 42, Col 7</span>
+					<span class="xoji-statusbar__item xoji-statusbar__item--strong" data-priority="80">TypeScript</span>
+				</xoji-statusbar>
+				<div class="statusbar-demo__manual-pop" id="manual-statusbar-pop" hidden></div>
+			</div>
+		</div>
+	</Stack>
+</Stack>
+
+<script>
+	import "@xoji/core/elements";
+
+	const bar = document.getElementById("manual-statusbar");
+	const pop = document.getElementById("manual-statusbar-pop");
+	bar?.addEventListener("overflow-change", (event) => {
+		const { hidden } = (event as CustomEvent<{ hidden: HTMLElement[]; visible: HTMLElement[] }>).detail;
+		if (!pop) return;
+		pop.replaceChildren();
+		if (hidden.length === 0) {
+			pop.hidden = true;
+			return;
+		}
+		pop.hidden = false;
+		const label = document.createElement("span");
+		label.className = "statusbar-demo__manual-count";
+		label.textContent = `+${hidden.length} hidden →`;
+		pop.append(label);
+		for (const cell of hidden) {
+			const echo = cell.cloneNode(true) as HTMLElement;
+			echo.style.removeProperty("display");
+			echo.removeAttribute("data-xoji-collapsed");
+			pop.append(echo);
+		}
+	});
+</script>
+
+<style>
+	.statusbar-demo__frame {
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--bg-0);
+	}
+	.statusbar-demo__frame .xoji-statusbar__item svg {
+		vertical-align: -0.15em;
+		margin-inline-end: 0.35em;
+	}
+	.statusbar-demo__narrow {
+		max-width: 22rem;
+	}
+	.statusbar-demo__resizable {
+		resize: horizontal;
+		overflow: hidden;
+		min-width: 12rem;
+		max-width: 100%;
+		width: 26rem;
+		padding-block-end: var(--space-3);
+	}
+	.statusbar-demo__resizable .statusbar-demo__frame {
+		min-width: 0;
+	}
+	.statusbar-demo__rich {
+		color: var(--accent-text, var(--accent-fg));
+		background: var(--accent-bg);
+		border-radius: var(--radius-sm);
+		cursor: pointer;
+	}
+	.statusbar-demo__manual-pop {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2);
+		padding: var(--space-2) var(--space-3);
+		border-block-start: var(--border-thin) solid var(--line);
+		background: var(--bg-1);
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--fg-2);
+	}
+	.statusbar-demo__manual-count {
+		color: var(--fg-1);
+	}
+</style>

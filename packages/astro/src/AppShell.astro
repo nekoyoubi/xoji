@@ -1,0 +1,67 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+interface Props {
+	skipLink?: string | boolean;
+	/** Initial width of the left rail; sets `--xoji-app-left` server-side so the grid doesn't reflow on hydration. Number → px. */
+	leftSize?: number | string;
+	/** Initial width of the right rail; sets `--xoji-app-right` server-side so the grid doesn't reflow on hydration. Number → px. */
+	rightSize?: number | string;
+	/** The `id` of the `<main>` region and the skip link's target. Override when more than one shell renders on a page so the ids stay unique. */
+	mainId?: string;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { skipLink, leftSize, rightSize, mainId = "main", static: isStatic = false, class: extra, ...rest } = Astro.props;
+
+const hasLeft = Astro.slots.has("left");
+const hasRight = Astro.slots.has("right");
+const hasToolbar = Astro.slots.has("toolbar");
+const hasStatusbar = Astro.slots.has("statusbar");
+const showSkip = skipLink !== undefined;
+const skipText = typeof skipLink === "string" && skipLink.length > 0 ? skipLink : "Skip to main content";
+
+const railSize = (v: number | string): string => (typeof v === "number" ? `${v}px` : v);
+const bodyStyle =
+	[
+		leftSize !== undefined ? `--xoji-app-left: ${railSize(leftSize)}` : null,
+		rightSize !== undefined ? `--xoji-app-right: ${railSize(rightSize)}` : null,
+	]
+		.filter(Boolean)
+		.join("; ") || null;
+
+const bindings = {
+	skipLink: showSkip,
+	skipLinkText: skipText,
+	bodyStyle,
+	mainId,
+};
+const light = await renderFragmentLight("app-shell", bindings);
+const toolbarHtml = hasToolbar ? await Astro.slots.render("toolbar") : "";
+const leftHtml = hasLeft ? await Astro.slots.render("left") : "";
+const rightHtml = hasRight ? await Astro.slots.render("right") : "";
+const statusbarHtml = hasStatusbar ? await Astro.slots.render("statusbar") : "";
+const defaultHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = light
+	.replace('<slot name="toolbar"></slot>', () => toolbarHtml)
+	.replace('<slot name="left"></slot>', () => leftHtml)
+	.replace('<slot name="right"></slot>', () => rightHtml)
+	.replace('<slot name="statusbar"></slot>', () => statusbarHtml)
+	.replace("<slot></slot>", () => defaultHtml);
+---
+
+<xoji-app-shell
+	skip-link={typeof skipLink === "string" ? skipLink : showSkip ? "" : undefined}
+	left-size={leftSize === undefined ? undefined : String(leftSize)}
+	right-size={rightSize === undefined ? undefined : String(rightSize)}
+	main-id={mainId === "main" ? undefined : mainId}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

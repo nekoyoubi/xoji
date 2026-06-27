@@ -1,0 +1,66 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { Tone, FullTone as BadgeTone } from "@xoji/core";
+type AvatarSize = "sm" | "md" | "lg" | "xl";
+type AvatarShape = "circle" | "square";
+
+interface Props {
+	src?: string;
+	alt?: string;
+	tone?: BadgeTone;
+	size?: AvatarSize;
+	shape?: AvatarShape;
+	status?: Tone;
+	statusLabel?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	src,
+	alt = "",
+	tone = "neutral",
+	size = "md",
+	shape = "circle",
+	status,
+	statusLabel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	src: src ?? null,
+	alt,
+	tone,
+	size,
+	shape,
+	status: status ?? null,
+	statusLabel: statusLabel ?? null,
+};
+const chrome = await renderFragmentLight("avatar", bindings);
+const iconHtml = Astro.slots.has("icon") ? await Astro.slots.render("icon") : "";
+const bodyHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome
+	.replace('<slot name="icon"></slot>', () => iconHtml)
+	.replace("<slot></slot>", () => bodyHtml);
+---
+
+<xoji-avatar
+	src={src ?? undefined}
+	alt={alt}
+	tone={tone}
+	size={size}
+	shape={shape}
+	status={status ?? undefined}
+	status-label={statusLabel ?? undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

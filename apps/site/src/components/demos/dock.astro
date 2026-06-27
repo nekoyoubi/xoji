@@ -1,0 +1,193 @@
+---
+import Dock from "@xoji/astro/Dock.astro";
+import Button from "@xoji/astro/Button.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Avatar from "@xoji/astro/Avatar.astro";
+import Separator from "@xoji/astro/Separator.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="dock-demo">
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Navigation rail — header, body, pinned footer</Heading>
+		<div class="dock-demo__stage">
+			<Dock nav label="Workspace" size="md">
+				<Stack gap={1}>
+					<Button variant="subtle" tone="accent" block class="dock-demo__nav-active dock-demo__nav-item">
+						<svg slot="icon-start" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z" /></svg>
+						Overview
+					</Button>
+					<Button variant="ghost" tone="neutral" block class="dock-demo__nav-item">
+						<svg slot="icon-start" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" /></svg>
+						Components
+					</Button>
+					<Button variant="ghost" tone="neutral" block class="dock-demo__nav-item">
+						<svg slot="icon-start" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+						History
+					</Button>
+					<Cluster justify="between" align="center" class="dock-demo__nav-row">
+						<Cluster gap={2} align="center" nowrap>
+							<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m21 15-5-5L5 21" /><rect x="3" y="3" width="18" height="18" rx="2" /></svg>
+							<Text as="span" size="sm">Themes</Text>
+						</Cluster>
+						<Badge tone="info" variant="soft" size="sm" count="12" />
+					</Cluster>
+				</Stack>
+				<Cluster slot="footer" gap={2} align="center" class="dock-demo__account">
+					<Avatar size="sm" tone="accent">RV</Avatar>
+					<Stack gap={0}>
+						<Text as="span" size="sm" weight="medium">Robin Vale</Text>
+						<Text as="span" size="xs" tone="muted">Free plan</Text>
+					</Stack>
+				</Cluster>
+			</Dock>
+			<div class="dock-demo__filler">
+				<Text size="sm" tone="muted">main content</Text>
+			</div>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Sides + widths — left/right · sm · lg</Heading>
+		<div class="dock-demo__stage dock-demo__stage--triple">
+			<Dock side="left" size="sm" label="Files">
+				<Stack gap={1}>
+					<Text as="span" size="sm" mono>src/</Text>
+					<Text as="span" size="sm" mono>&nbsp;&nbsp;index.ts</Text>
+					<Text as="span" size="sm" mono>&nbsp;&nbsp;derive.ts</Text>
+					<Text as="span" size="sm" mono>README.md</Text>
+				</Stack>
+			</Dock>
+			<div class="dock-demo__filler dock-demo__filler--center">
+				<Text size="sm" tone="muted">editor-style three-pane</Text>
+			</div>
+			<Dock side="right" size="sm" label="Inspector">
+				<Stack gap={2}>
+					<Stack gap={0}>
+						<Text as="span" size="xs" tone="muted">Token</Text>
+						<Text as="span" size="sm" mono>--accent</Text>
+					</Stack>
+					<Separator />
+					<Stack gap={0}>
+						<Text as="span" size="xs" tone="muted">Coverage</Text>
+						<Badge tone="success" variant="soft" dot size="sm">Complete</Badge>
+					</Stack>
+				</Stack>
+			</Dock>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Toned rails — every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<div class="dock-demo__toned">
+						{group.tones.map((tone) => (
+							<div class="dock-demo__toned-tile">
+								<Dock side="left" tone={tone} label={tone}>
+									<Stack gap={1}>
+										<Text as="span" size="sm">Overview</Text>
+										<Text as="span" size="sm" tone="muted">History</Text>
+										<Text as="span" size="sm" tone="muted">Settings</Text>
+									</Stack>
+								</Dock>
+							</div>
+						))}
+					</div>
+				</Stack>
+			))}
+		</Stack>
+	</Stack>
+	<Stack gap={2}>
+		<Heading level={2} size="sm" tone="muted">Edge &mdash; side &amp; thickness</Heading>
+		<Text size="sm" tone="muted">
+			The edge defaults to the inner divider side; <code>reverseEdge</code> pushes it to the outer
+			side (to outer-edge a rail or keep a left/right pair consistently sided), and
+			<code>edgeWidth</code> sets it thin, thick, or a bold accent spine.
+		</Text>
+		<div class="dock-demo__toned">
+			<div class="dock-demo__toned-tile">
+				<Dock side="left" tone="accent" label="inner (default)">
+					<Stack gap={1}><Text as="span" size="sm">Overview</Text><Text as="span" size="sm" tone="muted">History</Text></Stack>
+				</Dock>
+			</div>
+			<div class="dock-demo__toned-tile">
+				<Dock side="left" tone="accent" reverseEdge label="outer (reversed)">
+					<Stack gap={1}><Text as="span" size="sm">Overview</Text><Text as="span" size="sm" tone="muted">History</Text></Stack>
+				</Dock>
+			</div>
+			<div class="dock-demo__toned-tile">
+				<Dock side="left" tone="success" edgeWidth="bold" label="bold spine">
+					<Stack gap={1}><Text as="span" size="sm">Overview</Text><Text as="span" size="sm" tone="muted">History</Text></Stack>
+				</Dock>
+			</div>
+			<div class="dock-demo__toned-tile">
+				<Dock side="right" tone="danger" reverseEdge edgeWidth="bold" label="right - outer - bold">
+					<Stack gap={1}><Text as="span" size="sm">Overview</Text><Text as="span" size="sm" tone="muted">History</Text></Stack>
+				</Dock>
+			</div>
+		</div>
+	</Stack>
+</Stack>
+
+<style>
+	.dock-demo__stage {
+		display: flex;
+		min-height: 16rem;
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--bg-0);
+	}
+	.dock-demo__filler {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background:
+			repeating-linear-gradient(45deg, var(--bg-1) 0 10px, var(--bg-2) 10px 20px);
+	}
+	.dock-demo__filler--center {
+		min-width: 8rem;
+	}
+	.dock-demo__nav-row {
+		padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+		border-radius: var(--radius-sm);
+	}
+	.dock-demo__account {
+		width: 100%;
+	}
+	.dock-demo__toned {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-4);
+	}
+	.dock-demo__toned-tile {
+		width: 12rem;
+		height: 13rem;
+		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+	/* The dock's :host width (18rem) overflows the tile and clips its toned divider edge —
+	   let it fill the tile so the colored edge actually shows. */
+	.dock-demo__toned-tile :global(xoji-dock) {
+		width: 100%;
+	}
+	/* Block buttons center their content; a nav rail reads better left-aligned. The button
+	   exposes its root as a shadow part, so reach in and start-align it. */
+	:global(.dock-demo__nav-item)::part(button) {
+		justify-content: flex-start;
+	}
+</style>

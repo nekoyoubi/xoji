@@ -1,0 +1,149 @@
+---
+import Progress from "@xoji/astro/Progress.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const tones = ["accent", "neutral", "info", "success", "warn", "danger"] as const;
+const toneValue: Record<(typeof tones)[number], number> = {
+	accent: 64,
+	neutral: 40,
+	info: 52,
+	success: 100,
+	warn: 78,
+	danger: 22,
+};
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Linear, six tones</Heading>
+		<Stack gap={4}>
+			{
+				tones.map((tone) => (
+					<Cluster gap={3} align="center" nowrap>
+						<Text as="span" size="xs" tone="muted" class="demo-progress-label">{tone}</Text>
+						<Progress tone={tone} value={toneValue[tone]} showValue aria-label={`${tone} progress`} class="demo-progress-bar" />
+					</Cluster>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => (
+							<Stack gap={1}>
+								<Text as="span" size="xs" tone="muted">{tone}</Text>
+								<Progress tone={tone} value={62} aria-label={`${tone} progress`} />
+							</Stack>
+						))}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Value readouts</Heading>
+		<Stack gap={4}>
+			<Cluster gap={3} align="center" nowrap>
+				<Text as="span" size="xs" tone="muted" class="demo-progress-label">percent</Text>
+				<Progress tone="accent" size="lg" value={33} showValue valueFormat="percent" aria-label="Percent readout" class="demo-progress-bar" />
+			</Cluster>
+			<Cluster gap={3} align="center" nowrap>
+				<Text as="span" size="xs" tone="muted" class="demo-progress-label">value</Text>
+				<Progress tone="info" size="lg" value={123} max={456} showValue valueFormat="value" aria-label="Raw value readout" class="demo-progress-bar" />
+			</Cluster>
+			<Cluster gap={3} align="center" nowrap>
+				<Text as="span" size="xs" tone="muted" class="demo-progress-label">of max</Text>
+				<Progress tone="success" size="lg" value={123} max={456} showValue valueFormat="value-max" aria-label="Value over max readout" class="demo-progress-bar" />
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Thresholds, tone &amp; pulse</Heading>
+		<Stack gap={4}>
+			{
+				[12, 38, 76].map((v) => (
+					<Cluster gap={3} align="center" nowrap>
+						<Text as="span" size="xs" tone="muted" class="demo-progress-label">{v}%</Text>
+						<Progress size="lg" value={v} showValue colorizeValue aria-label={`Storage at ${v} percent`} class="demo-progress-bar">
+							<threshold below="20" tone="danger" pulse="fast" />
+							<threshold below="50" tone="warn" pulse="slow" />
+							<threshold tone="success" />
+						</Progress>
+					</Cluster>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Inset readout</Heading>
+		<Stack gap={4}>
+			<Progress size="lg" value={66} showValue valuePosition="inset" aria-label="Inset readout at 66 percent" class="demo-progress-bar" />
+			<Progress size="lg" tone="success" value={92} showValue valuePosition="inset" aria-label="Inset readout at 92 percent" class="demo-progress-bar" />
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Circular ring</Heading>
+		<Cluster gap={6} align="center">
+			{
+				tones.map((tone) => (
+					<Stack gap={2} align="center">
+						<Progress variant="circular" tone={tone} value={toneValue[tone]} showValue aria-label={`${tone} progress`} />
+						<Text as="span" size="xs" tone="muted">{tone}</Text>
+					</Stack>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Sizes &amp; indeterminate</Heading>
+		<Grid gap={5} minColWidth="240px">
+			<Stack gap={3}>
+				<Text as="span" size="xs" tone="subtle">Small</Text>
+				<Progress tone="accent" value={48} size="sm" aria-label="Small progress" />
+				<Text as="span" size="xs" tone="subtle">Medium</Text>
+				<Progress tone="accent" value={48} aria-label="Medium progress" />
+				<Text as="span" size="xs" tone="subtle">Large</Text>
+				<Progress tone="accent" value={48} size="lg" showValue aria-label="Large progress" />
+			</Stack>
+			<Stack gap={3}>
+				<Text as="span" size="xs" tone="subtle">Indeterminate — linear</Text>
+				<Progress tone="info" indeterminate aria-label="Loading" />
+				<Text as="span" size="xs" tone="subtle">Indeterminate — circular</Text>
+				<Progress variant="circular" tone="info" indeterminate aria-label="Loading" />
+			</Stack>
+		</Grid>
+	</Card>
+</Stack>
+
+<style>
+	.demo-progress-label {
+		width: 4rem;
+		flex: none;
+	}
+	.demo-progress-bar {
+		flex: 1;
+	}
+</style>

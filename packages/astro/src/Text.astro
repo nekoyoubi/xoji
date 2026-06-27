@@ -1,0 +1,54 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type TextAs = "p" | "span";
+type TextSize = "xs" | "sm" | "body" | "lg";
+type TextWeight = "normal" | "medium" | "semibold" | "bold";
+type TextLeading = "tight" | "snug" | "loose";
+type TextTone = "default" | "muted" | "subtle" | "accent";
+
+interface Props {
+	as?: TextAs;
+	size?: TextSize;
+	weight?: TextWeight;
+	leading?: TextLeading;
+	tone?: TextTone;
+	mono?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	as = "p",
+	size = "body",
+	weight = "normal",
+	leading = "snug",
+	tone = "default",
+	mono = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = { as, size, weight, leading, tone, mono };
+const chrome = await renderFragmentLight("text", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-text
+	as={as}
+	size={size}
+	weight={weight}
+	leading={leading}
+	tone={tone}
+	mono={mono || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

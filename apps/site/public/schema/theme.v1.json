@@ -1,0 +1,50 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://xoji.dev/schema/theme.v1.json",
+	"title": "xoji theme file",
+	"description": "A self-describing, re-derivable xoji theme: provenance plus the recipe that prints it plus the materialized token register.",
+	"type": "object",
+	"required": ["format", "version", "meta", "recipe", "tokens"],
+	"additionalProperties": true,
+	"properties": {
+		"$schema": { "type": "string" },
+		"format": { "const": "xoji-theme" },
+		"version": { "type": "integer", "minimum": 1 },
+		"meta": {
+			"type": "object",
+			"required": ["name"],
+			"properties": {
+				"name": { "type": "string", "minLength": 1 },
+				"description": { "type": "string" },
+				"tags": { "type": "array", "items": { "type": "string" } },
+				"generator": { "type": "string" }
+			}
+		},
+		"recipe": {
+			"type": "object",
+			"required": ["algorithm"],
+			"properties": {
+				"algorithm": { "type": "string", "minLength": 1 },
+				"anchors": {
+					"type": "object",
+					"properties": {
+						"bg": { "type": "string" },
+						"fg": { "type": "string" },
+						"accent": { "type": "string" }
+					}
+				},
+				"knobs": { "type": "object" },
+				"overrides": {
+					"type": "object",
+					"propertyNames": { "pattern": "^--" },
+					"additionalProperties": { "type": "string" }
+				}
+			}
+		},
+		"tokens": {
+			"type": "object",
+			"propertyNames": { "pattern": "^--" },
+			"additionalProperties": { "type": "string" }
+		}
+	}
+}

@@ -1,0 +1,660 @@
+---
+import {
+	listComponents,
+	getComponent,
+	coverComponent,
+	derive,
+} from "@xoji/core";
+import { resolveAlgorithm } from "@xoji/core/host";
+import { listLanguages } from "@xoji/core/elements/code-highlight";
+import type { ComponentManifest } from "@xoji/core";
+import Base from "../../layouts/Base.astro";
+import Card from "@xoji/astro/Card.astro";
+import CardLink from "@xoji/astro/CardLink.astro";
+import Toc from "@xoji/astro/Toc.astro";
+import Dock from "@xoji/astro/Dock.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Link from "@xoji/astro/Link.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Separator from "@xoji/astro/Separator.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Alert from "@xoji/astro/Alert.astro";
+import Breadcrumb from "@xoji/astro/Breadcrumb.astro";
+import CodeTabs from "../../components/reference/CodeTabs.astro";
+import PropTable from "../../components/reference/PropTable.astro";
+import CoveragePanel from "../../components/reference/CoveragePanel.astro";
+import CoverageBadge from "../../components/reference/CoverageBadge.astro";
+import { categoryMeta } from "../../components/reference/categories.ts";
+import {
+	renderMarkdown,
+	renderMarkdownInline,
+} from "../../components/reference/inline-markdown.ts";
+
+export function getStaticPaths() {
+	return listComponents().map((component) => ({
+		params: { id: component.id },
+	}));
+}
+
+const { id } = Astro.params;
+const component = getComponent(id!) as ComponentManifest;
+
+const algorithm = await resolveAlgorithm("xoji-default");
+const register = derive(algorithm, {
+	constraints: { "--bg-0": "#0b0d12", "--fg-0": "#e6e9ef", "--accent": "#6ea8fe" },
+});
+const producedCount = Object.keys(register).length;
+const cov = coverComponent(component, register);
+
+const demos = import.meta.glob("../../components/demos/*.astro", {
+	eager: true,
+});
+const demoEntry = demos[`../../components/demos/${component.id}.astro`] as
+	| { default: any }
+	| undefined;
+const Demo = demoEntry?.default;
+const firstExample = component.examples[0];
+const fallbackExampleSource =
+	firstExample?.source.html ??
+	firstExample?.source.astro ??
+	firstExample?.source.svelte;
+const fallbackSources = firstExample?.source ?? {};
+
+const bindingOrder = ["html", "svelte", "astro"] as const;
+const supportedBindings = bindingOrder.filter((b) =>
+	component.bindings.includes(b),
+);
+const meta = categoryMeta[component.category];
+
+const all = listComponents();
+const idx = all.findIndex((c) => c.id === component.id);
+const prev = idx > 0 ? all[idx - 1] : undefined;
+const next = idx < all.length - 1 ? all[idx + 1] : undefined;
+
+const composition = component.composition ?? [];
+
+const languages = component.id === "code" ? listLanguages() : null;
+const aliasExamples = languages
+	? Object.entries(languages.aliases)
+			.slice(0, 8)
+			.map(([alias, canonical]) => `${alias} → ${canonical}`)
+	: [];
+
+const sections = [
+	{ id: "demo", label: "Live demo" },
+	composition.length > 0 && { id: "composition", label: "When to use" },
+	component.props.length > 0 && { id: "props", label: "Props" },
+	(component.variants.length > 0 ||
+		component.sizes.length > 0 ||
+		component.states.length > 0) && { id: "appearance", label: "Appearance" },
+	component.anatomy.length > 0 && { id: "anatomy", label: "Anatomy" },
+	{ id: "tokens", label: "Tokens & coverage" },
+	component.slots.length > 0 && { id: "slots", label: "Slots" },
+	component.a11y.length > 0 && { id: "a11y", label: "Accessibility" },
+	component.examples.length > 0 && { id: "examples", label: "Code" },
+	languages && { id: "languages", label: "Languages" },
+].filter(Boolean) as { id: string; label: string }[];
+
+const trimmedDescription = component.description.trim();
+const firstParagraph = trimmedDescription.split(/\n{2,}/)[0];
+const ledeMatch = firstParagraph.match(/^.*?[.!?](?:\s|$)(?:.*?[.!?](?:\s|$))?/s);
+const lede = (ledeMatch ? ledeMatch[0] : firstParagraph).trim();
+const overviewBody = trimmedDescription.slice(lede.length).trim();
+const hasMoreDescription = overviewBody.length > 0;
+
+const crumbs = [
+	{ label: "Components", href: "/components" },
+	{ label: meta.label, href: `/components#${component.category}` },
+	{ label: component.name, current: true },
+];
+---
+
+<Base
+	title={`${component.name}: xoji components`}
+	description={component.summary}
+>
+	{sections.length > 1 && (
+		<Dock slot="right" side="right" size="sm" label="On this page" hideHeader class="ref-toc-rail">
+			<Toc items={sections} />
+		</Dock>
+	)}
+
+	<article class="ref">
+		<Stack gap={5} class="ref-head">
+			<Breadcrumb items={crumbs} size="sm" />
+			<Stack gap={3}>
+				<Cluster gap={3} align="center">
+					<Heading level={1} size="2xl">{component.name}</Heading>
+				</Cluster>
+				<Cluster gap={2} align="center">
+					<Badge tone="info">{meta.label}</Badge>
+					{supportedBindings.map((b) => (
+						<Badge tone="neutral" size="sm">{b}</Badge>
+					))}
+					<CoverageBadge
+						covered={cov.covered}
+						missing={cov.missing}
+						produced={producedCount}
+						consumed={component.consumedTokens.length}
+					/>
+				</Cluster>
+				<Text size="lg" tone="muted" class="ref-summary">
+					{component.summary}
+				</Text>
+			</Stack>
+		</Stack>
+
+		<Stack gap={5} class="ref-section--demo" id="demo">
+			<h2 class="sr-only">Live demo</h2>
+			<Card overlay class="ref-stage-card">
+				<Cluster slot="header" justify="between" align="center" gap={2}>
+					<Text size="xs" mono tone="subtle" class="ref-stage-card__label">
+						live · @xoji/astro
+					</Text>
+					<Text size="xs" mono tone="subtle">{component.name}</Text>
+				</Cluster>
+				<div class="ref-stage-card__canvas">
+					{Demo ? (
+						<Demo />
+					) : fallbackExampleSource ? (
+						<Stack gap={3} class="ref-demo__fallback">
+							<Text tone="muted" size="sm">
+								No interactive demo yet. Showing the first manifest example
+								source.
+							</Text>
+							<CodeTabs sources={fallbackSources} id={`demo-${component.id}`} />
+						</Stack>
+					) : (
+						<div class="ref-demo__placeholder">
+							<Text tone="muted">
+								No live demo for <strong>{component.name}</strong> yet.
+							</Text>
+						</div>
+					)}
+				</div>
+			</Card>
+			<Text size="lg" class="ref-lede" set:html={renderMarkdownInline(lede)} />
+		</Stack>
+
+		<div class="ref-sections">
+		<Stack gap={8}>
+
+		{hasMoreDescription && (
+			<section id="overview" class="ref-anchor">
+				<div
+					class="ref-description"
+					set:html={renderMarkdown(overviewBody)}
+				/>
+			</section>
+		)}
+
+		{composition.length > 0 && (
+			<section id="composition" class="ref-anchor">
+				<Stack gap={3}>
+					<Stack gap={1}>
+						<Heading level={2} size="lg">When to use</Heading>
+						<Text tone="muted" size="sm">
+							How this component composes with the rest of the set.
+						</Text>
+					</Stack>
+					<Stack gap={2}>
+						{composition.map((note) => (
+							<Alert tone="info" variant="soft">
+								<span set:html={renderMarkdownInline(note)} />
+							</Alert>
+						))}
+					</Stack>
+				</Stack>
+			</section>
+		)}
+
+		{component.props.length > 0 && (
+			<section id="props" class="ref-anchor">
+				<Stack gap={3}>
+					<Stack gap={1}>
+						<Heading level={2} size="lg">Props</Heading>
+						<Text tone="muted" size="sm">
+							{component.props.length} prop{component.props.length === 1 ? "" : "s"},
+							straight from the manifest.
+						</Text>
+					</Stack>
+					<PropTable props={component.props} />
+				</Stack>
+			</section>
+		)}
+
+		{(component.variants.length > 0 ||
+			component.sizes.length > 0 ||
+			component.states.length > 0) && (
+			<section id="appearance" class="ref-anchor">
+				<Stack gap={6}>
+					<Heading level={2} size="lg">Appearance</Heading>
+					{component.variants.length > 0 && (
+						<Stack gap={3}>
+							<Heading level={3} size="body">Variants</Heading>
+							<Stack gap={3}>
+								{component.variants.map((v) => (
+									<Card compact>
+										<Stack gap={1}>
+											<Cluster justify="between" align="center" gap={2} class="ref-def-row">
+												<Text weight="semibold" class="ref-def__name">{v.name}</Text>
+												<Badge tone="neutral" size="sm" class="ref-selector">.{v.className}</Badge>
+											</Cluster>
+											<Text
+												size="sm"
+												tone="muted"
+												set:html={renderMarkdownInline(v.description)}
+											/>
+										</Stack>
+									</Card>
+								))}
+							</Stack>
+						</Stack>
+					)}
+					{component.sizes.length > 0 && (
+						<Stack gap={3}>
+							<Heading level={3} size="body">Sizes</Heading>
+							<Stack gap={3}>
+								{component.sizes.map((s) => (
+									<Card compact>
+										<Stack gap={1}>
+											<Cluster justify="between" align="center" gap={2} class="ref-def-row">
+												<Cluster gap={2} align="center">
+													<Text weight="semibold" class="ref-def__name">{s.name}</Text>
+													{s.isDefault && (
+														<Badge tone="neutral" size="sm">default</Badge>
+													)}
+												</Cluster>
+												<Badge tone="neutral" size="sm" class="ref-selector">.{s.className}</Badge>
+											</Cluster>
+											<Text
+												size="sm"
+												tone="muted"
+												set:html={renderMarkdownInline(s.description)}
+											/>
+										</Stack>
+									</Card>
+								))}
+							</Stack>
+						</Stack>
+					)}
+					{component.states.length > 0 && (
+						<Stack gap={3}>
+							<Heading level={3} size="body">States</Heading>
+							<Stack gap={3}>
+								{component.states.map((st) => (
+									<Card compact>
+										<Stack gap={1}>
+											<Cluster justify="between" align="center" gap={2} class="ref-def-row">
+												<Text weight="semibold" class="ref-def__name">{st.name}</Text>
+												<Badge tone="neutral" size="sm" class="ref-selector">{st.selector}</Badge>
+											</Cluster>
+											<Text
+												size="sm"
+												tone="muted"
+												set:html={renderMarkdownInline(st.description)}
+											/>
+										</Stack>
+									</Card>
+								))}
+							</Stack>
+						</Stack>
+					)}
+				</Stack>
+			</section>
+		)}
+
+		{component.anatomy.length > 0 && (
+			<section id="anatomy" class="ref-anchor">
+				<Stack gap={3}>
+					<Stack gap={1}>
+						<Heading level={2} size="lg">Anatomy</Heading>
+						<Text tone="muted" size="sm">
+							The named parts that make up the component, with their selectors.
+						</Text>
+					</Stack>
+					<Stack gap={3}>
+						{component.anatomy.map((part) => (
+							<Card compact>
+								<Stack gap={2}>
+									<Cluster justify="between" align="center" gap={2} class="ref-def-row">
+										<Text weight="semibold" class="ref-def__name">{part.name}</Text>
+										<Badge tone="neutral" size="sm" class="ref-selector">{part.selector}</Badge>
+									</Cluster>
+									<Text
+										size="sm"
+										tone="muted"
+										set:html={renderMarkdownInline(part.description)}
+									/>
+									{part.tokens && part.tokens.length > 0 && (
+										<Cluster gap={1}>
+											{part.tokens.map((t) => (
+												<Badge tone="neutral" size="sm">{t}</Badge>
+											))}
+										</Cluster>
+									)}
+								</Stack>
+							</Card>
+						))}
+					</Stack>
+				</Stack>
+			</section>
+		)}
+
+		<section id="tokens" class="ref-anchor">
+			<Stack gap={3}>
+				<Stack gap={1}>
+					<Heading level={2} size="lg">Tokens &amp; coverage</Heading>
+					<Text tone="muted" size="sm">
+						What the component consumes, checked live against what the algorithm
+						produces.
+					</Text>
+				</Stack>
+				<CoveragePanel
+					consumed={component.consumedTokens}
+					missing={cov.missing}
+					covered={cov.covered}
+					producedCount={producedCount}
+				/>
+			</Stack>
+		</section>
+
+		{component.slots.length > 0 && (
+			<section id="slots" class="ref-anchor">
+				<Stack gap={3}>
+					<Heading level={2} size="lg">Slots</Heading>
+					<Stack gap={3}>
+						{component.slots.map((slot) => (
+							<Card compact>
+								<Stack gap={1}>
+									<Cluster justify="between" align="center" gap={2} class="ref-def-row">
+										<Badge tone="neutral" size="sm" class="ref-selector">{slot.name}</Badge>
+										<Cluster gap={1}>
+											{bindingOrder
+												.filter((b) => slot.bindings.includes(b))
+												.map((b) => (
+													<Badge tone="neutral" size="sm">{b}</Badge>
+												))}
+										</Cluster>
+									</Cluster>
+									<Text
+										size="sm"
+										tone="muted"
+										set:html={renderMarkdownInline(slot.description)}
+									/>
+								</Stack>
+							</Card>
+						))}
+					</Stack>
+				</Stack>
+			</section>
+		)}
+
+		{component.a11y.length > 0 && (
+			<section id="a11y" class="ref-anchor">
+				<Stack gap={3}>
+					<Heading level={2} size="lg">Accessibility</Heading>
+					<Stack gap={2}>
+						{component.a11y.map((note) => (
+							<Alert tone="success" variant="soft">
+								<span set:html={renderMarkdownInline(note)} />
+							</Alert>
+						))}
+					</Stack>
+				</Stack>
+			</section>
+		)}
+
+		{component.examples.length > 0 && (
+			<section id="examples" class="ref-anchor">
+				<Stack gap={6}>
+					<Heading level={2} size="lg">Code</Heading>
+					<Stack gap={6}>
+						{component.examples.map((example) => (
+							<Stack gap={2}>
+								<Heading level={3} size="body">{example.title}</Heading>
+								<Text
+									size="sm"
+									tone="muted"
+									set:html={renderMarkdownInline(example.description)}
+								/>
+								<CodeTabs sources={example.source} id={`ex-${example.id}`} />
+							</Stack>
+						))}
+					</Stack>
+				</Stack>
+			</section>
+		)}
+
+		{languages && (
+			<section id="languages" class="ref-anchor">
+				<Stack gap={4}>
+					<Stack gap={1}>
+						<Heading level={2} size="lg">Languages</Heading>
+						<Text tone="muted" size="sm">
+							Every language the code block can highlight, {languages.canonical.length} in
+							all; each grammar lazy-loaded per block. An unknown language renders as
+							plain, themed text rather than erroring.
+						</Text>
+					</Stack>
+					<Stack gap={2}>
+						<Text size="sm" weight="semibold">Added by xoji</Text>
+						<Cluster gap={1}>
+							{languages.custom.map((l) => (
+								<Badge tone="info" size="sm">{l}</Badge>
+							))}
+						</Cluster>
+						<Text size="sm" tone="muted">
+							Prism ships neither; xoji adds them. Everything else is Prism's canonical
+							set.
+						</Text>
+					</Stack>
+					{aliasExamples.length > 0 && (
+						<Stack gap={2}>
+							<Text size="sm" weight="semibold">Aliases</Text>
+							<Cluster gap={1}>
+								{aliasExamples.map((a) => (
+									<Badge tone="neutral" size="sm">{a}</Badge>
+								))}
+							</Cluster>
+						</Stack>
+					)}
+					<details class="ref-langs">
+						<summary>All {languages.canonical.length} languages</summary>
+						<div class="ref-langs__grid">
+							{languages.canonical.map((l) => (
+								<code class="ref-langs__id">{l}</code>
+							))}
+						</div>
+					</details>
+				</Stack>
+			</section>
+		)}
+
+		<nav aria-label="Pagination">
+			<Separator class="ref-pager__rule" />
+			<Cluster justify="between" gap={3} align="stretch" class="ref-pager">
+				{prev ? (
+					<CardLink href={`/components/${prev.id}`} class="ref-pager__link ref-pager__card">
+						<Stack gap={1}>
+							<Text size="xs" tone="subtle" class="ref-pager__dir">
+								← Previous
+							</Text>
+							<Text weight="semibold" class="ref-pager__name">{prev.name}</Text>
+						</Stack>
+					</CardLink>
+				) : (
+					<span></span>
+				)}
+				{next && (
+					<CardLink
+						href={`/components/${next.id}`}
+						class="ref-pager__link ref-pager__link--next ref-pager__card"
+					>
+						<Stack gap={1} align="end">
+							<Text size="xs" tone="subtle" class="ref-pager__dir">
+								Next →
+							</Text>
+							<Text weight="semibold" class="ref-pager__name">{next.name}</Text>
+						</Stack>
+					</CardLink>
+				)}
+			</Cluster>
+		</nav>
+
+		</Stack>
+		</div>
+		</div>
+	</article>
+</Base>
+
+<style>
+	.ref {
+		max-width: 64rem;
+	}
+	.ref-head {
+		margin-bottom: var(--space-6);
+	}
+	.ref-summary {
+		max-width: 48rem;
+	}
+	.ref-section--demo {
+		margin-bottom: var(--space-8);
+	}
+	.ref-stage-card__label {
+		color: var(--accent-text);
+	}
+	.ref-stage-card__canvas {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 9rem;
+		padding: var(--space-2) 0;
+	}
+	.ref-demo__placeholder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 8rem;
+		text-align: center;
+	}
+	.ref-demo__fallback {
+		width: 100%;
+	}
+	.ref-lede {
+		line-height: var(--leading-normal);
+		color: var(--fg-1);
+		max-width: 48rem;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+	.ref-lede :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		background: var(--bg-2);
+		padding: 0.1em 0.35em;
+		border-radius: var(--radius-sm);
+	}
+
+	.ref-sections {
+		min-width: 0;
+	}
+	.ref-anchor {
+		scroll-margin-top: var(--space-5);
+	}
+	.ref-def__name {
+		color: var(--fg-0);
+	}
+
+	.ref-selector {
+		min-width: 0;
+		max-width: 100%;
+	}
+	.ref-selector :global(.xoji-badge__label) {
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	@media (max-width: 30rem) {
+		.ref-def-row {
+			flex-direction: column;
+			align-items: flex-start;
+			justify-content: flex-start;
+		}
+		.ref-selector {
+			align-self: flex-start;
+		}
+	}
+
+	.ref-description {
+		max-width: 48rem;
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+	.ref-description :global(p) {
+		color: var(--fg-1);
+		margin: 0 0 var(--space-4);
+		line-height: var(--leading-normal);
+	}
+	.ref-description :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		background: var(--bg-2);
+		padding: 0.1em 0.35em;
+		border-radius: var(--radius-sm);
+	}
+
+	.ref-pager__rule {
+		margin-bottom: var(--space-6);
+	}
+	.ref-pager__link {
+		min-width: 12rem;
+		flex: 1 1 0;
+		max-width: 22rem;
+	}
+	.ref-pager__link--next {
+		margin-left: auto;
+	}
+	.ref-pager__card {
+		height: 100%;
+	}
+	.ref-pager__dir {
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+	.ref-pager__name {
+		color: var(--fg-0);
+	}
+
+	.ref-langs {
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		background: var(--bg-1);
+	}
+	.ref-langs > summary {
+		cursor: pointer;
+		padding: var(--space-2) var(--space-3);
+		font-size: var(--text-sm);
+		color: var(--fg-1);
+	}
+	.ref-langs[open] > summary {
+		border-bottom: var(--border-thin) solid var(--line);
+	}
+	.ref-langs__grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1);
+		padding: var(--space-3);
+	}
+	.ref-langs__id {
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--fg-2);
+		background: var(--bg-2);
+		padding: 0.05em 0.4em;
+		border-radius: var(--radius-sm);
+	}
+
+</style>

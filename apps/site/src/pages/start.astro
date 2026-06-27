@@ -1,0 +1,282 @@
+---
+import Base from "../layouts/Base.astro";
+import Panel from "@xoji/astro/Panel.astro";
+import Dock from "@xoji/astro/Dock.astro";
+import Toc from "@xoji/astro/Toc.astro";
+import Alert from "@xoji/astro/Alert.astro";
+import Link from "@xoji/astro/Link.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Card from "@xoji/astro/Card.astro";
+import Button from "@xoji/astro/Button.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Table from "@xoji/astro/Table.astro";
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+import Code from "@xoji/astro/Code.astro";
+import { getStats } from "../data/stats";
+
+const { tokens } = await getStats();
+
+const sections = [
+	{ id: "install", label: "Install" },
+	{ id: "derive", label: "Derive a theme" },
+	{ id: "use", label: "Use the theme" },
+	{ id: "components", label: "Components" },
+	{ id: "algorithm", label: "Write an algorithm" },
+	{ id: "bench", label: "See it run" },
+];
+
+const algorithms = [
+	{ name: "xojiDefault", id: "xoji-default", note: "the neutral default" },
+	{ name: "xojiHc", id: "xoji-hc", note: "high contrast" },
+	{ name: "xojiQuiet", id: "xoji-quiet", note: "restrained" },
+	{ name: "xojiLoud", id: "xoji-loud", note: "vibrant" },
+	{ name: "nxiNite", id: "nxi-nite", note: "Day/Night, time-aware" },
+];
+
+const knobs = [
+	{ name: "scheme", desc: `"dark" or "light"` },
+	{ name: "contrastBand", desc: `"aa", "aaa", or a numeric target` },
+	{ name: "vibrancy", desc: "a number from 0 to 1" },
+	{ name: "density", desc: `"compact", "normal", or "comfortable"` },
+	{ name: "typeScale · radiusScale · accentShiftStep · fonts", desc: "finer control" },
+];
+
+const installSnippet = `npm install @xoji/core
+
+# optional framework bindings
+npm install @xoji/svelte
+npm install @xoji/astro`;
+
+const deriveSnippet = `import { derive, emit } from "@xoji/core";
+import { xojiDefault } from "@xoji/core/algorithms";
+
+const register = derive(xojiDefault, {
+  constraints: { "--bg-0": "#0b0d12", "--fg-0": "#e6e9ef", "--accent": "#6ea8fe" },
+  knobs: { scheme: "dark", contrastBand: "aa", vibrancy: 0.5 },
+});
+
+const css = emit(register, "css");    // a :root { … } block
+const json = emit(register, "json");  // a flat token map`;
+
+const cliSnippet = `npx xoji derive --bg "#0b0d12" --accent "#6ea8fe" --format css > theme.css`;
+
+const applySnippet = `import { apply } from "@xoji/core/dom";
+
+apply(register);                          // write onto :root
+apply(register, { target: previewEl });   // scope to one element
+apply(register, { persistKey: "theme" }); // and persist it`;
+
+const elementsSnippet = `import "@xoji/core/elements";   // registers <xoji-button>, <xoji-card>, …`;
+
+const svelteSnippet = `import { Button, Card } from "@xoji/svelte";`;
+
+const algorithmSnippet = `// algorithms/sunrise/mod-manifest.json declares the mod;
+// algorithms/sunrise/src/mod.ts defines it:
+import { defineXojiAlgorithm } from "@xoji/core/authoring";
+
+defineXojiAlgorithm({
+  id: "sunrise",
+  anchors: { bg: "#1a1410", accent: "#ff9e5e" },
+  vibrancy: 0.7,
+});`;
+---
+
+<Base
+	title="Getting started: xoji"
+	description="Install xoji, derive a theme from an algorithm and a few anchor colors, and use it with or without a framework."
+>
+	<Dock slot="right" side="right" size="sm" label="On this page" hideHeader class="docs-toc-rail">
+		<Toc items={sections} />
+	</Dock>
+
+	<div class="docs">
+		<Stack gap={8}>
+			<Stack gap={3}>
+				<Eyebrow>Getting started</Eyebrow>
+				<Heading level={1} size="3xl">Install, derive, and use a theme</Heading>
+				<Text size="lg" tone="muted">
+					xoji derives a complete, internally consistent set of {tokens} design tokens
+					(surfaces, text, accents, type, spacing, and more) from an
+					algorithm and a few anchor colors. This page covers installing it, deriving a
+					theme, using the result with or without a framework, and writing your own
+					algorithm.
+				</Text>
+			</Stack>
+
+			<Panel title="Install" id="install" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						xoji is three packages. <code>@xoji/core</code> is the engine: the
+						derivation, the <code>xoji</code> command line, and the web components
+						(behind the <code>@xoji/core/elements</code> entry). Add a binding only if
+						you build with that framework.
+					</Text>
+					<Code lang="bash" code={installSnippet} />
+					<Alert tone="info" variant="soft">
+						<span slot="title">The engine runs anywhere</span>
+						<code>@xoji/core</code>'s main entry has no <code>node:*</code> or DOM
+						dependencies, so it runs in the browser, in Node, and inside xript's
+						sandbox. The DOM-bound pieces sit behind their own entries
+						(<code>@xoji/core/dom</code>, <code>@xoji/core/elements</code>).
+					</Alert>
+				</Stack>
+			</Panel>
+
+			<Panel title="Derive a theme" id="derive" class="docs-anchor">
+				<Stack gap={5}>
+					<Stack gap={4}>
+						<Text tone="muted">
+							An algorithm maps your anchors and knobs to a full token register. The
+							built-in algorithms ship with the engine under
+							<code>@xoji/core/algorithms</code>; import one and call
+							<code>derive</code>.
+						</Text>
+						<Code lang="typescript" code={deriveSnippet} />
+					</Stack>
+
+					<Stack gap={4}>
+						<Text tone="muted">
+							Or derive from the command line without writing any code:
+						</Text>
+						<Code lang="bash" code={cliSnippet} />
+					</Stack>
+
+					<Stack gap={4}>
+						<Text tone="muted">The built-in algorithms, each a named export and an id:</Text>
+						<Grid minColWidth="13rem">
+							{algorithms.map((a) => (
+								<Card compact>
+									<Stack gap={2}>
+										<Badge tone="info" size="sm">{a.id}</Badge>
+										<Text mono size="sm" weight="medium">{a.name}</Text>
+										<Text size="sm" tone="subtle">{a.note}</Text>
+									</Stack>
+								</Card>
+							))}
+						</Grid>
+					</Stack>
+
+					<Stack gap={3}>
+						<Heading level={3} size="lg">Anchors</Heading>
+						<Text tone="muted">
+							<code>anchors</code> is <code>{"{ bg, fg, accent }"}</code>, each a hex
+							string. They seed the derivation; every other token solves around them.
+							Pass as few or as many as you like. Pin nothing and the algorithm's
+							own defaults fill in, or pin individual tokens through
+							<code>constraints</code> and the rest re-derive to fit.
+						</Text>
+					</Stack>
+
+					<Stack gap={3}>
+						<Heading level={3} size="lg">Knobs</Heading>
+						<Text tone="muted">
+							Knobs adjust how an algorithm derives. The common ones, plus any an
+							algorithm declares itself (nxi-nite adds <code>hour</code>):
+						</Text>
+						<Table variant="bordered" ariaLabel="Common derivation knobs">
+							<table aria-label="Common derivation knobs">
+								<tbody>
+									{knobs.map((k) => (
+										<tr>
+											<td><Text mono size="sm" weight="medium" as="span">{k.name}</Text></td>
+											<td><Text size="sm" tone="muted" as="span">{k.desc}</Text></td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						</Table>
+					</Stack>
+				</Stack>
+			</Panel>
+
+			<Panel title="Use the theme" id="use" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						A derived theme is plain CSS custom properties. Write the emitted CSS into
+						your page and the cascade applies it; nothing has to be running at view
+						time. In the browser, <code>@xoji/core/dom</code> writes a register straight
+						onto a live element.
+					</Text>
+					<Code lang="typescript" code={applySnippet} />
+					<Text tone="muted">
+						Run the engine live only when an input changes at runtime: a theme
+						editor, or a time-aware algorithm like nxi-nite re-deriving as the hour moves.
+						Otherwise the engine's job ends once the CSS is written.
+					</Text>
+				</Stack>
+			</Panel>
+
+			<Panel title="Components" id="components" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						The token register is the contract: components read it with
+						<code>var(--token)</code> and never raw colors or magic numbers, so any valid
+						theme styles them with no extra work. Use the raw custom elements, or a
+						framework binding.
+					</Text>
+					<Code lang="typescript" code={elementsSnippet} />
+					<Code lang="typescript" code={svelteSnippet} />
+					<Text tone="muted">
+						<code>@xoji/svelte</code> and <code>@xoji/astro</code> wrap the same elements;
+						each depends only on <code>@xoji/core</code>.
+					</Text>
+				</Stack>
+			</Panel>
+
+			<Panel title="Write an algorithm" id="algorithm" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						An algorithm is a xript mod: a directory with a <code>mod-manifest.json</code>
+						and code. Build on the shared xoji derivation with
+						<code>defineXojiAlgorithm</code> (declare taste; the house derivation does the
+						rest), or write one from scratch with <code>defineAlgorithm</code>.
+					</Text>
+					<Code lang="typescript" code={algorithmSnippet} />
+					<Text tone="muted">
+						Drop the directory in, build the mods, and the algorithm loads by id. Same
+						path the built-in algorithms take. An algorithm that derives in
+						stages lists ordered <code>passes</code>; nxi-nite is a worked example, layering
+						a time-of-day shift onto the base derivation.
+					</Text>
+					<div>
+						<Button href="/algorithms" variant="subtle">Read the full authoring guide</Button>
+					</div>
+				</Stack>
+			</Panel>
+
+			<Panel title="See it run" id="bench" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						The Bench derives a full register from your anchors and knobs in the browser,
+						then applies it to this very site. The fastest way to feel how a theme
+						reshapes around a change.
+					</Text>
+					<div>
+						<Button href="/generator" variant="solid" tone="accent">Open The Bench</Button>
+					</div>
+				</Stack>
+			</Panel>
+
+			<Text size="sm" tone="subtle">
+				Questions or contributions live on
+				<Link href="https://github.com/nekoyoubi/xoji" target="_blank">GitHub</Link>.
+			</Text>
+		</Stack>
+	</div>
+</Base>
+
+<style>
+	.docs {
+		max-width: 56rem;
+	}
+	.docs-anchor {
+		scroll-margin-top: var(--space-5);
+	}
+	pre {
+		margin: 0;
+		white-space: pre;
+	}
+</style>

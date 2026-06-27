@@ -1,0 +1,87 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone } from "@xoji/core";
+
+type ButtonVariant = "solid" | "outline" | "ghost" | "subtle" | "link";
+type Size = "xs" | "sm" | "md" | "lg";
+
+interface Props {
+	variant?: ButtonVariant;
+	tone?: FullTone;
+	size?: Size;
+	type?: "button" | "submit" | "reset";
+	href?: string;
+	disabled?: boolean;
+	loading?: boolean;
+	block?: boolean;
+	iconOnly?: boolean;
+	pressed?: boolean;
+	selected?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	variant = "solid",
+	tone = "accent",
+	size = "md",
+	type = "button",
+	href,
+	disabled = false,
+	loading = false,
+	block = false,
+	iconOnly = false,
+	pressed,
+	selected,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	variant,
+	tone,
+	size,
+	type,
+	href: href ?? null,
+	disabled,
+	loading,
+	block,
+	iconOnly,
+	pressed: pressed ?? null,
+	selected: selected ?? null,
+	ariaLabel: (rest as Record<string, unknown>)["aria-label"] ?? null,
+	ariaLabelledby: (rest as Record<string, unknown>)["aria-labelledby"] ?? null,
+};
+const chrome = await renderFragmentLight("button", bindings);
+const iconStartHtml = Astro.slots.has("icon-start") ? await Astro.slots.render("icon-start") : "";
+const labelHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const iconEndHtml = Astro.slots.has("icon-end") ? await Astro.slots.render("icon-end") : "";
+const composed = chrome
+	.replace('<slot name="icon-start"></slot>', () => iconStartHtml)
+	.replace('<slot name="icon-end"></slot>', () => iconEndHtml)
+	.replace("<slot></slot>", () => labelHtml);
+---
+
+<xoji-button
+	variant={variant}
+	tone={tone}
+	size={size}
+	type={type}
+	href={href}
+	disabled={disabled || undefined}
+	loading={loading || undefined}
+	block={block || undefined}
+	icon-only={iconOnly || undefined}
+	pressed={pressed === undefined ? undefined : String(pressed)}
+	selected={selected === undefined ? undefined : String(selected)}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

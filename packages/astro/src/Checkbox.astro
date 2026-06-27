@@ -1,0 +1,68 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	checked?: boolean;
+	indeterminate?: boolean;
+	disabled?: boolean;
+	size?: Size;
+	tone?: Tone;
+	name?: string;
+	value?: string;
+	label?: string;
+	labelledby?: string;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	checked = false,
+	indeterminate = false,
+	disabled = false,
+	size = "md",
+	tone = "accent",
+	name,
+	value,
+	label,
+	labelledby,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	checked,
+	indeterminate,
+	disabled,
+	size,
+	tone,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+};
+const light = await renderFragmentLight("checkbox", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = light.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-checkbox
+	checked={checked || undefined}
+	indeterminate={indeterminate || undefined}
+	disabled={disabled || undefined}
+	size={size}
+	tone={tone}
+	name={name}
+	value={value}
+	label={label}
+	labelledby={labelledby}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

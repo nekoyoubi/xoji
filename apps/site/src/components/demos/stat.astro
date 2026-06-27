@@ -1,0 +1,47 @@
+---
+import Stat from "@xoji/astro/Stat.astro";
+import Card from "@xoji/astro/Card.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={2} size="sm">A dashboard strip</Heading>
+		<Grid columns={4} gap={4}>
+			<Stat label="Monthly revenue" delta="+12.5%" trend="up" caption="vs. last month">$48,250</Stat>
+			<Stat label="Active themes" delta="+8" trend="up" caption="this week">1,204</Stat>
+			<Stat label="Churned" delta="-3" trend="down" caption="vs. last month">17</Stat>
+			<Stat label="Token coverage" delta="0" trend="flat" caption="held steady">57 / 57</Stat>
+		</Grid>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Trends carry direction, not just color</Heading>
+		<Cluster gap={6} align="center">
+			<Stat label="Up" delta="+24.1%" trend="up">920</Stat>
+			<Stat label="Down" delta="-6.4%" trend="down">312</Stat>
+			<Stat label="Flat" delta="0.0%" trend="flat">488</Stat>
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Three sizes, two alignments</Heading>
+		<Stack gap={5}>
+			<Cluster gap={6} align="center">
+				<Stat size="sm" label="Small">3.2k</Stat>
+				<Stat size="md" label="Medium">3.2k</Stat>
+				<Stat size="lg" label="Large">3.2k</Stat>
+			</Cluster>
+			<Text size="xs" tone="muted" mono>align="center"</Text>
+			<Grid columns={3} gap={4}>
+				<Stat align="center" label="Sessions" delta="+11%" trend="up">8,402</Stat>
+				<Stat align="center" label="Avg. time" caption="per session">4m 18s</Stat>
+				<Stat align="center" label="Bounce" delta="-2%" trend="down">31%</Stat>
+			</Grid>
+		</Stack>
+	</Card>
+</Stack>

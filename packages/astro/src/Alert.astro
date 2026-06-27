@@ -1,0 +1,57 @@
+---
+import { renderFragmentLight, composeFallbackSlot } from "@xoji/core/elements/ssr";
+import type { FullTone } from "@xoji/core";
+
+type AlertSeverity = "success" | "warn" | "danger" | "info";
+type AlertVariant = "soft" | "solid";
+
+interface Props {
+	/** Color — any semantic role, accent variant, or named hue. Defaults to the severity color. */
+	tone?: FullTone;
+	/** Meaning — drives the glyph + politeness, independent of color. Omit for a color-only notice. */
+	severity?: AlertSeverity;
+	variant?: AlertVariant;
+	dismissible?: boolean;
+	dismissLabel?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	tone,
+	severity,
+	variant = "soft",
+	dismissible = false,
+	dismissLabel = "Dismiss",
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = { tone, severity, variant, dismissible, dismissLabel };
+const light = await renderFragmentLight("alert", bindings);
+const iconHtml = Astro.slots.has("icon") ? await Astro.slots.render("icon") : null;
+const titleHtml = Astro.slots.has("title") ? await Astro.slots.render("title") : "";
+const messageHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const actionsHtml = Astro.slots.has("actions") ? await Astro.slots.render("actions") : "";
+const composed = composeFallbackSlot(light, "icon", iconHtml)
+	.replace('<slot name="title"></slot>', () => titleHtml)
+	.replace('<slot name="actions"></slot>', () => actionsHtml)
+	.replace("<slot></slot>", () => messageHtml);
+---
+
+<xoji-alert
+	tone={tone}
+	severity={severity}
+	variant={variant}
+	dismissible={dismissible || undefined}
+	dismiss-label={dismissLabel}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

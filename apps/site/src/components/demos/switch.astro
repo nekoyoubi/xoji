@@ -1,0 +1,186 @@
+---
+import Switch from "@xoji/astro/Switch.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">A settings panel</Heading>
+		<Stack gap={4} class="demo__rows">
+			<div class="demo__row">
+				<div class="demo__meta">
+					<Text weight="medium">Email notifications</Text>
+					<Text size="sm" tone="muted">Get a digest when something changes.</Text>
+				</div>
+				<Switch label="Email notifications" checked />
+			</div>
+			<div class="demo__row">
+				<div class="demo__meta">
+					<Text weight="medium">Reduced motion</Text>
+					<Text size="sm" tone="muted">Honor system animation preferences.</Text>
+				</div>
+				<Switch label="Reduced motion" id="reduced-motion" onLabel="On" offLabel="Off" />
+			</div>
+			<div class="demo__row">
+				<div class="demo__meta">
+					<Text weight="medium">Beta channel</Text>
+					<Text size="sm" tone="muted">Locked while a build is in flight.</Text>
+				</div>
+				<Switch label="Beta channel" checked disabled />
+			</div>
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">States &amp; sizes</Heading>
+		<Cluster gap={5} align="center">
+			<Stack gap={2} align="center">
+				<Switch label="Off" />
+				<Text size="xs" tone="subtle">off</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="On" checked />
+				<Text size="xs" tone="subtle">on</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="With labels" checked onLabel="Yes" offLabel="No" />
+				<Text size="xs" tone="subtle">labelled</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="Small" size="sm" checked />
+				<Text size="xs" tone="subtle">sm</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="Disabled" disabled />
+				<Text size="xs" tone="subtle">disabled</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">Shape, orientation, direction &amp; label</Heading>
+		<Text size="sm" tone="muted">Vertical follows a wall switch (down off, up on); <code>reverse</code> flips the on/off direction; <code>labelSide</code> moves the label without touching behavior.</Text>
+		<Cluster gap={5} align="center">
+			<Stack gap={2} align="center">
+				<Switch label="Square" shape="square" checked />
+				<Text size="xs" tone="subtle">square</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="Vertical" orientation="vertical" checked />
+				<Text size="xs" tone="subtle">vertical (up = on)</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="Reversed" reverse checked />
+				<Text size="xs" tone="subtle">reverse (on at left)</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="Vertical reversed" orientation="vertical" reverse checked />
+				<Text size="xs" tone="subtle">vertical + reverse</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Switch label="Label after" labelSide="end" checked />
+				<Text size="xs" tone="subtle">labelSide=end</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<div class="demo__group-head">
+			<Heading level={3} size="sm" tone="muted">Every tone</Heading>
+			<Switch label="Toggle all" id="tone-all" class="tone-all" checked />
+		</div>
+		<Text size="sm" tone="muted">Toggle any switch: the track lights up while the knob stays a darkened cast of the tone, so it reads in both states. &ldquo;Toggle all&rdquo; flips the lot.</Text>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => <Switch label={tone} tone={tone} class="tone-sw" checked />)}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</section>
+</Stack>
+
+<script>
+	type Toggle = HTMLElement & { checked: boolean };
+
+	customElements.whenDefined("xoji-switch").then(() => {
+		// "Toggle all" master flips every tone switch.
+		const all = document.getElementById("tone-all") as Toggle | null;
+		if (all) {
+			const switches = Array.from(document.querySelectorAll<Toggle>(".tone-sw"));
+			all.addEventListener("change", () => {
+				for (const sw of switches) sw.checked = all.checked;
+			});
+		}
+
+		// "Reduced motion" honors prefers-reduced-motion and lets you override it for this page.
+		// Components read the `--duration-*` tokens for their transitions, and custom properties
+		// inherit through shadow boundaries, so zeroing them on the root reaches every component.
+		const motion = document.getElementById("reduced-motion") as Toggle | null;
+		if (motion) {
+			const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+			const DURATIONS = ["--duration-fast", "--duration-base", "--duration-slow"];
+			const apply = (reduce: boolean): void => {
+				for (const token of DURATIONS) {
+					if (reduce) document.documentElement.style.setProperty(token, "0.01ms");
+					else document.documentElement.style.removeProperty(token);
+				}
+			};
+			motion.checked = query.matches;
+			apply(query.matches);
+			motion.addEventListener("change", () => apply(motion.checked));
+			query.addEventListener("change", (event) => {
+				motion.checked = event.matches;
+				apply(event.matches);
+			});
+		}
+	});
+</script>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+	.demo__group-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		flex-wrap: wrap;
+	}
+	.demo__rows {
+		max-width: 30rem;
+	}
+	.demo__row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-4);
+		padding: var(--space-3) 0;
+		border-bottom: var(--border-thin) solid var(--line);
+	}
+	.demo__row:last-child {
+		border-bottom: none;
+	}
+	.demo__meta {
+		display: grid;
+		gap: 0.125rem;
+	}
+</style>

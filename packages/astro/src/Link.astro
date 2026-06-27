@@ -1,0 +1,56 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type LinkVariant = "default" | "muted" | "quiet";
+
+interface Props {
+	variant?: LinkVariant;
+	href?: string;
+	target?: string;
+	rel?: string;
+	externalIcon?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	variant = "default",
+	href,
+	target,
+	rel,
+	externalIcon,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const isExternal = target === "_blank";
+const showExternalIcon = externalIcon ?? isExternal;
+
+const bindings = {
+	variant,
+	href: href ?? null,
+	target: target ?? null,
+	rel: rel ?? null,
+	showExternalIcon,
+};
+const chrome = await renderFragmentLight("link", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-link
+	variant={variant}
+	href={href ?? undefined}
+	target={target ?? undefined}
+	rel={rel ?? undefined}
+	external-icon={String(showExternalIcon)}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

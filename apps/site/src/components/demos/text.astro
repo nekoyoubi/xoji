@@ -1,0 +1,76 @@
+---
+import Text from "@xoji/astro/Text.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+
+const sizes = ["lg", "body", "sm", "xs"] as const;
+const weights = ["normal", "medium", "semibold", "bold"] as const;
+const tones = ["default", "muted", "subtle", "accent"] as const;
+const leadings = ["tight", "snug", "loose"] as const;
+
+const sample =
+	"A theme is a full invocation of an algorithm — a finished, shareable design resting on a durable engine.";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">Four sizes</Heading>
+		<Stack gap={3}>
+			{
+				sizes.map((size) => (
+					<Cluster gap={4} align="baseline" justify="between">
+						<Text size={size}>{sample}</Text>
+						<Text size="xs" tone="muted" mono>{size}</Text>
+					</Cluster>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Weight and tone</Heading>
+		<Stack gap={4}>
+			<Cluster gap={4} align="baseline">
+				{
+					weights.map((weight) => (
+						<Text size="lg" weight={weight}>{weight}</Text>
+					))
+				}
+			</Cluster>
+			<Cluster gap={4} align="baseline">
+				{tones.map((tone) => <Text tone={tone}>{tone} tone</Text>)}
+				<Text mono tone="muted">monospaced</Text>
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Leading, set on running prose</Heading>
+		<Cluster gap={5} align="start">
+			{
+				leadings.map((leading) => (
+					<Stack gap={2}>
+						<Text size="xs" tone="muted" mono>{leading}</Text>
+						<Text leading={leading} tone="muted" style="max-width: 18rem;">
+							The open register is not a fixed schema. Authors declare new tokens and rewire any
+							derivation; the only hard contract is a coverage check between what components consume
+							and what a module produces.
+						</Text>
+					</Stack>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Inline spans in flow</Heading>
+		<Text>
+			Render <Text as="span" weight="semibold">emphasis</Text>, a
+			<Text as="span" tone="muted"> muted aside</Text>, or a
+			<Text as="span" mono>token-name</Text> right inside a paragraph — same primitive, different
+			element.
+		</Text>
+	</Card>
+</Stack>

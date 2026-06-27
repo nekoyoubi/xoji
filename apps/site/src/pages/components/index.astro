@@ -1,0 +1,297 @@
+---
+import { listComponents, coverComponent } from "@xoji/core";
+import { getStats, displayStats } from "../../data/stats";
+import Base from "../../layouts/Base.astro";
+import Card from "@xoji/astro/Card.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Link from "@xoji/astro/Link.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+import CoverageBadge from "../../components/reference/CoverageBadge.astro";
+import {
+	categoryOrder,
+	categoryMeta,
+} from "../../components/reference/categories.ts";
+import { renderMarkdownInline } from "../../components/reference/inline-markdown.ts";
+import type { ComponentManifest } from "@xoji/core";
+
+const site = await getStats();
+const register = site.register;
+const producedCount = site.tokens;
+
+const all = listComponents();
+const total = all.length;
+
+const grouped = categoryOrder
+	.map((category) => ({
+		meta: categoryMeta[category],
+		items: all.filter((c) => c.category === category),
+	}))
+	.filter((g) => g.items.length > 0);
+
+const bindingOrder = ["html", "svelte", "astro"] as const;
+
+function coverageFor(component: ComponentManifest) {
+	const result = coverComponent(component, register);
+	return {
+		covered: result.covered,
+		missing: result.missing,
+		consumed: component.consumedTokens.length,
+	};
+}
+
+const stats = displayStats(site).map((s) => ({ num: `${s.value}`, label: s.label }));
+
+const metaDescription = `The xoji component contract: ${total} components across ${grouped.length} categories, each rendered live from the active xoji-default theme with a live token-coverage check.`;
+---
+
+<Base
+	title="Components: xoji"
+	description={metaDescription}
+>
+	<header class="cx-head">
+		<Stack gap={2} class="cx-head__lead">
+			<Eyebrow tracking="wide">Reference</Eyebrow>
+			<Heading level={1} size="3xl">Components</Heading>
+			<Text size="lg" tone="muted" class="cx-lede">
+				The whole <code>@xoji/astro</code> contract, rendered from the live
+				<code>xoji-default</code> theme. Nothing on this page is a mockup.
+				The manifest is the source of truth: every card, every reference page,
+				every swatch below is generated from it. The coverage badge isn't a
+				promise, it's a measurement: a per-component check that the algorithm
+				produces every token the component asks for.
+			</Text>
+		</Stack>
+		<Grid columns={4} gap={3} role="list" class="cx-stats">
+			{stats.map((stat) => (
+				<Card compact role="listitem" class="cx-stat">
+					<p class="cx-stat__num">{stat.num}</p>
+					<Text size="xs" tone="muted" class="cx-stat__label">{stat.label}</Text>
+				</Card>
+			))}
+		</Grid>
+	</header>
+
+	{grouped.map((group, gi) => {
+		const groupCovered = group.items.filter(
+			(c) => coverageFor(c).covered,
+		).length;
+		const groupHealthy = groupCovered === group.items.length;
+		return (
+		<section class="cx-section" id={group.meta.id} data-density={gi % 2 === 0 ? "roomy" : "tight"}>
+			<div class={`cx-section__head ${groupHealthy ? "is-healthy" : "has-gaps"}`}>
+				<span class="cx-section__stripe" aria-hidden="true"></span>
+				<Heading level={2} size="lg">{group.meta.label}</Heading>
+				<Text size="sm" tone="muted" class="cx-section__blurb">
+					{group.meta.blurb}
+				</Text>
+				<Badge
+					tone={groupHealthy ? "success" : "warn"}
+					size="sm"
+					class="cx-section__count"
+					title={`${groupCovered} of ${group.items.length} fully covered`}
+				>
+					{groupCovered}/{group.items.length}
+				</Badge>
+			</div>
+			<Grid minColWidth="18rem" gap={4} class="cx-grid">
+				{group.items.map((component) => {
+					const cov = coverageFor(component);
+					return (
+						<a
+							class={`cx-card-link ${cov.covered ? "is-covered" : "has-gaps"}`}
+							href={`/components/${component.id}`}
+						>
+							<Card interactive class="cx-card">
+								<Cluster justify="between" align="start" gap={2} class="cx-card__top">
+									<Heading level={3} size="sm" class="cx-card__name">
+										{component.name}
+									</Heading>
+									<CoverageBadge
+										covered={cov.covered}
+										missing={cov.missing}
+										produced={producedCount}
+										consumed={cov.consumed}
+									/>
+								</Cluster>
+								<p
+									class="cx-card__summary"
+									set:html={renderMarkdownInline(component.summary)}
+								/>
+								<Cluster justify="between" align="center" gap={2} class="cx-card__foot">
+									<Cluster gap={1} class="cx-card__bindings">
+										{bindingOrder
+											.filter((b) => component.bindings.includes(b))
+											.map((b) => (
+												<Badge tone="neutral" size="sm">{b}</Badge>
+											))}
+									</Cluster>
+									<span class="cx-card__more">Reference →</span>
+								</Cluster>
+							</Card>
+						</a>
+					);
+				})}
+			</Grid>
+		</section>
+		);
+	})}
+</Base>
+
+<style>
+	.cx-head {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--space-6);
+		margin-bottom: var(--space-8);
+		padding-bottom: var(--space-6);
+		border-bottom: var(--border-thin) solid var(--line);
+	}
+	@media (min-width: 60rem) {
+		.cx-head {
+			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+			align-items: end;
+		}
+	}
+	.cx-head :global(.cx-lede) {
+		max-width: 44rem;
+	}
+	.cx-lede code,
+	.cx-card__summary code {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		background: var(--bg-2);
+		padding: 0.1em 0.35em;
+		border-radius: var(--radius-sm);
+	}
+	@media (min-width: 60rem) {
+		.cx-stats {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	.cx-stat__num {
+		font-family: var(--font-display);
+		font-size: var(--text-2xl);
+		font-weight: var(--weight-bold);
+		color: var(--fg-0);
+		line-height: 1;
+		margin: 0;
+	}
+	.cx-stat :global(.cx-stat__label) {
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		margin: var(--space-1) 0 0;
+	}
+	.cx-section {
+		margin-bottom: var(--space-8);
+		scroll-margin-top: var(--space-6);
+	}
+	.cx-section__head {
+		position: relative;
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-3);
+		margin-bottom: var(--space-4);
+		padding: var(--space-2) var(--space-3) var(--space-3);
+		padding-inline-start: var(--space-4);
+		border-radius: var(--radius-md);
+		background: linear-gradient(
+			to right,
+			var(--accent-bg),
+			transparent 60%
+		);
+	}
+	.cx-section__head.has-gaps {
+		background: linear-gradient(
+			to right,
+			var(--warn-bg),
+			transparent 60%
+		);
+	}
+	.cx-section__stripe {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 0;
+		width: var(--border-thick);
+		border-start-start-radius: var(--radius-md);
+		border-end-start-radius: var(--radius-md);
+		background: var(--accent);
+	}
+	.cx-section__head.has-gaps .cx-section__stripe {
+		background: var(--warn);
+	}
+	.cx-section__blurb {
+		margin: 0;
+	}
+	.cx-section__count {
+		margin-left: auto;
+	}
+	.cx-section[data-density="tight"] :global(.cx-grid) {
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+		gap: var(--space-3);
+	}
+	.cx-card-link {
+		text-decoration: none;
+		color: inherit;
+		display: block;
+	}
+	.cx-card-link:hover {
+		text-decoration: none;
+	}
+	.cx-card-link :global(.cx-card) {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		border-inline-start-width: var(--border-thick);
+		box-shadow: var(--elevation-1);
+		transition:
+			border-color var(--duration-fast) var(--ease-standard),
+			box-shadow var(--duration-fast) var(--ease-standard),
+			transform var(--duration-fast) var(--ease-standard);
+	}
+	.cx-card-link.is-covered :global(.cx-card) {
+		border-inline-start-color: var(--success);
+	}
+	.cx-card-link.has-gaps :global(.cx-card) {
+		border-inline-start-color: var(--warn);
+	}
+	.cx-card-link:hover :global(.cx-card) {
+		transform: translateY(-2px);
+		box-shadow: var(--elevation-3);
+	}
+	.cx-card-link.is-covered:hover :global(.cx-card) {
+		border-color: var(--success);
+		border-inline-start-color: var(--success);
+	}
+	.cx-card-link.has-gaps:hover :global(.cx-card) {
+		border-color: var(--warn);
+		border-inline-start-color: var(--warn);
+	}
+	.cx-card :global(.cx-card__top) {
+		margin-bottom: var(--space-2);
+	}
+	.cx-card :global(.cx-card__name) {
+		margin: 0;
+	}
+	.cx-card__summary {
+		color: var(--fg-1);
+		font-size: var(--text-sm);
+		line-height: var(--leading-normal);
+		margin: 0 0 var(--space-4);
+		flex: 1;
+	}
+	.cx-card :global(.cx-card__foot) {
+		margin-top: auto;
+	}
+	.cx-card__more {
+		font-size: var(--text-sm);
+		font-weight: var(--weight-medium);
+		color: var(--accent-text);
+		white-space: nowrap;
+	}
+</style>

@@ -1,0 +1,83 @@
+---
+import Checkbox from "@xoji/astro/Checkbox.astro";
+import CheckboxGroup from "@xoji/astro/CheckboxGroup.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Group selection (tri-state roll-up)</Heading>
+		<Text size="sm" tone="muted">
+			The heading owns the group: toggling it checks or clears every item, and the heading shows
+			checked when all are on, indeterminate when some are, off when none. It's automatic — toggle
+			any item and watch the heading follow.
+		</Text>
+		<CheckboxGroup label="Notifications" class="demo__list">
+			<Checkbox checked>Mentions</Checkbox>
+			<Checkbox>Replies</Checkbox>
+			<Checkbox checked>Direct messages</Checkbox>
+		</CheckboxGroup>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">States</Heading>
+		<Cluster gap={5}>
+			<Checkbox>Unchecked</Checkbox>
+			<Checkbox checked>Checked</Checkbox>
+			<Checkbox indeterminate>Indeterminate</Checkbox>
+			<Checkbox disabled>Disabled</Checkbox>
+			<Checkbox checked disabled>Disabled checked</Checkbox>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Sizes</Heading>
+		<Cluster gap={5} align="center">
+			<Stack gap={2} align="center">
+				<Checkbox size="sm" checked label="Small" />
+				<Text size="xs" tone="subtle">sm</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<Checkbox size="md" checked label="Medium" />
+				<Text size="xs" tone="subtle">md</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => <Checkbox tone={tone} checked label={tone} />)}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</section>
+</Stack>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+	.demo__list {
+		max-width: 24rem;
+	}
+</style>

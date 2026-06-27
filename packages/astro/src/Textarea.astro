@@ -1,0 +1,76 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+type TextareaResize = "none" | "vertical" | "horizontal" | "both";
+
+interface Props {
+	label?: string;
+	value?: string;
+	rows?: number;
+	resize?: TextareaResize;
+	placeholder?: string;
+	size?: Size;
+	name?: string;
+	invalid?: boolean;
+	error?: string;
+	disabled?: boolean;
+	required?: boolean;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	label,
+	value,
+	rows = 3,
+	resize = "vertical",
+	placeholder,
+	size = "md",
+	name,
+	invalid = false,
+	error,
+	disabled = false,
+	required = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const seed = Math.random().toString(36).slice(2, 9);
+const fieldId = `xoji-textarea-${seed}`;
+const errorId = `xoji-textarea-error-${seed}`;
+
+const bindings = {
+	fieldId,
+	errorId,
+	label: label ?? null,
+	error: error ?? null,
+	size,
+	resize,
+	invalid,
+};
+const light = await renderFragmentLight("textarea", bindings);
+---
+
+<xoji-textarea
+	label={label}
+	value={value}
+	rows={rows}
+	resize={resize}
+	placeholder={placeholder}
+	size={size}
+	name={name}
+	invalid={invalid || undefined}
+	error={error}
+	disabled={disabled || undefined}
+	required={required || undefined}
+	class={extra}
+	set:html={light}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

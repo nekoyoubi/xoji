@@ -1,0 +1,99 @@
+---
+import Spinner from "@xoji/astro/Spinner.astro";
+import Button from "@xoji/astro/Button.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const tones = ["accent", "neutral", "info", "success", "warn", "danger"] as const;
+const sizes = [
+	{ size: "sm", label: "sm" },
+	{ size: "md", label: "md" },
+	{ size: "lg", label: "lg" },
+] as const;
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">Six semantic tones</Heading>
+		<Cluster gap={5} align="center">
+			{
+				tones.map((tone) => (
+					<Stack gap={2} align="center">
+						<Spinner tone={tone} size="lg" />
+						<Text as="span" size="xs" tone="muted">{tone}</Text>
+					</Stack>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">Every tone</Heading>
+		<Text size="sm" tone="muted">The open vocabulary — semantic roles, the accent ramp, and every named hue.</Text>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => (
+							<Stack gap={2} align="center">
+								<Spinner tone={tone} size="md" aria-label={`${tone} spinner`} />
+								<Text as="span" size="xs" tone="muted">{tone}</Text>
+							</Stack>
+						))}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">Three sizes</Heading>
+		<Cluster gap={6} align="end">
+			{
+				sizes.map(({ size, label }) => (
+					<Stack gap={2} align="center">
+						<Spinner tone="accent" size={size} />
+						<Text as="span" size="xs" tone="muted">{label}</Text>
+					</Stack>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={2} size="sm">In context</Heading>
+		<Grid gap={4} minColWidth="220px">
+			<Card>
+				<Stack gap={3} align="center" justify="center" class="demo-spinner-tile">
+					<Spinner tone="accent" size="lg" aria-label="Loading projects" />
+					<Text as="span" size="sm" tone="muted">Loading projects…</Text>
+				</Stack>
+			</Card>
+			<Card>
+				<Stack gap={3} justify="center" class="demo-spinner-tile">
+					<Button tone="accent" loading>Saving</Button>
+					<Button tone="neutral" variant="outline" loading>Syncing</Button>
+					<Text as="span" size="xs" tone="subtle">Buttons borrow the same indicator.</Text>
+				</Stack>
+			</Card>
+		</Grid>
+	</Card>
+</Stack>
+
+<style>
+	.demo-spinner-tile {
+		min-height: 9rem;
+	}
+</style>

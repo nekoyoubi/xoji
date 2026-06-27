@@ -1,0 +1,126 @@
+---
+import Stack from "@xoji/astro/Stack.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Card from "@xoji/astro/Card.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const gaps = [1, 3, 5];
+const aligns = ["start", "center", "end", "stretch"] as const;
+---
+
+<Stack gap={6} class="demo-stack">
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={2} size="md">Gap on the space scale</Heading>
+				<Text tone="muted" size="sm">
+					<code>gap</code> is a step (0–8) on the shared <code>--space</code>
+					scale, so vertical rhythm stays consistent with everything else.
+				</Text>
+			</div>
+			<Grid minColWidth="11rem" gap={4}>
+				{gaps.map((g) => (
+					<div class="demo-stack__sample">
+						<Text size="xs" tone="subtle" mono>gap={g}</Text>
+						<Stack gap={g}>
+							<span class="demo-tile"></span>
+							<span class="demo-tile"></span>
+							<span class="demo-tile"></span>
+						</Stack>
+					</div>
+				))}
+			</Grid>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={2} size="md">Cross-axis alignment</Heading>
+				<Text tone="muted" size="sm">
+					<code>align</code> maps to <code>align-items</code> — how children sit
+					on the horizontal axis of the column.
+				</Text>
+			</div>
+			<Grid minColWidth="11rem" gap={4}>
+				{aligns.map((a) => (
+					<div class="demo-stack__sample demo-stack__sample--align">
+						<Text size="xs" tone="subtle" mono>align={a}</Text>
+						<Stack gap={2} align={a}>
+							<span class="demo-tile demo-tile--sm"></span>
+							<span class="demo-tile demo-tile--md"></span>
+							<span class="demo-tile demo-tile--lg"></span>
+						</Stack>
+					</div>
+				))}
+			</Grid>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={2} size="md">Main-axis distribution</Heading>
+				<Text tone="muted" size="sm">
+					<code>justify</code> distributes children along the column when it has
+					a fixed height — here, <code>between</code>.
+				</Text>
+			</div>
+			<Stack gap={2} justify="between" class="demo-stack__tall">
+				<span class="demo-tile demo-tile--lg"></span>
+				<span class="demo-tile demo-tile--lg"></span>
+				<span class="demo-tile demo-tile--lg"></span>
+			</Stack>
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	.demo-stack :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		background: var(--bg-2);
+		padding: 0.08em 0.32em;
+		border-radius: var(--radius-sm);
+	}
+	.demo-stack__sample {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+		padding: var(--space-3);
+		background: var(--bg-2);
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+	}
+	.demo-stack__sample--align :global(.xoji-stack) {
+		width: 100%;
+	}
+	.demo-stack__tall {
+		height: 12rem;
+		padding: var(--space-3);
+		background: var(--bg-2);
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+	}
+	.demo-tile {
+		display: block;
+		height: 1.4rem;
+		width: 100%;
+		border-radius: var(--radius-sm);
+		background: linear-gradient(
+			90deg,
+			color-mix(in oklch, var(--accent) 70%, transparent),
+			color-mix(in oklch, var(--accent) 38%, transparent)
+		);
+	}
+	.demo-tile--sm {
+		width: 40%;
+	}
+	.demo-tile--md {
+		width: 65%;
+	}
+	.demo-tile--lg {
+		width: 100%;
+	}
+</style>

@@ -1,0 +1,42 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+
+interface Props {
+	overlay?: boolean;
+	interactive?: boolean;
+	compact?: boolean;
+	tone?: Tone;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { overlay = false, interactive = false, compact = false, tone, static: isStatic = false, class: extra, ...rest } =
+	Astro.props;
+
+const bindings = { overlay, interactive, compact, tone: tone ?? null };
+const chrome = await renderFragmentLight("card", bindings);
+const headerHtml = Astro.slots.has("header") ? await Astro.slots.render("header") : "";
+const bodyHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const footerHtml = Astro.slots.has("footer") ? await Astro.slots.render("footer") : "";
+const composed = chrome
+	.replace('<slot name="header"></slot>', () => headerHtml)
+	.replace('<slot name="footer"></slot>', () => footerHtml)
+	.replace("<slot></slot>", () => bodyHtml);
+---
+
+<xoji-card
+	overlay={overlay || undefined}
+	interactive={interactive || undefined}
+	compact={compact || undefined}
+	tone={tone}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

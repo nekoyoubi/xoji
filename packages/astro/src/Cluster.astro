@@ -1,0 +1,46 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type ClusterAlign = "start" | "center" | "end" | "stretch" | "baseline";
+type ClusterJustify = "start" | "center" | "end" | "between" | "around" | "evenly";
+
+interface Props {
+	gap?: number;
+	align?: ClusterAlign;
+	justify?: ClusterJustify;
+	nowrap?: boolean;
+	inline?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { gap = 2, align, justify, nowrap = false, inline = false, static: isStatic = false, class: extra, ...rest } =
+	Astro.props;
+
+const bindings = {
+	gap,
+	align: align ?? null,
+	justify: justify ?? null,
+	nowrap,
+	inline,
+};
+const chrome = await renderFragmentLight("cluster", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-cluster
+	gap={gap}
+	align={align}
+	justify={justify}
+	nowrap={nowrap || undefined}
+	inline={inline || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

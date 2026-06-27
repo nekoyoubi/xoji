@@ -1,0 +1,89 @@
+---
+import Base from "../layouts/Base.astro";
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import { Content as Changelog } from "../../../../CHANGELOG.md";
+---
+
+<Base
+	title="Changelog: xoji"
+	description="Every user-facing change to xoji's engine, components, and site, newest first."
+>
+	<div class="changelog">
+		<Stack gap={8}>
+			<Stack gap={3}>
+				<Eyebrow>Changelog</Eyebrow>
+				<Heading level={1} size="3xl">What's changed</Heading>
+				<Text size="lg" tone="muted">
+					Every user-facing change to the engine, the component contract, and this
+					site — newest first. Internal refactors and housekeeping stay out of it.
+				</Text>
+			</Stack>
+
+			<div class="changelog-body">
+				<Changelog />
+			</div>
+		</Stack>
+	</div>
+</Base>
+
+<style>
+	.changelog {
+		max-width: 56rem;
+	}
+	.changelog-body :global(h1:first-child) {
+		display: none;
+	}
+	.changelog-body :global(h2) {
+		font-family: var(--font-display, var(--font-sans));
+		font-size: var(--text-2xl);
+		font-weight: var(--weight-bold);
+		color: var(--fg-0);
+		margin: var(--space-8) 0 var(--space-2);
+		padding-bottom: var(--space-2);
+		border-bottom: var(--border-thin) solid var(--line);
+	}
+	.changelog-body :global(h3) {
+		font-size: var(--text-lg);
+		font-weight: var(--weight-semibold);
+		color: var(--accent-text);
+		margin: var(--space-6) 0 var(--space-2);
+	}
+	.changelog-body :global(p) {
+		color: var(--fg-1);
+		margin: var(--space-3) 0;
+	}
+	.changelog-body :global(ul) {
+		margin: var(--space-2) 0;
+		padding-left: var(--space-5);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-2);
+	}
+	.changelog-body :global(li) {
+		color: var(--fg-1);
+	}
+	.changelog-body :global(li > ul) {
+		margin-top: var(--space-2);
+	}
+	.changelog-body :global(strong) {
+		color: var(--fg-0);
+		font-weight: var(--weight-semibold);
+	}
+	.changelog-body :global(table) {
+		border-collapse: collapse;
+		margin: var(--space-4) 0;
+	}
+	.changelog-body :global(th),
+	.changelog-body :global(td) {
+		border: var(--border-thin) solid var(--line);
+		padding: var(--space-2) var(--space-3);
+		text-align: left;
+	}
+	.changelog-body :global(th) {
+		background: var(--bg-2);
+		color: var(--fg-0);
+	}
+</style>

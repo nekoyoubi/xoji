@@ -1,0 +1,79 @@
+---
+import { type AccordionSection } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	items?: AccordionSection[];
+	multiple?: boolean;
+	size?: Size;
+	headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	items,
+	multiple = false,
+	size = "md",
+	headingLevel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const sections = items ?? [];
+const uid = `xoji-accordion-${Math.random().toString(36).slice(2, 9)}`;
+
+const openKeys: string[] = [];
+sections.forEach((section, i) => {
+	if (!section.open) return;
+	const key = section.value ?? String(i);
+	if (multiple) openKeys.push(key);
+	else if (openKeys.length === 0) openKeys.push(key);
+});
+
+const bindings = {
+	sections: sections.map((section, i) => ({
+		header: section.header,
+		panel: section.panel,
+		panelSlot: section.panelSlot,
+		value: section.value ?? String(i),
+		disabled: section.disabled,
+	})),
+	openKeys,
+	size,
+	headingLevel,
+	uid,
+};
+// Two authoring modes. items-mode renders the whole structure light from `bindings` and ships no
+// children. The advanced slotted mode pairs the consumer's `slot="header"`/`slot="panel"` children
+// by order, so they must survive *individually* (with their slot attributes) — Astro's `<slot
+// name>` passthrough keeps them intact, and the element builds the structure from them on connect.
+const useItems = sections.length > 0;
+const light = useItems ? await renderFragmentLight("accordion", bindings) : "";
+---
+
+{useItems ? (
+	<xoji-accordion
+		multiple={multiple || undefined}
+		size={size}
+		heading-level={headingLevel}
+		items={JSON.stringify(items)}
+		class={extra}
+		set:html={light}
+		{...rest}
+	/>
+) : (
+	<xoji-accordion multiple={multiple || undefined} size={size} heading-level={headingLevel} class={extra} {...rest}>
+		<slot name="header" />
+		<slot name="panel" />
+		<slot />
+	</xoji-accordion>
+)}
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

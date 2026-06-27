@@ -1,0 +1,77 @@
+---
+import { firstSelectedValue } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface TreeNode {
+	label: string;
+	value?: string;
+	href?: string;
+	expanded?: boolean;
+	locked?: boolean;
+	selected?: boolean;
+	disabled?: boolean;
+	children?: TreeNode[];
+}
+
+interface Props {
+	items?: TreeNode[];
+	size?: Size;
+	label?: string;
+	labelledby?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	items = [],
+	size = "md",
+	label,
+	labelledby,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const nodeKey = (node: TreeNode): string => node.value ?? node.label;
+const hasChildren = (node: TreeNode): boolean => !!(node.children && node.children.length);
+
+const expandedKeys: string[] = [];
+const seedExpanded = (nodes: TreeNode[]): void => {
+	for (const node of nodes) {
+		if (hasChildren(node)) {
+			const locked = (node.locked ?? false) && hasChildren(node);
+			if (locked || node.expanded) expandedKeys.push(nodeKey(node));
+			seedExpanded(node.children as TreeNode[]);
+		}
+	}
+};
+seedExpanded(items);
+
+const bindings = {
+	items,
+	size,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	selectedValue: firstSelectedValue(items),
+	expandedKeys,
+	rovingValue: null,
+};
+const light = await renderFragmentLight("tree", bindings);
+---
+
+<xoji-tree
+	items={items ? JSON.stringify(items) : undefined}
+	size={size}
+	label={label}
+	labelledby={labelledby}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

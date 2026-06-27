@@ -1,0 +1,53 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+import type { FullTone, Size } from "@xoji/core";
+
+interface Props {
+	page?: number;
+	total?: number;
+	siblings?: number;
+	boundaries?: number;
+	href?: string;
+	tone?: FullTone;
+	size?: Size;
+	label?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	page = 1,
+	total = 1,
+	siblings = 1,
+	boundaries = 1,
+	href,
+	tone = "accent",
+	size = "md",
+	label = "Pagination",
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = { page, total, siblings, boundaries, href, tone, size, label };
+const light = await renderFragmentLight("pagination", bindings);
+---
+
+<xoji-pagination
+	page={page}
+	total={total}
+	siblings={siblings}
+	boundaries={boundaries}
+	href={href}
+	tone={tone}
+	size={size}
+	label={label}
+	class={extra}
+	set:html={light}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

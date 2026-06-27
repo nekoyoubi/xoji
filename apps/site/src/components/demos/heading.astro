@@ -1,0 +1,70 @@
+---
+import Heading from "@xoji/astro/Heading.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Separator from "@xoji/astro/Separator.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const scale = [
+	{ size: "5xl", note: "hero headline" },
+	{ size: "4xl", note: "display title" },
+	{ size: "3xl", note: "page title" },
+	{ size: "2xl", note: "section lead" },
+	{ size: "xl", note: "subsection" },
+	{ size: "lg", note: "card title" },
+	{ size: "body", note: "inline label" },
+	{ size: "sm", note: "eyebrow" },
+	{ size: "xs", note: "fine print" },
+] as const;
+
+const tones = ["default", "muted", "subtle", "accent"] as const;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">The visual scale</Heading>
+		<Stack gap={4}>
+			{
+				scale.map(({ size, note }) => (
+					<Cluster gap={4} align="baseline" justify="between">
+						<Heading level={2} size={size}>The algorithm is the asset</Heading>
+						<Text size="xs" tone="muted" mono>{size} · {note}</Text>
+					</Cluster>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Tone, decoupled from level</Heading>
+		<Stack gap={3}>
+			{
+				tones.map((tone) => (
+					<Heading level={2} size="xl" tone={tone}>
+						A {tone} heading
+					</Heading>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Level and size are independent</Heading>
+		<Text tone="muted" size="sm">
+			An <code>h1</code> can read small; an <code>h4</code> can read large. The tag carries the
+			document outline, the size carries the visual weight.
+		</Text>
+		<Separator />
+		<Stack gap={3}>
+			<Cluster gap={4} align="baseline" justify="between">
+				<Heading level={4} size="sm">Quiet h4</Heading>
+				<Text size="xs" tone="muted" mono>level 4 · size sm</Text>
+			</Cluster>
+			<Cluster gap={4} align="baseline" justify="between">
+				<Heading level={4} size="2xl">Loud h4</Heading>
+				<Text size="xs" tone="muted" mono>level 4 · size 2xl</Text>
+			</Cluster>
+		</Stack>
+	</Card>
+</Stack>

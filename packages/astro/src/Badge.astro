@@ -1,0 +1,69 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as BadgeTone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+type BadgeVariant = "solid" | "soft" | "outline";
+
+interface Props {
+	variant?: BadgeVariant;
+	tone?: BadgeTone;
+	size?: Size;
+	dot?: boolean;
+	count?: string | number;
+	removable?: boolean;
+	removeLabel?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	variant = "soft",
+	tone = "neutral",
+	size = "md",
+	dot = false,
+	count,
+	removable = false,
+	removeLabel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+// Compose the dismiss button's accessible name from the label text when the consumer didn't name
+// it — so a zero-JS (`static`) removable badge still announces "Remove <text>" instead of a bare
+// "Remove". The runtime composes this client-side from the slot, but `static` never loads it.
+const slotText = slotHtml.replace(/<[^>]*>/g, "").trim();
+const resolvedRemoveLabel = removeLabel ?? (removable && slotText ? `Remove ${slotText}` : undefined);
+
+const bindings = {
+	variant,
+	tone,
+	size,
+	dot,
+	count: count ?? null,
+	removable,
+	removeLabel: resolvedRemoveLabel,
+};
+const chrome = await renderFragmentLight("badge", bindings);
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-badge
+	variant={variant}
+	tone={tone}
+	size={size}
+	dot={dot || undefined}
+	count={count !== undefined && count !== null && count !== "" ? String(count) : undefined}
+	removable={removable || undefined}
+	remove-label={resolvedRemoveLabel}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

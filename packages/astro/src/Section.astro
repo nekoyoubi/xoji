@@ -1,0 +1,61 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+import type { FullTone } from "@xoji/core";
+
+type SectionTag = "section" | "div" | "header" | "footer";
+type SectionVariant = "band" | "stage";
+type SectionTone = "plain" | "quiet" | FullTone;
+type SectionPadding = "none" | "sm" | "md" | "lg";
+
+interface Props {
+	as?: SectionTag;
+	variant?: SectionVariant;
+	tone?: SectionTone;
+	bordered?: boolean;
+	padding?: SectionPadding;
+	label?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	as = "section",
+	variant = "band",
+	tone = "plain",
+	bordered = false,
+	padding = "lg",
+	label,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	as,
+	variant,
+	tone,
+	bordered,
+	padding,
+	label: label ?? null,
+};
+const chrome = await renderFragmentLight("section", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-section
+	as={as}
+	variant={variant}
+	tone={tone}
+	bordered={bordered || undefined}
+	padding={padding}
+	label={label ?? undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

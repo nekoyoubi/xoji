@@ -1,0 +1,228 @@
+---
+import Tooltip from "@xoji/astro/Tooltip.astro";
+import Button from "@xoji/astro/Button.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Progress from "@xoji/astro/Progress.astro";
+---
+
+<Stack gap={6} class="tooltip-demo">
+	<Card>
+		<Stack slot="header" gap={1}>
+			<Heading level={3} size="body">Placement</Heading>
+			<Text tone="muted" size="sm">
+				The hint floats on any of four sides — hover or focus a trigger to
+				reveal it.
+			</Text>
+		</Stack>
+		<div class="tooltip-demo__compass">
+			<div class="tooltip-demo__cell tooltip-demo__cell--top">
+				<Tooltip text="Floats above the trigger" placement="top">
+					<Button variant="outline" tone="neutral">Top</Button>
+				</Tooltip>
+			</div>
+			<div class="tooltip-demo__cell tooltip-demo__cell--left">
+				<Tooltip text="Floats to the left" placement="left">
+					<Button variant="outline" tone="neutral">Left</Button>
+				</Tooltip>
+			</div>
+			<div class="tooltip-demo__cell tooltip-demo__cell--center">
+				<Tooltip text="Pinned open for the showcase" placement="top" open>
+					<Button variant="solid" tone="accent">Always on</Button>
+				</Tooltip>
+			</div>
+			<div class="tooltip-demo__cell tooltip-demo__cell--right">
+				<Tooltip text="Floats to the right" placement="right">
+					<Button variant="outline" tone="neutral">Right</Button>
+				</Tooltip>
+			</div>
+			<div class="tooltip-demo__cell tooltip-demo__cell--bottom">
+				<Tooltip text="Floats below the trigger" placement="bottom">
+					<Button variant="outline" tone="neutral">Bottom</Button>
+				</Tooltip>
+			</div>
+		</div>
+	</Card>
+
+	<Card>
+		<Stack slot="header" gap={1}>
+			<Heading level={3} size="body">Triggers and rich content</Heading>
+			<Text tone="muted" size="sm">
+				Any element can be the trigger; the <code>content</code> slot takes
+				markup beyond plain text.
+			</Text>
+		</Stack>
+		<Cluster gap={4} align="center">
+			<Tooltip text="Save your changes" placement="top">
+				<Button variant="solid" tone="accent">Save</Button>
+			</Tooltip>
+
+			<Tooltip placement="bottom">
+				<Button variant="outline" tone="neutral" iconOnly aria-label="Settings">
+					<svg
+						slot="icon-start"
+						viewBox="0 0 24 24"
+						width="18"
+						height="18"
+						aria-hidden="true"
+					>
+						<path
+							fill="currentColor"
+							d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9 4a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L16 2H8l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 3 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1c.6.5 1.3.9 2 1.2L8 22h8l.5-2.6c.7-.3 1.4-.7 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2Z"
+						></path>
+					</svg>
+				</Button>
+				<span slot="content">Open <strong>settings</strong></span>
+			</Tooltip>
+
+			<Tooltip placement="right">
+				<Text as="span" class="tooltip-demo__hint-word">underlined term</Text>
+				<span slot="content">
+					A glossary definition with <strong>emphasis</strong> and a touch of
+					detail.
+				</span>
+			</Tooltip>
+
+			<Tooltip text="Even a badge can carry a hint" placement="top">
+				<span class="xoji-badge xoji-badge--soft xoji-badge--info">beta</span>
+			</Tooltip>
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Stack slot="header" gap={1}>
+			<Heading level={3} size="body">Tone</Heading>
+			<Text tone="muted" size="sm">
+				A <code>tone</code> colors the hint — a leading edge over the neutral
+				surface by default, or a full <code>soft</code> / <code>solid</code>
+				surface. The pinned row shows all three; hover the rest.
+			</Text>
+		</Stack>
+		<div class="tooltip-demo__row">
+			<div class="tooltip-demo__pinned">
+				<Tooltip text="Leading tone edge" tone="accent" placement="bottom" open>
+					<Button variant="outline" tone="neutral">edge</Button>
+				</Tooltip>
+			</div>
+			<div class="tooltip-demo__pinned">
+				<Tooltip text="Soft toned surface" tone="info" variant="soft" placement="bottom" open>
+					<Button variant="outline" tone="neutral">soft</Button>
+				</Tooltip>
+			</div>
+			<div class="tooltip-demo__pinned">
+				<Tooltip text="Solid toned surface" tone="success" variant="solid" placement="bottom" open>
+					<Button variant="outline" tone="neutral">solid</Button>
+				</Tooltip>
+			</div>
+		</div>
+		<Cluster gap={3} align="center">
+			<Tooltip text="A gentle heads-up" tone="warn" variant="soft" placement="top">
+				<Button variant="subtle" tone="warn">warn · soft</Button>
+			</Tooltip>
+			<Tooltip text="This cannot be undone" tone="danger" variant="solid" placement="top">
+				<Button variant="subtle" tone="danger">danger · solid</Button>
+			</Tooltip>
+			<Tooltip text="A named-hue edge" tone="pink" placement="top">
+				<Button variant="subtle" tone="neutral">pink · edge</Button>
+			</Tooltip>
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Stack slot="header" gap={1}>
+			<Heading level={3} size="body">Rich content</Heading>
+			<Text tone="muted" size="sm">
+				<code>mode="rich"</code> opens a roomier, left-aligned panel that wraps
+				multi-line text and holds structured content — a detail readout, a
+				progress bar, a definition.
+			</Text>
+		</Stack>
+		<div class="tooltip-demo__band">
+			<Tooltip mode="rich" size="md" placement="bottom" open>
+				<Button variant="outline" tone="neutral">build status</Button>
+				<Fragment slot="content">
+					<Stack gap={2}>
+						<Cluster gap={2} align="center" justify="between">
+							<Heading level={4} size="sm">Build #482</Heading>
+							<Badge variant="soft" tone="success">passing</Badge>
+						</Cluster>
+						<Text size="sm" tone="muted">Deployed 2 minutes ago to production.</Text>
+						<Progress value={80} showValue colorizeValue tone="success" size="sm" aria-label="Build progress" />
+					</Stack>
+				</Fragment>
+			</Tooltip>
+		</div>
+		<div class="tooltip-demo__band">
+			<Tooltip mode="rich" tone="accent" placement="bottom" open>
+				<Text as="span" class="tooltip-demo__hint-word">derivation</Text>
+				<Fragment slot="content">
+					<Stack gap={1}>
+						<Heading level={4} size="sm">Derivation</Heading>
+						<Text size="sm">
+							The process by which an <strong>algorithm</strong> maps a few
+							anchors and knobs into a full, internally consistent token set —
+							and yes, a tooltip can hold a whole paragraph when it needs to.
+						</Text>
+					</Stack>
+				</Fragment>
+			</Tooltip>
+		</div>
+	</Card>
+</Stack>
+
+<style>
+	.tooltip-demo__compass {
+		display: grid;
+		grid-template-areas:
+			". top ."
+			"left center right"
+			". bottom .";
+		justify-items: center;
+		align-items: center;
+		gap: var(--space-7, 1.75rem) var(--space-8, 2rem);
+		padding: var(--space-8, 2rem) var(--space-4, 1rem);
+	}
+	.tooltip-demo__cell--top {
+		grid-area: top;
+	}
+	.tooltip-demo__cell--left {
+		grid-area: left;
+	}
+	.tooltip-demo__cell--center {
+		grid-area: center;
+	}
+	.tooltip-demo__cell--right {
+		grid-area: right;
+	}
+	.tooltip-demo__cell--bottom {
+		grid-area: bottom;
+	}
+	.tooltip-demo__hint-word {
+		text-decoration: underline dotted;
+		text-underline-offset: 0.2em;
+		cursor: help;
+	}
+	.tooltip-demo__row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4.5rem;
+		justify-content: center;
+		align-items: flex-start;
+		padding-bottom: var(--space-12, 7rem);
+	}
+	.tooltip-demo__pinned {
+		display: inline-flex;
+	}
+	.tooltip-demo__band {
+		display: flex;
+		justify-content: center;
+		padding-bottom: 10rem;
+	}
+	.tooltip-demo__band + .tooltip-demo__band {
+		padding-top: var(--space-4, 1rem);
+	}
+</style>

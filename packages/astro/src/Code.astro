@@ -1,0 +1,40 @@
+---
+import { plainCodeHtml, splitCodeLines, codeGutterWidth, parseLineSpec } from "@xoji/core/markup";
+import { highlight } from "@xoji/core/elements/code-highlight";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+interface Props {
+	lang?: string;
+	code?: string;
+	/** Warm this block's grammar eagerly in the browser and emit a `modulepreload` hint. */
+	preload?: boolean;
+	/** Render zero-JS: emit the pre-colored light-DOM markup but never load the runtime. */
+	static?: boolean;
+	/** The copy-to-clipboard button; on by default, set `false` to drop it. Inert on the `static` (zero-JS) path. */
+	copy?: boolean;
+	/** Soft-wrap long lines instead of scrolling them horizontally. Works on the zero-JS path. */
+	wrap?: boolean;
+	/** Number each line in a counter gutter. Works on the zero-JS path. */
+	lineNumbers?: boolean;
+	/** Tint chosen lines; a 1-based spec like `2`, `2,4`, or `4-6`. Works on the zero-JS path. */
+	highlight?: string;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { lang, code = "", preload = false, static: isStatic = false, copy = true, wrap = false, lineNumbers = false, highlight: highlightSpec, class: extra, ...rest } = Astro.props;
+
+const result = await highlight(code, lang ?? null);
+const base = result.language === null ? plainCodeHtml(code) : result.html;
+const litSet = highlightSpec ? parseLineSpec(highlightSpec) : undefined;
+const split = lineNumbers || litSet ? splitCodeLines(base, litSet) : null;
+const inner = split ? split.html : base;
+const gutter = split && lineNumbers ? `--xoji-code-gutter: ${codeGutterWidth(split.lines)}` : undefined;
+const bindings = { html: inner, language: result.language };
+const light = await renderFragmentLight("code", bindings);
+---
+
+<xoji-code language={lang ?? undefined} code={code} preload={preload || undefined} copy={copy ? undefined : "false"} wrap={wrap || undefined} line-numbers={lineNumbers || undefined} highlight={highlightSpec || undefined} style={gutter} class={extra} set:html={light} {...rest} />
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

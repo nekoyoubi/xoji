@@ -1,0 +1,44 @@
+---
+import Kbd from "@xoji/astro/Kbd.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">Chords</Heading>
+		<Stack gap={3}>
+			<Cluster gap={1}>
+				<Kbd>Ctrl</Kbd>
+				<Text tone="muted">+</Text>
+				<Kbd>K</Kbd>
+			</Cluster>
+			<Cluster gap={1}>
+				<Kbd>Ctrl</Kbd>
+				<Text tone="muted">+</Text>
+				<Kbd>Shift</Kbd>
+				<Text tone="muted">+</Text>
+				<Kbd>P</Kbd>
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Sizes</Heading>
+		<Cluster gap={2} style="align-items: baseline;">
+			<Kbd size="sm">Esc</Kbd>
+			<Kbd>Enter</Kbd>
+			<Kbd size="lg">Space</Kbd>
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Inline</Heading>
+		<Text>
+			Press <Kbd size="sm">/</Kbd> to search, or <Kbd size="sm">Esc</Kbd> to dismiss.
+		</Text>
+	</Card>
+</Stack>

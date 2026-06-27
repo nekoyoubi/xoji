@@ -1,0 +1,120 @@
+---
+import Pagination from "@xoji/astro/Pagination.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+
+const sizes = [
+	{ name: "sm", label: "Small" },
+	{ name: "md", label: "Medium (default)" },
+	{ name: "lg", label: "Large" },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Walking a collection</Heading>
+			<Text size="sm" tone="muted">
+				Button mode: click a page or an arrow and the control fires a
+				<Text as="span" mono size="xs">page-change</Text> event. This demo listens for it,
+				updates the current page, and the windowed range re-threads itself.
+			</Text>
+		</Stack>
+		<Stack gap={2} class="pg-live">
+			<Pagination id="pg-live" page={1} total={12} label="Demo pages" />
+			<Text size="sm" tone="muted">
+				Page <Text as="span" mono id="pg-live-n">1</Text> of 12
+			</Text>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">The windowed range</Heading>
+			<Text size="sm" tone="muted">
+				Boundary pages stay pinned at each end and a sibling window follows the
+				current page; the gaps collapse to an ellipsis. Same 20-page set, three positions.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			{[1, 10, 20].map((page) => (
+				<Cluster gap={3} align="center" justify="between">
+					<Pagination page={page} total={20} label={`Page ${page} of 20`} />
+					<Text as="span" size="xs" tone="subtle" mono>page={page}</Text>
+				</Cluster>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Link mode</Heading>
+			<Text size="sm" tone="muted">
+				Give it an <Text as="span" mono size="xs">href</Text> template with
+				<Text as="span" mono size="xs">{"{page}"}</Text> and every page is a real anchor:
+				crawlable, works with zero JavaScript.
+			</Text>
+		</Stack>
+		<Pagination page={3} total={8} href="#page-{page}" label="Linked pages" />
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Tones</Heading>
+			<Text size="sm" tone="muted">
+				The current-page pill speaks the full tone vocabulary: the six semantic roles,
+				the accent variants, and the twelve named hues. 21 in all, every one AA-cleared.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Stack gap={4}>
+						{group.tones.map((tone) => (
+							<Cluster gap={3} align="center" justify="between">
+								<Pagination page={3} total={6} tone={tone} label={`${tone} pager`} />
+								<Text as="span" size="xs" tone="subtle" mono>tone="{tone}"</Text>
+							</Cluster>
+						))}
+					</Stack>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Sizes</Heading>
+			<Text size="sm" tone="muted">Three steps, scaled against the type ramp.</Text>
+		</Stack>
+		<Stack gap={4}>
+			{sizes.map((s) => (
+				<Stack gap={1}>
+					<Text as="span" size="xs" tone="subtle">{s.label}</Text>
+					<Pagination page={3} total={9} size={s.name} label={`${s.label} pager`} />
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+</Stack>
+
+<script>
+	const pager = document.getElementById("pg-live");
+	const readout = document.getElementById("pg-live-n");
+	pager?.addEventListener("page-change", (event) => {
+		const page = (event as CustomEvent<{ page: number }>).detail.page;
+		pager.setAttribute("page", String(page));
+		if (readout) readout.textContent = String(page);
+	});
+</script>

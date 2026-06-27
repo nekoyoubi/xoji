@@ -1,0 +1,25 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type KbdSize = "sm" | "md" | "lg";
+
+interface Props {
+	size?: KbdSize;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { size = "md", static: isStatic = false, class: extra, ...rest } = Astro.props;
+
+const bindings = { size };
+const chrome = await renderFragmentLight("kbd", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-kbd size={size} class={extra} set:html={composed} {...rest} />
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

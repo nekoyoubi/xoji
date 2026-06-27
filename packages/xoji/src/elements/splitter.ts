@@ -1,0 +1,228 @@
+import { XojiElement, define, type StyleMode } from "./base.js";
+import { splitterHostCss } from "../markup/index.js";
+import { FragmentHost, type FragmentIntent } from "./fragment-host.js";
+import { manifest, fragmentSources } from "./fragments/splitter/source.generated.js";
+
+export type SplitterOrientation = "vertical" | "horizontal";
+export type SplitterSize = "sm" | "md" | "lg";
+
+export class XojiSplitter extends XojiElement {
+	protected override get styleMode(): StyleMode {
+		return "auto";
+	}
+
+	private fragment = new FragmentHost(this.root, manifest, fragmentSources, "splitter", {
+		context: () => ({ axisIsX: this.axisIsX, reversed: this.reversed }),
+		applyIntent: (intent, event) => this.applyIntent(intent, event),
+	});
+
+	static get observedAttributes(): string[] {
+		return ["orientation", "size", "line", "min", "max", "step", "value", "default", "disabled", "reversed", "var", "for", "label", "labelledby"];
+	}
+
+	get orientation(): SplitterOrientation {
+		return this.getAttribute("orientation") === "horizontal" ? "horizontal" : "vertical";
+	}
+	set orientation(value: SplitterOrientation) {
+		this.setAttribute("orientation", value);
+	}
+
+	get size(): SplitterSize {
+		return (this.getAttribute("size") as SplitterSize) ?? "md";
+	}
+	set size(value: SplitterSize) {
+		this.setAttribute("size", value);
+	}
+
+	get line(): boolean {
+		return this.hasAttribute("line");
+	}
+	set line(value: boolean) {
+		this.reflectBoolean("line", value);
+	}
+
+	get min(): number {
+		return Number(this.getAttribute("min") ?? "0");
+	}
+	set min(value: number) {
+		this.setAttribute("min", String(value));
+	}
+
+	get max(): number {
+		const raw = this.getAttribute("max");
+		return raw === null ? Number.POSITIVE_INFINITY : Number(raw);
+	}
+	set max(value: number) {
+		this.setAttribute("max", String(value));
+	}
+
+	get step(): number {
+		const step = Number(this.getAttribute("step") ?? "1");
+		return step > 0 ? step : 1;
+	}
+	set step(value: number) {
+		this.setAttribute("step", String(value));
+	}
+
+	get value(): number {
+		const raw = this.getAttribute("value");
+		return this.clamp(raw === null ? this.min : Number(raw));
+	}
+	set value(value: number) {
+		this.setAttribute("value", String(this.clamp(value)));
+	}
+
+	get disabled(): boolean {
+		return this.hasAttribute("disabled");
+	}
+	set disabled(value: boolean) {
+		this.reflectBoolean("disabled", value);
+	}
+
+	get reversed(): boolean {
+		return this.hasAttribute("reversed");
+	}
+	set reversed(value: boolean) {
+		this.reflectBoolean("reversed", value);
+	}
+
+	private clamp(value: number): number {
+		const { min, max, step } = this;
+		if (Number.isNaN(value)) return min;
+		const snapped = Math.round((value - min) / step) * step + min;
+		return Math.min(max, Math.max(min, Number(snapped.toFixed(6))));
+	}
+
+	private get handle(): HTMLElement | null {
+		return this.root.querySelector(".xoji-splitter");
+	}
+
+	private get targetEl(): HTMLElement | null {
+		const id = this.getAttribute("for");
+		if (id) return (this.getRootNode() as Document | ShadowRoot).getElementById?.(id) ?? document.getElementById(id);
+		return this.parentElement;
+	}
+
+	private get varName(): string {
+		return this.getAttribute("var") ?? "--xoji-splitter-size";
+	}
+
+	get axisIsX(): boolean {
+		return this.orientation === "vertical";
+	}
+
+	attributeChangedCallback(name: string): void {
+		if (!this.root.firstChild) return;
+		if (name === "value") {
+			this.fragment.update(this.bindings);
+			this.applyValue();
+			return;
+		}
+		this.render();
+	}
+
+	private applyValue(): void {
+		this.targetEl?.style.setProperty(this.varName, `${this.value}px`);
+	}
+
+	private commit(next: number, emit: "resize" | "resize-end"): void {
+		if (this.disabled) return;
+		const clamped = this.clamp(next);
+		const changed = clamped !== this.value;
+		this.value = clamped;
+		this.fragment.update(this.bindings);
+		this.applyValue();
+		if (!changed && emit === "resize") return;
+		this.dispatchEvent(
+			new CustomEvent(emit, {
+				bubbles: true,
+				composed: true,
+				detail: { value: this.value, orientation: this.orientation },
+			}),
+		);
+	}
+
+	private onPointerdown(event: PointerEvent): void {
+		if (this.disabled) return;
+		event.preventDefault();
+		this.handle?.focus();
+		const startPos = this.axisIsX ? event.clientX : event.clientY;
+		const startValue = this.value;
+		(event.target as Element).setPointerCapture?.(event.pointerId);
+		const sign = this.reversed ? -1 : 1;
+		const move = (e: PointerEvent) => {
+			const delta = (this.axisIsX ? e.clientX : e.clientY) - startPos;
+			this.commit(startValue + sign * delta, "resize");
+		};
+		const up = (e: PointerEvent) => {
+			this.handle?.removeEventListener("pointermove", move);
+			this.handle?.removeEventListener("pointerup", up);
+			const delta = (this.axisIsX ? e.clientX : e.clientY) - startPos;
+			this.commit(startValue + sign * delta, "resize-end");
+		};
+		this.handle?.addEventListener("pointermove", move);
+		this.handle?.addEventListener("pointerup", up);
+	}
+
+	private applyIntent(intent: FragmentIntent, event: Event): void {
+		if (intent.preventDefault) event.preventDefault();
+		if (intent.reset) {
+			const raw = this.getAttribute("default");
+			if (raw !== null) this.commit(Number(raw), "resize-end");
+			return;
+		}
+		if (intent.jump) {
+			const next = intent.jump === "min" ? this.min : Number.isFinite(this.max) ? this.max : this.value;
+			this.commit(next, "resize-end");
+			return;
+		}
+		if (intent.nudge) {
+			const big = intent.forceAlt ? this.step * 10 : this.step;
+			this.commit(this.value + intent.nudge * big, "resize-end");
+		}
+	}
+
+	private get bindings(): Record<string, unknown> {
+		return {
+			orientation: this.orientation,
+			size: this.size,
+			line: this.line,
+			value: this.value,
+			min: this.min,
+			max: Number.isFinite(this.max) ? this.max : this.value,
+			disabled: this.disabled,
+			label: this.getAttribute("label"),
+			labelledby: this.getAttribute("labelledby"),
+		};
+	}
+
+	/** Structural state ops can't patch incrementally: the `disabled` boolean drops `tabindex` and
+	 * adds `aria-disabled`, and the accessible-name source can switch between `label` and `labelledby`.
+	 * A change here rebuilds; orientation / size / line / value flips are cheap patches. */
+	private shapeSignature(): string {
+		return `${this.disabled}|${this.getAttribute("label") != null}|${this.getAttribute("labelledby") != null}`;
+	}
+
+	protected template(): string {
+		return "";
+	}
+
+	protected override render(): void {
+		this.adoptComponentSheet();
+		this.fragment.ensureScaffold(splitterHostCss);
+		this.fragment.reshapeIfChanged(this.shapeSignature());
+		this.fragment.update(this.bindings);
+		this.applyValue();
+		this.wireHandle();
+	}
+
+	private wiredHandle: HTMLElement | null = null;
+	private wireHandle(): void {
+		const handle = this.handle;
+		if (!handle || handle === this.wiredHandle) return;
+		this.wiredHandle = handle;
+		handle.addEventListener("pointerdown", (e) => this.onPointerdown(e as PointerEvent));
+	}
+}
+
+define("xoji-splitter", XojiSplitter);

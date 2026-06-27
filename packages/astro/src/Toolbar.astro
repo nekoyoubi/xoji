@@ -1,0 +1,68 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	heading?: string;
+	href?: string;
+	size?: Size;
+	landmark?: boolean;
+	sticky?: boolean;
+	bare?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	heading,
+	href,
+	size = "md",
+	landmark = false,
+	sticky = false,
+	bare = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const hasStart = Astro.slots.has("start");
+const hasCenter = Astro.slots.has("center");
+const hasEnd = Astro.slots.has("end");
+
+const bindings = {
+	heading: heading ?? null,
+	href: href ?? null,
+	size,
+	landmark,
+	sticky,
+	bare,
+};
+const light = await renderFragmentLight("toolbar", bindings);
+const startHtml = hasStart ? await Astro.slots.render("start") : "";
+const centerHtml = hasCenter ? await Astro.slots.render("center") : "";
+const endHtml = hasEnd ? await Astro.slots.render("end") : "";
+const defaultHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = light
+	.replace('<slot name="start"></slot>', () => startHtml)
+	.replace('<slot name="center"></slot>', () => centerHtml)
+	.replace('<slot name="end"></slot>', () => endHtml)
+	.replace("<slot></slot>", () => defaultHtml);
+---
+
+<xoji-toolbar
+	heading={heading}
+	href={href}
+	size={size}
+	landmark={landmark || undefined}
+	sticky={sticky || undefined}
+	bare={bare || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

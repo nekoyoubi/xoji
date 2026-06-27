@@ -1,0 +1,121 @@
+---
+import AppShell from "@xoji/astro/AppShell.astro";
+import Toolbar from "@xoji/astro/Toolbar.astro";
+import Dock from "@xoji/astro/Dock.astro";
+import Statusbar from "@xoji/astro/Statusbar.astro";
+import Button from "@xoji/astro/Button.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Link from "@xoji/astro/Link.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { getStats } from "../../data/stats";
+
+const { tokens } = await getStats();
+---
+
+<Stack gap={2} class="appshell-demo">
+	<Heading level={3} size="sm" tone="muted">A full three-row scaffold — Toolbar · Dock + main · Statusbar</Heading>
+	<Text size="sm" tone="muted" class="appshell-demo__hint">
+		Tab into the frame to reveal the skip link in the top-left corner.
+	</Text>
+	<div class="appshell-demo__device">
+		<AppShell skipLink mainId="appshell-demo-main" class="appshell-demo__shell">
+			<Toolbar slot="toolbar" heading="xoji" href="#" landmark>
+				<Cluster slot="center" gap={1}>
+					<Link href="#" variant="quiet">Overview</Link>
+					<Link href="#" variant="quiet">Generator</Link>
+				</Cluster>
+				<Cluster slot="end" gap={2} align="center">
+					<Badge tone="success" variant="soft" dot size="sm">Live</Badge>
+					<Button variant="solid" tone="accent" size="sm">Derive</Button>
+				</Cluster>
+			</Toolbar>
+
+			<Dock slot="left" nav label="Sections" size="sm">
+				<Stack gap={1}>
+					<Button variant="subtle" tone="accent" block>Anchors</Button>
+					<Button variant="ghost" tone="neutral" block>Knobs</Button>
+					<Button variant="ghost" tone="neutral" block>Tokens</Button>
+					<Button variant="ghost" tone="neutral" block>Preview</Button>
+				</Stack>
+			</Dock>
+
+			<Stack gap={4}>
+				<Stack gap={1}>
+					<Heading level={2} size="lg">Theme preview</Heading>
+					<Text tone="muted">The <code>main</code> region scrolls independently between the fixed chrome.</Text>
+				</Stack>
+				<Grid minColWidth="9rem" gap={3}>
+					<Card compact>
+						<Stack gap={1}>
+							<Text size="xs" tone="muted">Background</Text>
+							<Text mono>#0b0d12</Text>
+						</Stack>
+					</Card>
+					<Card compact>
+						<Stack gap={1}>
+							<Text size="xs" tone="muted">Foreground</Text>
+							<Text mono>#e6e9ef</Text>
+						</Stack>
+					</Card>
+					<Card compact>
+						<Stack gap={1}>
+							<Text size="xs" tone="muted">Accent</Text>
+							<Text mono>#6ea8fe</Text>
+						</Stack>
+					</Card>
+				</Grid>
+				<Cluster gap={2}>
+					<Button variant="solid" tone="accent">Apply</Button>
+					<Button variant="outline" tone="neutral">Export CSS</Button>
+					<Button variant="ghost" tone="neutral">Reset</Button>
+				</Cluster>
+			</Stack>
+
+			<Dock slot="right" label="Details" size="sm">
+				<Stack gap={3}>
+					<Stack gap={0}>
+						<Text size="xs" tone="muted">Algorithm</Text>
+						<Text weight="medium">xoji-default</Text>
+					</Stack>
+					<Stack gap={0}>
+						<Text size="xs" tone="muted">Contrast</Text>
+						<Badge tone="success" variant="soft" size="sm">AA passing</Badge>
+					</Stack>
+					<Stack gap={0}>
+						<Text size="xs" tone="muted">Tokens produced</Text>
+						<Text mono>312</Text>
+					</Stack>
+				</Stack>
+			</Dock>
+
+			<Statusbar slot="statusbar" label="Shell status">
+				<span class="xoji-statusbar__item xoji-statusbar__item--strong">xoji-default</span>
+				<span class="xoji-statusbar__item">OKLCH</span>
+				<span class="xoji-statusbar__spacer"></span>
+				<span class="xoji-statusbar__item">{tokens} tokens</span>
+				<span class="xoji-statusbar__item xoji-statusbar__item--strong">100% coverage</span>
+			</Statusbar>
+		</AppShell>
+	</div>
+</Stack>
+
+<style>
+	.appshell-demo__hint {
+		margin: 0;
+	}
+	.appshell-demo__device {
+		position: relative;
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		box-shadow: var(--elevation-2);
+	}
+	.appshell-demo__device :global(.xoji-app) {
+		height: 30rem;
+	}
+</style>

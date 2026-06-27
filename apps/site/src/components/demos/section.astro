@@ -1,0 +1,91 @@
+---
+import Section from "@xoji/astro/Section.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Button from "@xoji/astro/Button.astro";
+import Stat from "@xoji/astro/Stat.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6}>
+	<Stack gap={0}>
+		<Section as="div" tone="plain" bordered>
+			<Stack gap={1}>
+				<Text size="xs" tone="muted" mono>tone="plain" · bordered</Text>
+				<Heading level={3} size="lg">A plain band with hairline rules</Heading>
+			</Stack>
+		</Section>
+		<Section as="div" tone="quiet" bordered>
+			<Stack gap={1}>
+				<Text size="xs" tone="muted" mono>tone="quiet" · bordered</Text>
+				<Grid columns={3} gap={4}>
+					<Stat label="Components" align="center">41</Stat>
+					<Stat label="Tokens" align="center">179</Stat>
+					<Stat label="Bindings" align="center">3</Stat>
+				</Grid>
+			</Stack>
+		</Section>
+		<Section as="div" tone="accent" bordered>
+			<Cluster gap={4} align="center" justify="between">
+				<Stack gap={1}>
+					<Text size="xs" tone="muted" mono>tone="accent" · bordered</Text>
+					<Heading level={3} size="lg">An accent call-to-action band</Heading>
+				</Stack>
+				<Button variant="solid" tone="accent">Get started</Button>
+			</Cluster>
+		</Section>
+	</Stack>
+
+	<Section variant="stage" as="div" label="live · @xoji/astro">
+		<Cluster gap={3} align="center">
+			<Button variant="solid" tone="accent">Primary</Button>
+			<Button variant="subtle" tone="neutral">Secondary</Button>
+			<Button variant="ghost" tone="neutral">Ghost</Button>
+		</Cluster>
+	</Section>
+
+	<Cluster gap={4} align="stretch">
+		<Section as="div" tone="quiet" padding="sm" bordered>
+			<Text size="xs" tone="muted" mono>padding="sm"</Text>
+		</Section>
+		<Section as="div" tone="quiet" padding="md" bordered>
+			<Text size="xs" tone="muted" mono>padding="md"</Text>
+		</Section>
+		<Section as="div" tone="quiet" padding="lg" bordered>
+			<Text size="xs" tone="muted" mono>padding="lg"</Text>
+		</Section>
+	</Cluster>
+
+	<Stack gap={3}>
+		<Stack gap={1}>
+			<Heading level={3} size="sm" tone="muted">Every tone</Heading>
+			<Text size="sm" tone="muted">
+				Beyond <code>plain</code> and <code>quiet</code>, a band tints with any tone in the
+				roster — a soft awareness strip, a status band, whatever the page calls for.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Stack gap={0}>
+						{group.tones.map((tone) => (
+							<Section as="div" tone={tone} padding="sm" bordered>
+								<Text size="xs" mono>tone="{tone}"</Text>
+							</Section>
+						))}
+					</Stack>
+				</Stack>
+			))}
+		</Stack>
+	</Stack>
+</Stack>

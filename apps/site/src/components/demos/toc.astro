@@ -1,0 +1,31 @@
+---
+import Toc from "@xoji/astro/Toc.astro";
+import Card from "@xoji/astro/Card.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const sections = [
+	{ id: "toc-demo-intro", label: "Introduction" },
+	{ id: "toc-demo-anchors", label: "Anchors" },
+	{ id: "toc-demo-knobs", label: "Knobs" },
+	{ id: "toc-demo-coverage", label: "Coverage" },
+];
+const body = "Scroll this column and watch the active link track the heading in view. Every entry is a real anchor, so it jumps on click and works with no script at all.";
+---
+
+<Grid columns={2} gap={6} align="start">
+	<Toc items={sections} label="Sections" sticky />
+	<Stack gap={6}>
+		{sections.map((s) => (
+			<Card id={s.id}>
+				<Heading slot="header" level={3} size="lg">{s.label}</Heading>
+				<Stack gap={3}>
+					<Text tone="muted">{body}</Text>
+					<Text tone="muted">{body}</Text>
+				</Stack>
+			</Card>
+		))}
+	</Stack>
+</Grid>

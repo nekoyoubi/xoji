@@ -1,0 +1,44 @@
+---
+import { radioGroupMarkup, radioGroupHostCss } from "@xoji/core/markup";
+import { radioCss } from "@xoji/core/css";
+
+interface Props {
+	orientation?: "vertical" | "horizontal";
+	label?: string;
+	labelledby?: string;
+	disabled?: boolean;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	orientation = "vertical",
+	label,
+	labelledby,
+	disabled = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const labelId = `xoji-radio-group-${Math.random().toString(36).slice(2, 8)}-label`;
+
+const shadow = `<style>${radioGroupHostCss}${radioCss}</style>${radioGroupMarkup({ orientation, label, labelledby, disabled, labelId })}`;
+---
+
+<xoji-radio-group
+	orientation={orientation}
+	label={label}
+	labelledby={labelledby}
+	disabled={disabled || undefined}
+	class={extra}
+	{...rest}
+>
+	<template shadowrootmode="open" set:html={shadow}></template>
+	<slot />
+</xoji-radio-group>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

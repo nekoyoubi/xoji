@@ -1,0 +1,56 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+interface Props {
+	live?: boolean;
+	label?: string;
+	overflow?: "clip" | "wrap" | "scroll" | "collapse";
+	manualOverflow?: boolean;
+	/** Draw a divider between adjacent items at the bar's own spacing — so items stay
+	 * individual (and collapse counts them independently) instead of carrying their own separators. */
+	separated?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	live = false,
+	label,
+	overflow = "clip",
+	manualOverflow = false,
+	separated = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const elementId = `xoji-statusbar-${Math.random().toString(36).slice(2, 8)}`;
+
+const bindings = {
+	live,
+	label: label ?? null,
+	overflow,
+	manualOverflow,
+	separated,
+	elementId,
+};
+const light = await renderFragmentLight("statusbar", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = light.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-statusbar
+	live={live || undefined}
+	label={label}
+	overflow={overflow}
+	manual-overflow={manualOverflow || undefined}
+	separated={separated || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

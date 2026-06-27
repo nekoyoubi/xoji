@@ -1,0 +1,56 @@
+---
+import Textarea from "@xoji/astro/Textarea.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">A composed message</Heading>
+		<Textarea
+			label="Release notes"
+			name="notes"
+			rows={4}
+			placeholder="What changed in this version…"
+			value={`- the open register now derives all four switch tokens
+- coverage checks run live on every reference page
+- the gauntlet gained 40 new invariant runs`}
+		/>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">Sizes</Heading>
+		<Grid minColWidth="15rem" gap={4}>
+			<Textarea label="Small" name="t-sm" size="sm" rows={3} placeholder="sm" />
+			<Textarea label="Medium" name="t-md" size="md" rows={3} placeholder="md (default)" />
+			<Textarea label="Large" name="t-lg" size="lg" rows={3} placeholder="lg" />
+		</Grid>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={3} size="sm" tone="muted">Resize &amp; states</Heading>
+		<Grid minColWidth="15rem" gap={4}>
+			<Textarea label="Locked height" name="fixed" resize="none" rows={3} value="resize: none" />
+			<Textarea
+				label="Bio"
+				name="invalid"
+				invalid
+				rows={3}
+				value="x"
+				error="Tell us a little more — at least 20 characters."
+			/>
+			<Textarea label="Read-only summary" name="disabled" disabled rows={3} value="Generated from your activity." />
+		</Grid>
+	</section>
+</Stack>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+</style>

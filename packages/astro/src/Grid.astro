@@ -1,0 +1,57 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type GridAlign = "start" | "center" | "end" | "stretch";
+
+interface Props {
+	gap?: number;
+	columns?: number;
+	minColWidth?: string;
+	align?: GridAlign;
+	justify?: GridAlign;
+	inline?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	gap = 4,
+	columns,
+	minColWidth,
+	align,
+	justify,
+	inline = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	gap,
+	columns: columns ?? null,
+	minColWidth: minColWidth ?? null,
+	align: align ?? null,
+	justify: justify ?? null,
+	inline,
+};
+const chrome = await renderFragmentLight("grid", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-grid
+	gap={gap}
+	columns={columns ?? undefined}
+	min-col-width={minColWidth ?? undefined}
+	align={align ?? undefined}
+	justify={justify ?? undefined}
+	inline={inline || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

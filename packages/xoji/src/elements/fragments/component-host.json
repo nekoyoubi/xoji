@@ -1,0 +1,654 @@
+{
+	"$schema": "https://xript.dev/schema/manifest/v0.7.json",
+	"xript": "0.7",
+	"name": "xoji-components",
+	"version": "0.0.1",
+	"title": "Xoji components",
+	"description": "The host surface a xoji component fragment fills: an inert template plus sandboxed hooks and handlers, rendered into the component's shadow root.",
+	"slots": [
+		{
+			"id": "component.tabs",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.tabs",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.accordion",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.accordion",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.button",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.button",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.switch",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.switch",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.alert",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.alert",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.app-shell",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.app-shell",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.avatar",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.avatar",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.badge",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.badge",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.breadcrumb",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.breadcrumb",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.card",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.card",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.card-link",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.card-link",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.checkbox",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.checkbox",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.cluster",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.cluster",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.color-picker",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.color-picker",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.dialog",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.dialog",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.dock",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.dock",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.eyebrow",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.eyebrow",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.field",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.field",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.form-group",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.form-group",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.grid",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.grid",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.heading",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.heading",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.kbd",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.kbd",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.link",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.link",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.menu",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.menu",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.number-input",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.number-input",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.panel",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.panel",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.progress",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.progress",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.radio",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.radio",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.section",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.section",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.segmented",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.segmented",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.select",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.select",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.separator",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.separator",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.skeleton",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.skeleton",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.slider",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.slider",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.spinner",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.spinner",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.splitter",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.splitter",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.stack",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.stack",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.stat",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.stat",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.statusbar",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.statusbar",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.swatch",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.swatch",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.text",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.text",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.textarea",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.textarea",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.toast",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.toast",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.toc",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.toc",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.toolbar",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.toolbar",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.tooltip",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.tooltip",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.tree",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.tree",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.code",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.code",
+			"multiple": false,
+			"style": "inherit"
+		},
+		{
+			"id": "component.pagination",
+			"accepts": [
+				"text/html+jsml"
+			],
+			"capability": "xoji.component.pagination",
+			"multiple": false,
+			"style": "inherit"
+		}
+	],
+	"capabilities": {
+		"xoji.component.tabs": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Tabs component.",
+			"risk": "low"
+		},
+		"xoji.component.accordion": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Accordion component.",
+			"risk": "low"
+		},
+		"xoji.component.button": {
+			"description": "Permits a mod to provide the markup of the xoji Button component.",
+			"risk": "low"
+		},
+		"xoji.component.switch": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Switch component.",
+			"risk": "low"
+		},
+		"xoji.component.alert": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Alert component.",
+			"risk": "low"
+		},
+		"xoji.component.app-shell": {
+			"description": "Permits a mod to provide the markup of the xoji App Shell component.",
+			"risk": "low"
+		},
+		"xoji.component.avatar": {
+			"description": "Permits a mod to provide the markup of the xoji Avatar component.",
+			"risk": "low"
+		},
+		"xoji.component.badge": {
+			"description": "Permits a mod to provide the markup of the xoji Badge component.",
+			"risk": "low"
+		},
+		"xoji.component.breadcrumb": {
+			"description": "Permits a mod to provide the markup of the xoji Breadcrumb component.",
+			"risk": "low"
+		},
+		"xoji.component.card": {
+			"description": "Permits a mod to provide the markup of the xoji Card component.",
+			"risk": "low"
+		},
+		"xoji.component.card-link": {
+			"description": "Permits a mod to provide the markup of the xoji Card Link component.",
+			"risk": "low"
+		},
+		"xoji.component.checkbox": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Checkbox component.",
+			"risk": "low"
+		},
+		"xoji.component.cluster": {
+			"description": "Permits a mod to provide the markup of the xoji Cluster component.",
+			"risk": "low"
+		},
+		"xoji.component.color-picker": {
+			"description": "Permits a mod to provide the markup of the xoji Color Picker component.",
+			"risk": "low"
+		},
+		"xoji.component.dialog": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Dialog component.",
+			"risk": "low"
+		},
+		"xoji.component.dock": {
+			"description": "Permits a mod to provide the markup of the xoji Dock component.",
+			"risk": "low"
+		},
+		"xoji.component.eyebrow": {
+			"description": "Permits a mod to provide the markup of the xoji Eyebrow component.",
+			"risk": "low"
+		},
+		"xoji.component.field": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Field component.",
+			"risk": "low"
+		},
+		"xoji.component.form-group": {
+			"description": "Permits a mod to provide the markup of the xoji Form Group component.",
+			"risk": "low"
+		},
+		"xoji.component.grid": {
+			"description": "Permits a mod to provide the markup of the xoji Grid component.",
+			"risk": "low"
+		},
+		"xoji.component.heading": {
+			"description": "Permits a mod to provide the markup of the xoji Heading component.",
+			"risk": "low"
+		},
+		"xoji.component.kbd": {
+			"description": "Permits a mod to provide the markup of the xoji Kbd component.",
+			"risk": "low"
+		},
+		"xoji.component.link": {
+			"description": "Permits a mod to provide the markup of the xoji Link component.",
+			"risk": "low"
+		},
+		"xoji.component.menu": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Menu component.",
+			"risk": "low"
+		},
+		"xoji.component.number-input": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Number Input component.",
+			"risk": "low"
+		},
+		"xoji.component.panel": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Panel component.",
+			"risk": "low"
+		},
+		"xoji.component.progress": {
+			"description": "Permits a mod to provide the markup of the xoji Progress component.",
+			"risk": "low"
+		},
+		"xoji.component.radio": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Radio component.",
+			"risk": "low"
+		},
+		"xoji.component.section": {
+			"description": "Permits a mod to provide the markup of the xoji Section component.",
+			"risk": "low"
+		},
+		"xoji.component.segmented": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Segmented component.",
+			"risk": "low"
+		},
+		"xoji.component.select": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Select component.",
+			"risk": "low"
+		},
+		"xoji.component.separator": {
+			"description": "Permits a mod to provide the markup of the xoji Separator component.",
+			"risk": "low"
+		},
+		"xoji.component.skeleton": {
+			"description": "Permits a mod to provide the markup of the xoji Skeleton component.",
+			"risk": "low"
+		},
+		"xoji.component.slider": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Slider component.",
+			"risk": "low"
+		},
+		"xoji.component.spinner": {
+			"description": "Permits a mod to provide the markup of the xoji Spinner component.",
+			"risk": "low"
+		},
+		"xoji.component.splitter": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Splitter component.",
+			"risk": "low"
+		},
+		"xoji.component.stack": {
+			"description": "Permits a mod to provide the markup of the xoji Stack component.",
+			"risk": "low"
+		},
+		"xoji.component.stat": {
+			"description": "Permits a mod to provide the markup of the xoji Stat component.",
+			"risk": "low"
+		},
+		"xoji.component.statusbar": {
+			"description": "Permits a mod to provide the markup of the xoji Statusbar component.",
+			"risk": "low"
+		},
+		"xoji.component.swatch": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Swatch component.",
+			"risk": "low"
+		},
+		"xoji.component.text": {
+			"description": "Permits a mod to provide the markup of the xoji Text component.",
+			"risk": "low"
+		},
+		"xoji.component.textarea": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Textarea component.",
+			"risk": "low"
+		},
+		"xoji.component.toast": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Toast component.",
+			"risk": "low"
+		},
+		"xoji.component.toc": {
+			"description": "Permits a mod to provide the markup of the xoji Toc component.",
+			"risk": "low"
+		},
+		"xoji.component.toolbar": {
+			"description": "Permits a mod to provide the markup of the xoji Toolbar component.",
+			"risk": "low"
+		},
+		"xoji.component.tooltip": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Tooltip component.",
+			"risk": "low"
+		},
+		"xoji.component.tree": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Tree component.",
+			"risk": "low"
+		},
+		"xoji.component.code": {
+			"description": "Permits a mod to provide the markup of the xoji Code component.",
+			"risk": "low"
+		},
+		"xoji.component.pagination": {
+			"description": "Permits a mod to provide the markup and behavior of the xoji Pagination component.",
+			"risk": "low"
+		}
+	},
+	"limits": {
+		"timeout_ms": 2000,
+		"memory_mb": 16,
+		"max_stack_depth": 128
+	}
+}

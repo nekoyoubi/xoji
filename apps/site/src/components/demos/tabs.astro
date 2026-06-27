@@ -1,0 +1,118 @@
+---
+import Tabs from "@xoji/astro/Tabs.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Live & keyboard-driven</Heading>
+			<Text size="sm" tone="muted">
+				Click a tab, or focus the tablist and use arrow keys, Home, and End. The panel swaps in place.
+			</Text>
+		</Stack>
+		<Tabs variant="underline" value="derive" label="Engine concepts">
+			<button slot="tab" value="derive">Derive</button>
+			<button slot="tab" value="cover">Cover</button>
+			<button slot="tab" value="emit">Emit</button>
+			<div slot="panel">
+				<Stack gap={2}>
+					<Text weight="semibold">Derivation</Text>
+					<Text size="sm" tone="muted">
+						An algorithm maps a handful of anchors and knobs into a full,
+						internally-consistent register of OKLCH-derived tokens.
+					</Text>
+				</Stack>
+			</div>
+			<div slot="panel">
+				<Stack gap={2}>
+					<Text weight="semibold">Coverage</Text>
+					<Text size="sm" tone="muted">
+						The only hard contract: every token a component consumes must be
+						produced by the active register. The check is live.
+					</Text>
+				</Stack>
+			</div>
+			<div slot="panel">
+				<Stack gap={2}>
+					<Text weight="semibold">Emit</Text>
+					<Text size="sm" tone="muted">
+						Once derived, a theme is just CSS custom properties plus the
+						cascade — emit it as CSS or JSON and you're done.
+					</Text>
+				</Stack>
+			</div>
+		</Tabs>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Three variants</Heading>
+			<Text size="sm" tone="muted">
+				Underline, pill, and enclosed — the same tablist, three different framings.
+			</Text>
+		</Stack>
+		<Stack gap={5}>
+			<Stack gap={2}>
+				<Text as="span" size="xs" tone="subtle" mono>variant="underline"</Text>
+				<Tabs variant="underline" label="Underline tabs">
+					<button slot="tab" value="a">Overview</button>
+					<button slot="tab" value="b">Pricing</button>
+					<button slot="tab" value="c">Reviews</button>
+					<div slot="panel"><Text size="sm" tone="muted">The default — a quiet underline marks the selected tab.</Text></div>
+					<div slot="panel"><Text size="sm" tone="muted">Pricing panel content.</Text></div>
+					<div slot="panel"><Text size="sm" tone="muted">Reviews panel content.</Text></div>
+				</Tabs>
+			</Stack>
+
+			<Stack gap={2}>
+				<Text as="span" size="xs" tone="subtle" mono>variant="pill"</Text>
+				<Tabs variant="pill" label="Pill tabs">
+					<button slot="tab" value="a">Overview</button>
+					<button slot="tab" value="b">Pricing</button>
+					<button slot="tab" value="c">Reviews</button>
+					<div slot="panel"><Text size="sm" tone="muted">A filled pill carries the selection.</Text></div>
+					<div slot="panel"><Text size="sm" tone="muted">Pricing panel content.</Text></div>
+					<div slot="panel"><Text size="sm" tone="muted">Reviews panel content.</Text></div>
+				</Tabs>
+			</Stack>
+
+			<Stack gap={2}>
+				<Text as="span" size="xs" tone="subtle" mono>variant="enclosed"</Text>
+				<Tabs variant="enclosed" label="Enclosed tabs">
+					<button slot="tab" value="a">Overview</button>
+					<button slot="tab" value="b">Pricing</button>
+					<button slot="tab" value="c">Reviews</button>
+					<div slot="panel"><Text size="sm" tone="muted">Folder-style tabs that connect to the panel.</Text></div>
+					<div slot="panel"><Text size="sm" tone="muted">Pricing panel content.</Text></div>
+					<div slot="panel"><Text size="sm" tone="muted">Reviews panel content.</Text></div>
+				</Tabs>
+			</Stack>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Cluster gap={2} align="center" justify="between">
+				<Heading level={3} size="lg">Sizes & disabled state</Heading>
+				<Badge tone="info">size="sm"</Badge>
+			</Cluster>
+			<Text size="sm" tone="muted">
+				The compact size, with a disabled tab that's skipped by keyboard navigation.
+			</Text>
+		</Stack>
+		<Tabs variant="pill" size="sm" value="active" label="Account settings">
+			<button slot="tab" value="active">Profile</button>
+			<button slot="tab" value="security">Security</button>
+			<button slot="tab" value="billing" disabled>Billing</button>
+			<div slot="panel"><Text size="sm" tone="muted">Edit your display name and avatar.</Text></div>
+			<div slot="panel"><Text size="sm" tone="muted">Manage passwords and two-factor auth.</Text></div>
+			<div slot="panel"><Text size="sm" tone="muted">Billing is disabled on this plan.</Text></div>
+		</Tabs>
+	</Card>
+</Stack>

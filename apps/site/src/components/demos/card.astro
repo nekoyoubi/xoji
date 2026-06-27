@@ -1,0 +1,146 @@
+---
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Button from "@xoji/astro/Button.astro";
+import Separator from "@xoji/astro/Separator.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="demo-card">
+	<Grid minColWidth="17rem" gap={4}>
+		<Card>
+			<Stack gap={2}>
+				<Heading level={2} size="md">Plain surface</Heading>
+				<Text tone="muted" size="sm">
+					The default card — a quiet panel that groups related content with no
+					extra ceremony.
+				</Text>
+			</Stack>
+		</Card>
+
+		<Card interactive>
+			<Stack gap={2}>
+				<Cluster gap={2} justify="between" align="center">
+					<Heading level={2} size="md">Interactive</Heading>
+					<Badge tone="accent" variant="soft" size="sm">hover me</Badge>
+				</Cluster>
+				<Text tone="muted" size="sm">
+					Lifts on hover and grows a focus-within ring — for cards that behave as
+					a single clickable target.
+				</Text>
+			</Stack>
+		</Card>
+
+		<Card compact>
+			<Stack gap={2}>
+				<Heading level={2} size="md">Compact</Heading>
+				<Text tone="muted" size="sm">
+					Tighter padding and inner spacing for dense, list-like layouts.
+				</Text>
+			</Stack>
+		</Card>
+	</Grid>
+
+	<Card>
+		<Heading slot="header" level={2} size="md">With header &amp; footer</Heading>
+		<Stack gap={3}>
+			<Text>
+				Cards expose <code>header</code>, default, and <code>footer</code> slots.
+				The body sits between two faintly ruled regions, so a title and an action
+				row frame the content without any manual dividers.
+			</Text>
+			<Cluster gap={2}>
+				<Badge tone="success" variant="soft">stable</Badge>
+				<Badge tone="info" variant="soft">v1</Badge>
+				<Badge tone="neutral" variant="outline">surface</Badge>
+			</Cluster>
+		</Stack>
+		<Cluster slot="footer" gap={2} justify="end">
+			<Button variant="ghost" tone="neutral" size="sm">Dismiss</Button>
+			<Button variant="solid" tone="accent" size="sm">Confirm</Button>
+		</Cluster>
+	</Card>
+
+	<Stack gap={3}>
+		<Stack gap={1}>
+			<Heading level={2} size="md">Toned — a leading accent bar</Heading>
+			<Text tone="muted" size="sm">
+				Set <code>tone</code> to mark a card with a colored edge; leave it off for the
+				plain neutral surface.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => (
+							<Card compact tone={tone}>
+								<Text as="span" size="sm" weight="medium">{tone}</Text>
+							</Card>
+						))}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</Stack>
+
+	<div class="demo-card__overlay-stage">
+		<Card overlay class="demo-card__overlay">
+			<Stack gap={2}>
+				<Heading level={2} size="md">Overlay surface</Heading>
+				<Text tone="muted" size="sm">
+					The translucent variant for cards that float over content — popovers,
+					menus, command palettes.
+				</Text>
+				<Separator size="thin" />
+				<Cluster gap={2} justify="end">
+					<Button variant="subtle" tone="neutral" size="sm">Later</Button>
+					<Button variant="solid" tone="accent" size="sm">Got it</Button>
+				</Cluster>
+			</Stack>
+		</Card>
+	</div>
+</Stack>
+
+<style>
+	.demo-card :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		background: var(--bg-2);
+		padding: 0.08em 0.32em;
+		border-radius: var(--radius-sm);
+	}
+	.demo-card__overlay-stage {
+		position: relative;
+		border-radius: var(--radius-md);
+		padding: var(--space-6);
+		background:
+			radial-gradient(
+				120% 140% at 20% 0%,
+				color-mix(in oklch, var(--accent) 22%, transparent),
+				transparent 60%
+			),
+			repeating-linear-gradient(
+				-45deg,
+				var(--bg-2) 0 10px,
+				var(--bg-1) 10px 20px
+			);
+		border: var(--border-thin) solid var(--line);
+	}
+	.demo-card__overlay {
+		max-width: 26rem;
+		margin-inline: auto;
+	}
+</style>

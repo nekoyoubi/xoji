@@ -1,0 +1,85 @@
+---
+import type { PropDef } from "@xoji/core";
+import Table from "@xoji/astro/Table.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Text from "@xoji/astro/Text.astro";
+
+interface Props {
+	props: PropDef[];
+}
+
+const { props } = Astro.props;
+const bindingOrder = ["html", "svelte", "astro"] as const;
+---
+
+{props.length > 0 && (
+	<Table variant="striped" ariaLabel="Component props">
+		<table>
+			<thead>
+				<tr>
+					<th scope="col">Prop</th>
+					<th scope="col">Type</th>
+					<th scope="col">Default</th>
+					<th scope="col">Bindings</th>
+					<th scope="col">Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				{props.map((p) => (
+					<tr>
+						<td>
+							<Badge tone="accent" size="sm" class="prop-name-badge">{p.name}</Badge>
+						</td>
+						<td>
+							<Text as="span" size="sm" tone="muted" mono class="prop-type">{p.type}</Text>
+							{p.options && p.options.length > 0 && (
+								<Cluster gap={1} class="prop-option-row">
+									{p.options.map((o) => (
+										<Badge size="sm">{o}</Badge>
+									))}
+								</Cluster>
+							)}
+						</td>
+						<td>
+							{p.default !== undefined ? (
+								<Text as="span" size="sm" tone="muted" mono>{p.default}</Text>
+							) : (
+								<Text as="span" size="sm" tone="subtle" aria-label="No default">—</Text>
+							)}
+						</td>
+						<td>
+							<Cluster gap={1}>
+								{bindingOrder
+									.filter((b) => p.bindings.includes(b))
+									.map((b) => (
+										<Badge variant="outline" size="sm">{b}</Badge>
+									))}
+							</Cluster>
+						</td>
+						<td>
+							<Text as="span" size="sm" class="prop-desc">{p.description}</Text>
+						</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	</Table>
+)}
+
+<style>
+	.prop-name-badge {
+		font-family: var(--font-mono);
+		font-weight: var(--weight-semibold);
+	}
+	.prop-type {
+		white-space: nowrap;
+	}
+	.prop-option-row {
+		margin-top: var(--space-1);
+	}
+	.prop-desc {
+		display: inline-block;
+		min-width: 16rem;
+	}
+</style>

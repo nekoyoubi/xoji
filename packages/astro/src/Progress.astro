@@ -1,0 +1,91 @@
+---
+import { renderFragmentLight, composeFallbackSlot } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type ProgressVariant = "linear" | "circular";
+type ProgressSize = "sm" | "md" | "lg";
+
+interface Props {
+	variant?: ProgressVariant;
+	tone?: Tone;
+	size?: ProgressSize;
+	value?: number;
+	min?: number;
+	max?: number;
+	indeterminate?: boolean;
+	showValue?: boolean;
+	/** How `showValue` renders the readout: `percent` (33%), `value` (123), or `value-max` (123/456). */
+	valueFormat?: "percent" | "value" | "value-max";
+	/** Tint the readout with the active tone instead of the muted default. */
+	colorizeValue?: boolean;
+	/** `end` (after the bar) or `inset` (centered in the track, contrast-flipping as the fill crosses). */
+	valuePosition?: "end" | "inset";
+	"aria-label"?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	variant = "linear",
+	tone = "accent",
+	size = "md",
+	value = 0,
+	min = 0,
+	max = 100,
+	indeterminate = false,
+	showValue = false,
+	valueFormat = "percent",
+	colorizeValue = false,
+	valuePosition = "end",
+	"aria-label": ariaLabel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	variant,
+	tone,
+	size,
+	value,
+	min,
+	max,
+	indeterminate,
+	showValue,
+	valueFormat,
+	colorizeValue,
+	valuePosition,
+	pulse: null,
+	ariaLabel: ariaLabel ?? null,
+	ariaLabelledby: null,
+};
+const light = await renderFragmentLight("progress", bindings);
+const valueHtml = Astro.slots.has("value") ? await Astro.slots.render("value") : null;
+// the default slot carries `<threshold>` config elements — re-emit them as hidden direct children
+// so the hydrating element can read `:scope > threshold` (the global sheet hides them from view)
+const thresholdHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = composeFallbackSlot(light, "value", valueHtml) + thresholdHtml;
+---
+
+<xoji-progress
+	variant={variant}
+	tone={tone}
+	size={size}
+	value={value}
+	min={min}
+	max={max}
+	indeterminate={indeterminate || undefined}
+	show-value={showValue || undefined}
+	value-format={valueFormat !== "percent" ? valueFormat : undefined}
+	colorize-value={colorizeValue || undefined}
+	value-position={valuePosition !== "end" ? valuePosition : undefined}
+	aria-label={ariaLabel}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

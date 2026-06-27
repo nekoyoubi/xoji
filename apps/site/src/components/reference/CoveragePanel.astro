@@ -1,0 +1,65 @@
+---
+import Badge from "@xoji/astro/Badge.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Text from "@xoji/astro/Text.astro";
+import TokenList from "./TokenList.astro";
+
+interface Props {
+	consumed: string[];
+	missing: string[];
+	covered: boolean;
+	producedCount: number;
+}
+
+const { consumed, missing, covered, producedCount } = Astro.props;
+const have = consumed.length - missing.length;
+---
+
+<Stack gap={3}>
+	<Cluster align="center" gap={2}>
+		<Badge tone={covered ? "success" : "warn"}>
+			{covered ? "fully covered" : `${missing.length} missing`}
+		</Badge>
+		<Text
+			as="span"
+			size="sm"
+			weight="semibold"
+			class:list={[
+				"coverage-panel__count",
+				covered ? "is-full" : "is-partial",
+			]}
+		>
+			{have}/{consumed.length} consumed tokens produced
+		</Text>
+		<Text as="span" size="sm" tone="muted">
+			default register: {producedCount} tokens
+		</Text>
+	</Cluster>
+	<Text size="sm" tone="muted" class="coverage-panel__note">
+		Live coverage check against the <code>xoji-default</code> register
+		(<code>derive(xojiDefault, &#123; anchors &#125;)</code> →
+		<code>coverComponent(manifest, register)</code>). Every token this component
+		consumes must be a key the algorithm produces.
+	</Text>
+	<TokenList tokens={consumed} missing={missing} />
+</Stack>
+
+<style>
+	.coverage-panel__count.is-full {
+		color: var(--success-text);
+	}
+	.coverage-panel__count.is-partial {
+		color: var(--warn-text);
+	}
+	.coverage-panel__note {
+		max-width: 52rem;
+	}
+	.coverage-panel__note code {
+		font-family: var(--font-mono);
+		font-size: 0.92em;
+		background: var(--bg-2);
+		padding: 0.1em 0.3em;
+		border-radius: var(--radius-sm);
+	}
+</style>

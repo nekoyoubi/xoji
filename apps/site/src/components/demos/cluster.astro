@@ -1,0 +1,116 @@
+---
+import Cluster from "@xoji/astro/Cluster.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Card from "@xoji/astro/Card.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Button from "@xoji/astro/Button.astro";
+
+const tags = [
+	"oklch",
+	"derivation",
+	"open-register",
+	"coverage",
+	"xript",
+	"gauntlet",
+	"tokens",
+	"astro",
+];
+const justifies = ["start", "between", "end"] as const;
+---
+
+<Stack gap={6} class="demo-cluster">
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={2} size="md">Action toolbar</Heading>
+				<Text tone="muted" size="sm">
+					A cluster centers its children and wraps gracefully — the workhorse
+					for inline button groups.
+				</Text>
+			</div>
+			<Cluster gap={2}>
+				<Button variant="solid" tone="accent" size="sm">Derive</Button>
+				<Button variant="outline" tone="neutral" size="sm">Copy CSS</Button>
+				<Button variant="outline" tone="neutral" size="sm">Copy JSON</Button>
+				<Button variant="ghost" tone="neutral" size="sm">Reset</Button>
+				<Button variant="subtle" tone="danger" size="sm">Clear</Button>
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={2} size="md">Wrapping tag list</Heading>
+				<Text tone="muted" size="sm">
+					Many children flow onto new rows; the same <code>gap</code> applies
+					both between items and across wrapped rows.
+				</Text>
+			</div>
+			<Cluster gap={2}>
+				{tags.map((t) => (
+					<Badge tone="neutral" variant="soft">{t}</Badge>
+				))}
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={2} size="md">Distribution</Heading>
+				<Text tone="muted" size="sm">
+					<code>justify</code> controls main-axis spread — useful for split
+					headers and footers.
+				</Text>
+			</div>
+			<Stack gap={3}>
+				{justifies.map((j) => (
+					<div class="demo-cluster__row">
+						<Text size="xs" tone="subtle" mono>justify={j}</Text>
+						<Cluster gap={2} justify={j} class="demo-cluster__fill">
+							<span class="demo-pill"></span>
+							<span class="demo-pill"></span>
+							<span class="demo-pill"></span>
+						</Cluster>
+					</div>
+				))}
+			</Stack>
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	.demo-cluster :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		background: var(--bg-2);
+		padding: 0.08em 0.32em;
+		border-radius: var(--radius-sm);
+	}
+	.demo-cluster__row {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		padding: var(--space-3);
+		background: var(--bg-2);
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+	}
+	.demo-cluster__fill {
+		width: 100%;
+	}
+	.demo-pill {
+		display: block;
+		height: 1.4rem;
+		width: 4.5rem;
+		border-radius: var(--radius-pill, 999px);
+		background: linear-gradient(
+			90deg,
+			color-mix(in oklch, var(--accent) 70%, transparent),
+			color-mix(in oklch, var(--accent) 38%, transparent)
+		);
+	}
+</style>

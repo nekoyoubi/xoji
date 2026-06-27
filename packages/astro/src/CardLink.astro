@@ -1,0 +1,60 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+interface Props {
+	href: string;
+	target?: string;
+	rel?: string;
+	interactive?: boolean;
+	overlay?: boolean;
+	compact?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	href,
+	target,
+	rel,
+	interactive = true,
+	overlay = false,
+	compact = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	href,
+	target: target ?? null,
+	rel: rel ?? null,
+	interactive,
+	overlay,
+	compact,
+};
+const chrome = await renderFragmentLight("card-link", bindings);
+const headerHtml = Astro.slots.has("header") ? await Astro.slots.render("header") : "";
+const bodyHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const footerHtml = Astro.slots.has("footer") ? await Astro.slots.render("footer") : "";
+const composed = chrome
+	.replace('<slot name="header"></slot>', () => headerHtml)
+	.replace('<slot name="footer"></slot>', () => footerHtml)
+	.replace("<slot></slot>", () => bodyHtml);
+---
+
+<xoji-card-link
+	href={href}
+	target={target}
+	rel={rel}
+	interactive={interactive ? undefined : "false"}
+	overlay={overlay || undefined}
+	compact={compact || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

@@ -1,0 +1,55 @@
+---
+import CardLink from "@xoji/astro/CardLink.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+
+const entries = [
+	{ name: "Button", blurb: "The thing people click — variants, tones, and sizes." },
+	{ name: "Field", blurb: "A labelled input with help text and validation." },
+	{ name: "Dialog", blurb: "A modal surface that traps focus and renders its body." },
+];
+---
+
+<Stack gap={6}>
+	<Stack gap={3}>
+		<Eyebrow tone="muted">A grid of destinations</Eyebrow>
+		<Grid minColWidth="16rem" gap={4}>
+			{entries.map((e) => (
+				<CardLink href={`/components/${e.name.toLowerCase()}`}>
+					<Heading slot="header" level={2} size="sm">{e.name}</Heading>
+					<Text size="sm" tone="muted">{e.blurb}</Text>
+					<Text slot="footer" size="xs" tone="accent">View component →</Text>
+				</CardLink>
+			))}
+		</Grid>
+	</Stack>
+
+	<Stack gap={3}>
+		<Eyebrow tone="muted">A prev / next pager</Eyebrow>
+		<Cluster justify="between" gap={3} align="stretch">
+			<CardLink href="/components/card" compact>
+				<Stack gap={1}>
+					<Text size="xs" tone="subtle">← Previous</Text>
+					<Text weight="semibold">Card</Text>
+				</Stack>
+			</CardLink>
+			<CardLink href="/components/cluster" compact>
+				<Stack gap={1} align="end">
+					<Text size="xs" tone="subtle">Next →</Text>
+					<Text weight="semibold">Cluster</Text>
+				</Stack>
+			</CardLink>
+		</Cluster>
+	</Stack>
+
+	<Stack gap={3}>
+		<Eyebrow tone="muted">Flat, non-interactive</Eyebrow>
+		<CardLink href="/start" interactive={false}>
+			<Text size="sm">A link card with no hover lift — still one click target, just calmer.</Text>
+		</CardLink>
+	</Stack>
+</Stack>

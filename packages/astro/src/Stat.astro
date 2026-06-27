@@ -1,0 +1,64 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type StatTrend = "up" | "down" | "flat";
+type StatAlign = "start" | "center";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	label?: string;
+	delta?: string;
+	trend?: StatTrend;
+	caption?: string;
+	size?: Size;
+	align?: StatAlign;
+	/** Lay the stat out horizontally — value, label, and trend delta on one line, like a ticker. */
+	inline?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	label,
+	delta,
+	trend = "flat",
+	caption,
+	size = "md",
+	align = "start",
+	inline = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	label: label ?? null,
+	delta: delta ?? null,
+	trend,
+	caption: caption ?? null,
+	size,
+	align,
+	inline,
+};
+const chrome = await renderFragmentLight("stat", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-stat
+	label={label}
+	delta={delta}
+	trend={trend}
+	caption={caption}
+	size={size}
+	align={align}
+	inline={inline || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

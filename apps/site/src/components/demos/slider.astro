@@ -1,0 +1,76 @@
+---
+import Slider from "@xoji/astro/Slider.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">A settings panel</Heading>
+		<Stack gap={5} class="demo__rows">
+			<Slider label="Volume" value={60} />
+			<Slider label="Brightness" min={0} max={100} step={5} value={40} />
+			<Slider label="Locked" value={50} disabled />
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Value readout</Heading>
+		<Stack gap={5} class="demo__rows">
+			<Slider label="Volume" value={60} showValue />
+			<Slider id="demo-slider-pct" label="Opacity" value={80} showValue />
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Sizes</Heading>
+		<Stack gap={5} class="demo__rows">
+			<Slider label="Small" size="sm" value={25} />
+			<Slider label="Medium" value={50} />
+			<Slider label="Large" size="lg" value={75} />
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Grid gap={5} minColWidth="14rem">
+						{group.tones.map((tone) => <Slider label={tone} tone={tone} value={60} />)}
+					</Grid>
+				</Stack>
+			))}
+		</Stack>
+	</section>
+</Stack>
+
+<script>
+	const pct = document.getElementById("demo-slider-pct") as
+		| (HTMLElement & { format: (value: number) => string })
+		| null;
+	if (pct) pct.format = (value: number) => `${value}%`;
+</script>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+	.demo__rows {
+		max-width: 28rem;
+	}
+</style>

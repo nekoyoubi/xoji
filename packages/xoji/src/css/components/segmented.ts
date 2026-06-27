@@ -1,0 +1,98 @@
+import { FULL_TONES } from "../../vocab.js";
+
+const segmentedToneVars = FULL_TONES.map(
+	(t) => `.xoji-segmented--${t} { --seg-fill: var(--${t}); --seg-ink: var(--${t}-fg); }`,
+).join("\n");
+
+export const segmentedCss = `
+.xoji-segmented-field {
+	display: inline-flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	font-family: var(--font-sans);
+}
+.xoji-segmented__label {
+	color: var(--fg-1);
+	font-size: var(--text-sm);
+}
+.xoji-segmented {
+	--seg-fill: var(--accent);
+	--seg-ink: var(--accent-fg);
+	display: inline-flex;
+	gap: var(--space-1);
+	padding: var(--space-1);
+	background: var(--bg-1);
+	border: var(--border-thin) solid var(--line-2);
+	border-radius: var(--radius-md);
+}
+.xoji-segmented__option {
+	appearance: none;
+	border: none;
+	background: transparent;
+	color: var(--fg-1);
+	font: inherit;
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	padding: var(--space-1) var(--space-3);
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	position: relative;
+	isolation: isolate;
+	white-space: nowrap;
+	transition:
+		color var(--duration-fast) var(--ease-standard),
+		background-color var(--duration-fast) var(--ease-standard);
+}
+.xoji-segmented__option::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	background: transparent;
+	z-index: -1;
+	transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.xoji-segmented__option:hover {
+	color: var(--fg-0);
+}
+.xoji-segmented__option:hover::after {
+	background: var(--state-hover);
+}
+.xoji-segmented__option:active::after {
+	background: var(--state-press);
+}
+.xoji-segmented__option[aria-checked="true"] {
+	color: var(--seg-ink);
+	background: var(--seg-fill);
+}
+.xoji-segmented__option:focus-visible {
+	outline: var(--border-normal) solid transparent;
+	box-shadow: 0 0 0 var(--border-thick) var(--ring);
+}
+.xoji-segmented--sm .xoji-segmented__option {
+	padding: var(--space-1) var(--space-2);
+}
+.xoji-segmented--lg .xoji-segmented__option {
+	padding: var(--space-2) var(--space-4);
+	font-size: var(--text-body);
+}
+.xoji-segmented--disabled {
+	opacity: 0.6;
+}
+.xoji-segmented--disabled .xoji-segmented__option {
+	cursor: not-allowed;
+	color: var(--fg-disabled);
+}
+.xoji-segmented--disabled .xoji-segmented__option[aria-checked="true"] {
+	background: var(--state-disabled);
+	color: var(--fg-disabled);
+}
+@container style(--selection-cue: marker) {
+	.xoji-segmented__option[aria-checked="true"]::before {
+		content: "✓";
+		margin-inline-end: var(--space-1);
+		font-size: 0.85em;
+	}
+}
+${segmentedToneVars}
+`.trim();

@@ -1,0 +1,58 @@
+---
+import Segmented from "@xoji/astro/Segmented.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Choices worth showing at once</Heading>
+		<Stack gap={4}>
+			<Segmented label="View" options="Day,Week,Month" value="Week" />
+			<Segmented label="Alignment" options="Left:start,Center:center,Right:end" value="center" />
+			<Segmented label="Theme" options="Light,Dark,Auto" value="Auto" />
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Sizes &amp; disabled</Heading>
+		<Stack gap={4} align="start">
+			<Segmented size="sm" label="Small" options="One,Two,Three" value="Two" />
+			<Segmented size="lg" label="Large" options="One,Two,Three" value="Two" />
+			<Segmented label="Locked" options="One,Two,Three" value="Two" disabled />
+		</Stack>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => <Segmented tone={tone} label={tone} options="Off,On" value="On" />)}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</section>
+</Stack>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+</style>

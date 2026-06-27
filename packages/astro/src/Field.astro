@@ -1,0 +1,107 @@
+---
+import { renderFragmentLight, composeFallbackSlot } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	label?: string;
+	name?: string;
+	type?: string;
+	placeholder?: string;
+	value?: string;
+	size?: Size;
+	disabled?: boolean;
+	readonly?: boolean;
+	invalid?: boolean;
+	required?: boolean;
+	clearable?: boolean;
+	description?: string;
+	error?: string;
+	"aria-label"?: string;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	label,
+	name,
+	type = "text",
+	placeholder,
+	value,
+	size = "md",
+	disabled = false,
+	readonly = false,
+	invalid = false,
+	required = false,
+	clearable = false,
+	description,
+	error,
+	"aria-label": ariaLabel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const uid = Math.random().toString(36).slice(2, 8);
+const inputId = `xoji-field-${uid}`;
+const descriptionId = `xoji-field-desc-${uid}`;
+const errorId = `xoji-field-error-${uid}`;
+
+const hasPrefix = Astro.slots.has("prefix");
+const hasSuffix = Astro.slots.has("suffix");
+const hasRevealIcon = Astro.slots.has("reveal-icon");
+const hasClearIcon = Astro.slots.has("clear-icon");
+
+const bindings = {
+	label: label ?? null,
+	name: name ?? null,
+	type,
+	placeholder: placeholder ?? null,
+	value: value ?? null,
+	size,
+	disabled,
+	readonly,
+	invalid,
+	required,
+	clearable,
+	description: description ?? null,
+	error: error ?? null,
+	ariaLabel: ariaLabel ?? null,
+	inputId,
+	descriptionId,
+	errorId,
+};
+const light = await renderFragmentLight("field", bindings);
+const prefixHtml = hasPrefix ? await Astro.slots.render("prefix") : "";
+const suffixHtml = hasSuffix ? await Astro.slots.render("suffix") : "";
+const revealHtml = hasRevealIcon ? await Astro.slots.render("reveal-icon") : null;
+const clearHtml = hasClearIcon ? await Astro.slots.render("clear-icon") : null;
+const composed = composeFallbackSlot(composeFallbackSlot(light, "reveal-icon", revealHtml), "clear-icon", clearHtml)
+	.replace('<slot name="prefix"></slot>', () => prefixHtml)
+	.replace('<slot name="suffix"></slot>', () => suffixHtml);
+---
+
+<xoji-field
+	label={label}
+	name={name}
+	type={type}
+	placeholder={placeholder}
+	value={value}
+	size={size}
+	disabled={disabled || undefined}
+	readonly={readonly || undefined}
+	invalid={invalid || undefined}
+	required={required || undefined}
+	clearable={clearable || undefined}
+	description={description}
+	error={error}
+	aria-label={ariaLabel}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

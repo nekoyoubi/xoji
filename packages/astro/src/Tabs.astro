@@ -1,0 +1,88 @@
+---
+import { type TabItemData } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+type TabsVariant = "underline" | "pill" | "enclosed";
+type TabsActivation = "automatic" | "manual";
+
+interface Props {
+	items?: TabItemData[];
+	variant?: TabsVariant;
+	size?: Size;
+	activation?: TabsActivation;
+	value?: string;
+	label?: string;
+	labelledby?: string;
+	/** Pin the tablist while the active panel scrolls beneath it (app-surface tabs); off for inline tabs. */
+	sticky?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	items,
+	variant = "underline",
+	size = "md",
+	activation = "automatic",
+	value,
+	label,
+	labelledby,
+	sticky = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const tabItems = items ?? [];
+const uid = `xoji-tabs-${Math.random().toString(36).slice(2, 9)}`;
+
+const bindings = {
+	tabs: tabItems.map((item, i) => ({
+		key: item.value ?? String(i),
+		label: item.label,
+		panel: item.panel,
+		disabled: item.disabled,
+	})),
+	activeId: value ?? null,
+	variant,
+	size,
+	sticky,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	uid,
+};
+// Two authoring modes. items-mode (the common case) renders the whole chrome light from `bindings`
+// and ships no children. The advanced slotted mode pairs the consumer's `slot="tab"`/`slot="panel"`
+// children by order, so they must survive *individually* (with their slot attributes) — Astro's
+// `<slot name>` passthrough keeps them intact, and the element maps them on connect.
+const useItems = tabItems.length > 0;
+const light = useItems ? await renderFragmentLight("tabs", bindings) : "";
+---
+
+{useItems ? (
+	<xoji-tabs
+		variant={variant}
+		size={size}
+		activation={activation}
+		value={value}
+		label={label}
+		labelledby={labelledby}
+		sticky={sticky}
+		items={JSON.stringify(items)}
+		class={extra}
+		set:html={light}
+		{...rest}
+	/>
+) : (
+	<xoji-tabs variant={variant} size={size} activation={activation} value={value} label={label} labelledby={labelledby} sticky={sticky} class={extra} {...rest}>
+		<slot name="tab" />
+		<slot name="panel" />
+		<slot />
+	</xoji-tabs>
+)}
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

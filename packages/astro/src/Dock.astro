@@ -1,0 +1,79 @@
+---
+import { renderFragmentLight, composeFallbackSlot } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type DockSide = "left" | "right";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	side?: DockSide;
+	size?: Size;
+	tone?: Tone;
+	reverseEdge?: boolean;
+	edgeWidth?: "thin" | "thick" | "bold";
+	nav?: boolean;
+	label?: string;
+	"aria-label"?: string;
+	/** Drop the visible `label` header while keeping `label` as the dock's accessible name. */
+	hideHeader?: boolean;
+	/** Render zero-JS: emit the declarative shadow but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	side = "left",
+	size = "md",
+	tone,
+	reverseEdge = false,
+	edgeWidth,
+	nav = false,
+	label,
+	"aria-label": ariaLabel,
+	hideHeader = false,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const hasHeader = Astro.slots.has("header");
+const hasFooter = Astro.slots.has("footer");
+
+const bindings = {
+	side,
+	size,
+	tone: tone ?? null,
+	reverseEdge,
+	edgeWidth: edgeWidth ?? null,
+	nav,
+	label: label ?? null,
+	hasAriaLabel: !!ariaLabel,
+	hideHeader,
+};
+const light = await renderFragmentLight("dock", bindings);
+const headerHtml = hasHeader ? await Astro.slots.render("header") : null;
+const bodyHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const footerHtml = hasFooter ? await Astro.slots.render("footer") : "";
+const composed = composeFallbackSlot(light, "header", headerHtml)
+	.replace("<slot></slot>", () => bodyHtml)
+	.replace('<slot name="footer"></slot>', () => footerHtml);
+---
+
+<xoji-dock
+	side={side}
+	size={size}
+	tone={tone}
+	reverse-edge={reverseEdge || undefined}
+	edge-width={edgeWidth}
+	nav={nav || undefined}
+	label={label}
+	aria-label={ariaLabel}
+	hide-header={hideHeader || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

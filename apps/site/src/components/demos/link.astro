@@ -1,0 +1,68 @@
+---
+import Link from "@xoji/astro/Link.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+
+const variants = [
+	{ name: "default", description: "The primary link tone — accented, the obvious thing to click." },
+	{ name: "muted", description: "Lower-contrast for secondary navigation and footers." },
+	{ name: "quiet", description: "Inherits surrounding text color until hovered — for links woven into prose." },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Three variants</Heading>
+			<Text size="sm" tone="muted">
+				Same link, three weights of presence — from "click me" to "barely there until you reach for it."
+			</Text>
+		</Stack>
+		<Stack gap={5}>
+			{variants.map((v) => (
+				<Stack gap={2}>
+					<Cluster gap={2} align="baseline">
+						<Link href="#" variant={v.name}>{v.name === "default" ? "View documentation" : v.name === "muted" ? "Privacy policy" : "release notes"}</Link>
+						<Text as="span" size="xs" tone="subtle" mono>variant="{v.name}"</Text>
+					</Cluster>
+					<Text size="sm" tone="muted">{v.description}</Text>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">In context</Heading>
+			<Text size="sm" tone="muted">
+				The <Text as="span" mono size="xs">quiet</Text> variant is built to live inside a paragraph.
+			</Text>
+		</Stack>
+		<Text leading="loose">
+			xoji derives a whole register from a few anchors. Read the{" "}
+			<Link href="#" variant="quiet">derivation model</Link>{" "}
+			for the full architecture, or jump straight to the{" "}
+			<Link href="#" variant="quiet">dimensional contract</Link>{" "}
+			to see how components consume those tokens. Either way, the link
+			stays out of the way until you want it.
+		</Text>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">External links</Heading>
+			<Text size="sm" tone="muted">
+				<Text as="span" mono size="xs">target="_blank"</Text> auto-adds the icon, a screen-reader hint, and safe{" "}
+				<Text as="span" mono size="xs">rel</Text>.
+			</Text>
+		</Stack>
+		<Cluster gap={5} align="center">
+			<Link href="https://xript.dev" target="_blank">xript.dev</Link>
+			<Link href="https://github.com/nekoyoubi/xoji" target="_blank" variant="muted">GitHub repo</Link>
+			<Link href="#" externalIcon>Forced icon</Link>
+		</Cluster>
+	</Card>
+</Stack>

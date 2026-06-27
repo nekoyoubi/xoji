@@ -1,0 +1,36 @@
+---
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={2} size="sm">The three-step hierarchy</Heading>
+		<Stack gap={2}>
+			<Eyebrow>Themable-derivation engine</Eyebrow>
+			<Heading level={3} size="xl">One algorithm, a whole system</Heading>
+			<Text tone="muted">
+				An eyebrow leads, a heading follows, body text grounds it — no bespoke CSS,
+				just the stack's gap doing the spacing.
+			</Text>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Tones and tracking</Heading>
+		<Stack gap={4}>
+			<Stack gap={1}>
+				<Eyebrow>accent · normal</Eyebrow>
+				<Eyebrow tone="muted">muted · normal</Eyebrow>
+				<Eyebrow tone="subtle">subtle · normal</Eyebrow>
+			</Stack>
+			<Stack gap={1}>
+				<Eyebrow tracking="wide">accent · wide</Eyebrow>
+				<Eyebrow tone="muted" tracking="wide">muted · wide</Eyebrow>
+			</Stack>
+		</Stack>
+	</Card>
+</Stack>

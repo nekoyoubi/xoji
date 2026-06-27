@@ -1,0 +1,89 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+import type { FullTone as Tone } from "@xoji/core";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	checked?: boolean;
+	disabled?: boolean;
+	size?: Size;
+	tone?: Tone;
+	shape?: "pill" | "square";
+	orientation?: "horizontal" | "vertical";
+	reverse?: boolean;
+	labelSide?: "start" | "end";
+	label?: string;
+	labelledby?: string;
+	onLabel?: string;
+	offLabel?: string;
+	name?: string;
+	value?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	checked = false,
+	disabled = false,
+	size = "md",
+	tone = "accent",
+	shape = "pill",
+	orientation = "horizontal",
+	reverse = false,
+	labelSide = "start",
+	label,
+	labelledby,
+	onLabel,
+	offLabel,
+	name,
+	value,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const elementId = `xoji-switch-${Math.random().toString(36).slice(2, 8)}`;
+
+const bindings = {
+	checked,
+	disabled,
+	size,
+	tone,
+	shape,
+	orientation,
+	reverse,
+	labelSide,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	onLabel: onLabel ?? null,
+	offLabel: offLabel ?? null,
+	elementId,
+};
+const light = await renderFragmentLight("switch", bindings);
+---
+
+<xoji-switch
+	checked={checked || undefined}
+	disabled={disabled || undefined}
+	size={size}
+	tone={tone}
+	shape={shape !== "pill" ? shape : undefined}
+	orientation={orientation !== "horizontal" ? orientation : undefined}
+	reverse={reverse || undefined}
+	label-side={labelSide !== "start" ? labelSide : undefined}
+	label={label}
+	labelledby={labelledby}
+	on-label={onLabel}
+	off-label={offLabel}
+	name={name}
+	value={value}
+	class={extra}
+	set:html={light}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

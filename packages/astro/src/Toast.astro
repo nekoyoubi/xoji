@@ -1,0 +1,62 @@
+---
+import { renderFragmentLight, composeFallbackSlot } from "@xoji/core/elements/ssr";
+import type { FullTone } from "@xoji/core";
+
+type ToastSeverity = "success" | "warn" | "danger" | "info";
+type ToastVariant = "soft" | "solid";
+
+interface Props {
+	/** Color — any semantic role, accent variant, or named hue. Defaults to the severity color. */
+	tone?: FullTone;
+	/** Meaning — drives the glyph + politeness, independent of color. Omit for a color-only toast. */
+	severity?: ToastSeverity;
+	variant?: ToastVariant;
+	closable?: boolean;
+	closeLabel?: string;
+	actionLabel?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	tone,
+	severity,
+	variant = "soft",
+	closable = true,
+	closeLabel,
+	actionLabel,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const bindings = {
+	tone,
+	severity,
+	variant,
+	closable,
+	closeLabel: closeLabel ?? "Dismiss",
+	actionLabel: actionLabel ?? null,
+};
+const light = await renderFragmentLight("toast", bindings);
+const iconHtml = Astro.slots.has("icon") ? await Astro.slots.render("icon") : null;
+const messageHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = composeFallbackSlot(light, "icon", iconHtml).replace("<slot></slot>", () => messageHtml);
+---
+
+<xoji-toast
+	tone={tone}
+	severity={severity}
+	variant={variant}
+	closable={closable || undefined}
+	close-label={closeLabel}
+	action-label={actionLabel}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

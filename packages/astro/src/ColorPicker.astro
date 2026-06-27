@@ -1,0 +1,184 @@
+---
+import { formatChannelValue, namedSnapLabel, PLANE_H, PLANE_W } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+import {
+	channelModels,
+	channelsOf,
+	colorFormats,
+	colorToChannels,
+	formatColor,
+	harmonySchemes,
+	hsvToRgb,
+	nearestNamedColor,
+	parseColor,
+	rgbToHsv,
+	type ChannelModel,
+	type ColorFormat,
+	type HarmonyScheme,
+} from "@xoji/core";
+
+interface Props {
+	value?: string;
+	format?: ColorFormat;
+	modes?: string;
+	channels?: string;
+	snap?: string;
+	plane?: boolean;
+	trigger?: boolean;
+	swatches?: string;
+	harmony?: string;
+	contrastAgainst?: string;
+	alpha?: boolean;
+	disabled?: boolean;
+	label?: string;
+	labelledby?: string;
+	name?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	value = "#5b8cff",
+	format,
+	modes,
+	channels,
+	snap,
+	plane = false,
+	trigger = false,
+	swatches,
+	harmony,
+	contrastAgainst,
+	alpha = false,
+	disabled = false,
+	label,
+	labelledby,
+	name,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const elementId = `xoji-color-picker-${Math.random().toString(36).slice(2, 8)}`;
+
+// Resolve the markup props exactly as the custom element's getters do, so the SSR
+// declarative shadow is byte-identical to the post-hydration client re-render.
+const resolvedModes: ColorFormat[] = modes
+	? (() => {
+			const picked = modes
+				.split(",")
+				.map((entry) => entry.trim())
+				.filter((entry): entry is ColorFormat => (colorFormats as string[]).includes(entry));
+			return picked.length ? picked : colorFormats;
+		})()
+	: colorFormats;
+const resolvedFormat: ColorFormat = format && resolvedModes.includes(format) ? format : (resolvedModes[0] ?? "hex");
+
+const channelModel: ChannelModel | null =
+	channels === undefined ? null : channels.trim() && (channelModels as string[]).includes(channels.trim()) ? (channels.trim() as ChannelModel) : "rgb";
+
+const SNAP_TARGETS = ["web-safe", "named"] as const;
+const snapTargets: string[] =
+	snap === undefined
+		? []
+		: (() => {
+				const raw = snap.trim();
+				if (!raw) return [...SNAP_TARGETS];
+				const picked = raw
+					.split(",")
+					.map((entry) => entry.trim())
+					.filter((entry) => (SNAP_TARGETS as readonly string[]).includes(entry));
+				return picked.length ? picked : [...SNAP_TARGETS];
+			})();
+
+const swatchList = swatches ? swatches.split(",").map((entry) => entry.trim()).filter(Boolean) : [];
+
+const harmonyScheme: HarmonyScheme | null = harmony && (harmonySchemes as string[]).includes(harmony) ? (harmony as HarmonyScheme) : null;
+
+const parsed = parseColor(value);
+const baseHsv = parsed ? rgbToHsv(parsed) : { h: 217, s: 0.64, v: 1 };
+const hsv = { h: baseHsv.h, s: baseHsv.s, v: baseHsv.v };
+const alphaValue = parsed && alpha ? parsed.alpha : 1;
+const currentAlpha = alpha ? alphaValue : 1;
+
+const currentHex = formatColor(hsvToRgb({ ...hsv, alpha: alphaValue }), "hex");
+const resolvedSwatches = swatchList
+	.map((entry) => {
+		const swatchColor = parseColor(entry);
+		if (!swatchColor) return null;
+		const hex = formatColor(swatchColor, "hex");
+		return { entry, hex, pressed: hex.toLowerCase() === currentHex.toLowerCase() };
+	})
+	.filter((s): s is { entry: string; hex: string; pressed: boolean } => s !== null);
+
+const resolvedChannels = channelModel
+	? (() => {
+			const defs = channelsOf(channelModel);
+			const values = colorToChannels(hsvToRgb({ ...hsv, alpha: currentAlpha }), channelModel);
+			return defs.map((def, i) => {
+				const channelValue = values[i] ?? def.min;
+				return {
+					label: def.label,
+					name: `${def.label}${def.unit ? ` (${def.unit})` : ""}`,
+					min: def.min,
+					max: def.max,
+					step: def.step,
+					value: channelValue,
+					formatted: formatChannelValue(channelValue, def),
+				};
+			});
+		})()
+	: [];
+
+const namedSnap = snapTargets.includes("named")
+	? namedSnapLabel(nearestNamedColor(hsvToRgb({ ...hsv, alpha: currentAlpha })).name)
+	: null;
+
+const bindings = {
+	disabled,
+	label: label ?? null,
+	labelledby: labelledby ?? null,
+	elementId,
+	formatLabel: resolvedFormat.toUpperCase(),
+	planeEnabled: plane,
+	triggerEnabled: trigger,
+	alphaEnabled: alpha,
+	channelModelLabel: channelModel ? channelModel.toUpperCase() : null,
+	harmonyScheme,
+	hasContrast: !!(contrastAgainst && parseColor(contrastAgainst)),
+	hasEyeDropper: false,
+	planeWidth: PLANE_W,
+	planeHeight: PLANE_H,
+	swatches: resolvedSwatches,
+	channels: resolvedChannels,
+	snapTargets,
+	namedSnap,
+};
+
+const light = await renderFragmentLight("color-picker", bindings);
+---
+
+<xoji-color-picker
+	value={value}
+	format={format}
+	modes={modes}
+	channels={channels}
+	snap={snap}
+	plane={plane || undefined}
+	trigger={trigger || undefined}
+	swatches={swatches}
+	harmony={harmony}
+	contrast-against={contrastAgainst}
+	alpha={alpha || undefined}
+	disabled={disabled || undefined}
+	label={label}
+	labelledby={labelledby}
+	name={name}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

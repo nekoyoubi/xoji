@@ -1,0 +1,122 @@
+---
+import Avatar from "@xoji/astro/Avatar.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const sizes = ["sm", "md", "lg", "xl"] as const;
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+const people = [
+	{ tone: "accent", initials: "AL", name: "Ada Lovelace" },
+	{ tone: "success", initials: "GH", name: "Grace Hopper" },
+	{ tone: "warn", initials: "KJ", name: "Katherine Johnson" },
+	{ tone: "danger", initials: "RM", name: "Radia Perlman" },
+	{ tone: "info", initials: "BL", name: "Barbara Liskov" },
+	{ tone: "neutral", initials: "MH", name: "Margaret Hamilton" },
+] as const;
+const statuses = ["success", "warn", "danger", "neutral"] as const;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">Initials fallback across tones</Heading>
+		<Cluster gap={3} align="center">
+			{
+				people.map((p) => (
+					<Avatar tone={p.tone} alt={p.name}>{p.initials}</Avatar>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Every tone</Heading>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Cluster gap={4} align="center">
+						{group.tones.map((tone) => <Avatar tone={tone} alt={tone}>{tone.slice(0, 2).toUpperCase()}</Avatar>)}
+					</Cluster>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Sizes, circle and square</Heading>
+		<Stack gap={4}>
+			<Cluster gap={3} align="center">
+				{sizes.map((size) => <Avatar size={size} tone="accent" alt="Ada Lovelace">AL</Avatar>)}
+			</Cluster>
+			<Cluster gap={3} align="center">
+				{sizes.map((size) => (
+					<Avatar size={size} shape="square" tone="purple" alt="Grace Hopper">GH</Avatar>
+				))}
+			</Cluster>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Presence status</Heading>
+		<Cluster gap={4} align="center">
+			{
+				statuses.map((status) => (
+					<Stack gap={2} align="center">
+						<Avatar
+							size="lg"
+							tone="neutral"
+							status={status}
+							statusLabel={status}
+							alt="Team member"
+						>TM</Avatar>
+						<Text size="xs" tone="muted" mono>{status}</Text>
+					</Stack>
+				))
+			}
+		</Cluster>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={3} size="sm">Icon fallback and stacked group</Heading>
+		<Stack gap={4}>
+			<Cluster gap={3} align="center">
+				<Avatar size="lg" tone="info" alt="System account">
+					<svg slot="icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+						<path d="M12 14a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+						<path d="M5 20a7 7 0 0 1 14 0" stroke-linecap="round" />
+					</svg>
+				</Avatar>
+				<Avatar size="lg" tone="success" alt="Automated bot">
+					<svg slot="icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+						<rect x="5" y="8" width="14" height="11" rx="2.5" />
+						<path d="M12 8V4M9 13h.01M15 13h.01" stroke-linecap="round" />
+					</svg>
+				</Avatar>
+			</Cluster>
+			<Cluster gap={0} align="center" class="demo-stacked">
+				{["AL", "GH", "KJ", "RM", "+5"].map((label, i) => (
+					<Avatar
+						size="md"
+						tone={(["accent", "purple", "green", "orange", "neutral"] as const)[i]}
+						alt={`Member ${label}`}
+					>{label}</Avatar>
+				))}
+			</Cluster>
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	.demo-stacked > :global(.xoji-avatar:not(:first-child)) {
+		margin-left: -0.75rem;
+		box-shadow: 0 0 0 2px var(--surface, var(--bg));
+	}
+</style>

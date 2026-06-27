@@ -1,0 +1,99 @@
+---
+import Splitter from "@xoji/astro/Splitter.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={2} size="sm">Resizable rail</Heading>
+		<Stack gap={3}>
+			<Text size="sm" tone="muted">
+				Drag the divider, or focus it and use the arrow keys (Home and End jump to the bounds). The rail
+				clamps to 160–420px and snaps in steps of 8.
+			</Text>
+			<div class="split-demo" style="--rail: 240px;">
+				<div class="split-demo__rail">
+					<Text as="span" size="sm" weight="semibold">Rail</Text>
+					<Text size="xs" tone="muted" mono class="split-demo__readout">240px</Text>
+				</div>
+				<Splitter var="--rail" value={240} min={160} max={420} step={8} label="Resize rail" class="split-demo__handle" />
+				<div class="split-demo__main">
+					<Text size="sm">Content pane — it takes whatever the rail leaves.</Text>
+				</div>
+			</div>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Divider line &amp; sizes</Heading>
+		<Stack gap={3}>
+			<Text size="sm" tone="muted">
+				<code>line</code> paints a full-length divider so the handle reads on its own, not off the panes
+				beside it; <code>size</code> sets the handle's own thickness (<code>sm</code> / <code>md</code> / <code>lg</code>).
+			</Text>
+			<div class="split-demo" style="--rail: 200px;">
+				<div class="split-demo__rail"><Text as="span" size="sm" weight="semibold">Rail</Text></div>
+				<Splitter var="--rail" value={200} min={140} max={360} step={8} size="lg" line label="Resize rail" />
+				<div class="split-demo__main"><Text size="sm">A wide, self-drawn divider line.</Text></div>
+			</div>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Heading slot="header" level={2} size="sm">Stacked (horizontal)</Heading>
+		<Stack gap={3}>
+			<Text size="sm" tone="muted">A horizontal divider resizes height instead of width.</Text>
+			<div class="split-demo split-demo--v" style="--top: 96px;">
+				<div class="split-demo__top">
+					<Text as="span" size="sm" weight="semibold">Top</Text>
+				</div>
+				<Splitter orientation="horizontal" var="--top" value={96} min={56} max={220} step={4} label="Resize top pane" />
+				<div class="split-demo__bottom">
+					<Text size="sm">Bottom pane.</Text>
+				</div>
+			</div>
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	.split-demo {
+		display: grid;
+		grid-template-columns: var(--rail) auto minmax(0, 1fr);
+		height: 16rem;
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+	.split-demo--v {
+		grid-template-columns: none;
+		grid-template-rows: var(--top) auto minmax(0, 1fr);
+	}
+	.split-demo__rail,
+	.split-demo__top {
+		background: var(--bg-1);
+		padding: var(--space-4);
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-1);
+		min-width: 0;
+	}
+	.split-demo__main,
+	.split-demo__bottom {
+		padding: var(--space-4);
+		min-width: 0;
+	}
+</style>
+
+<script>
+	for (const demo of document.querySelectorAll(".split-demo")) {
+		const readout = demo.querySelector(".split-demo__readout");
+		demo.addEventListener("resize", (event) => {
+			const value = (event as CustomEvent<{ value: number }>).detail.value;
+			if (readout) readout.textContent = `${value}px`;
+		});
+	}
+</script>

@@ -1,0 +1,42 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type StackAlign = "start" | "center" | "end" | "stretch" | "baseline";
+type StackJustify = "start" | "center" | "end" | "between" | "around" | "evenly";
+
+interface Props {
+	gap?: number;
+	align?: StackAlign;
+	justify?: StackJustify;
+	inline?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { gap = 4, align, justify, inline = false, static: isStatic = false, class: extra, ...rest } = Astro.props;
+
+const bindings = {
+	gap,
+	align: align ?? null,
+	justify: justify ?? null,
+	inline,
+};
+const chrome = await renderFragmentLight("stack", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-stack
+	gap={gap}
+	align={align}
+	justify={justify}
+	inline={inline || undefined}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

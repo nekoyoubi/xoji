@@ -1,0 +1,102 @@
+---
+import Dialog from "@xoji/astro/Dialog.astro";
+import Button from "@xoji/astro/Button.astro";
+import Card from "@xoji/astro/Card.astro";
+import Field from "@xoji/astro/Field.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<div class="dialog-demo" data-dialog-demo>
+	<Card>
+		<Stack slot="header" gap={1}>
+			<Heading level={2} size="body">Open a modal</Heading>
+			<Text tone="muted" size="sm">
+				Each button opens a real <code>&lt;dialog&gt;</code> — scrim, focus
+				trap, and Esc-to-close come from the platform.
+			</Text>
+		</Stack>
+		<Cluster gap={3}>
+			<Button variant="solid" tone="accent" data-open="confirm">
+				Delete account…
+			</Button>
+			<Button variant="outline" tone="neutral" data-open="signin">
+				Sign in…
+			</Button>
+			<Button variant="ghost" tone="neutral" data-open="terms">
+				Read the terms…
+			</Button>
+		</Cluster>
+	</Card>
+
+	<Dialog id="confirm" heading="Delete account?" size="sm">
+		<Text>
+			This permanently removes your account and all of its data. This cannot be
+			undone.
+		</Text>
+		<Button slot="footer" variant="ghost" tone="neutral" data-close>Cancel</Button>
+		<Button slot="footer" variant="solid" tone="danger" data-close>Delete</Button>
+	</Dialog>
+
+	<Dialog id="signin" heading="Sign in" size="md">
+		<Stack gap={4}>
+			<Text tone="muted" size="sm">
+				A medium dialog comfortably holds a short form.
+			</Text>
+			<Field label="Email" type="email" placeholder="you@example.com" />
+			<Field label="Password" type="password" placeholder="••••••••" />
+		</Stack>
+		<Button slot="footer" variant="ghost" tone="neutral" data-close>Cancel</Button>
+		<Button slot="footer" variant="solid" tone="accent" data-close>Sign in</Button>
+	</Dialog>
+
+	<Dialog id="terms" size="lg" label="Terms of service">
+		<Cluster slot="header" gap={2} align="center">
+			<span class="xoji-badge xoji-badge--soft xoji-badge--info">v3</span>
+			<Heading level={2} size="lg">Terms of service</Heading>
+		</Cluster>
+		<Stack gap={3}>
+			<Text>
+				The large dialog gives room for richer content — a custom header, a
+				scrolling body, and a tidy action row.
+			</Text>
+			<Text tone="muted" size="sm">
+				By continuing you agree to the acceptable-use policy, the data-handling
+				addendum, and the boring parts nobody reads. The body region scrolls on
+				its own when content overflows, keeping the header and footer pinned.
+			</Text>
+			<Text tone="muted" size="sm">
+				Every surface here is derived from the same algorithm powering this
+				page — the overlay panel, the hairlines, the scrim, and the focus ring
+				are all materialized tokens, not bespoke styling.
+			</Text>
+		</Stack>
+		<Button slot="footer" variant="outline" tone="neutral" data-close>Decline</Button>
+		<Button slot="footer" variant="solid" tone="accent" data-close>Accept</Button>
+	</Dialog>
+</div>
+
+<script>
+	const root = document.querySelector<HTMLElement>("[data-dialog-demo]");
+	if (root) {
+		root.querySelectorAll<HTMLElement>("[data-open]").forEach((trigger) => {
+			trigger.addEventListener("click", () => {
+				const id = trigger.dataset.open;
+				const dialog = id
+					? root.querySelector<HTMLElement & { showModal?: () => void }>(`#${id}`)
+					: null;
+				dialog?.showModal?.();
+			});
+		});
+		root.querySelectorAll<HTMLElement>("[data-close]").forEach((trigger) => {
+			trigger.addEventListener("click", () => {
+				const dialog = trigger.closest<HTMLElement & { close?: () => void }>(
+					"xoji-dialog",
+				);
+				dialog?.close?.();
+			});
+		});
+	}
+</script>

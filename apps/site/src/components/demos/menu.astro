@@ -1,0 +1,52 @@
+---
+import Menu from "@xoji/astro/Menu.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import type { MenuItem } from "@xoji/core/markup";
+
+const fileItems: MenuItem[] = [
+	{ label: "New", value: "new" },
+	{ label: "Open…", value: "open" },
+	{ separator: true },
+	{ label: "Save", value: "save" },
+	{ label: "Save As…", value: "save-as", disabled: true },
+	{ separator: true },
+	{ label: "Close", value: "close" },
+];
+
+const editItems: MenuItem[] = [
+	{ label: "Undo", value: "undo" },
+	{ label: "Redo", value: "redo", disabled: true },
+	{ separator: true },
+	{ label: "Cut", value: "cut" },
+	{ label: "Copy", value: "copy" },
+	{ label: "Paste", value: "paste" },
+];
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={3} size="sm">App menu bar</Heading>
+		<Cluster gap={1}>
+			<Menu label="File" items={fileItems} />
+			<Menu label="Edit" items={editItems} />
+		</Cluster>
+	</Card>
+</Stack>
+
+<script>
+	import "@xoji/core/elements";
+
+	document.addEventListener("select", (event) => {
+		const detail = (event as CustomEvent).detail;
+		if (detail && typeof detail.index === "number") {
+			console.log("menu select", detail);
+		}
+	});
+
+	requestAnimationFrame(() => {
+		document.querySelector("xoji-menu")?.setAttribute("open", "");
+	});
+</script>

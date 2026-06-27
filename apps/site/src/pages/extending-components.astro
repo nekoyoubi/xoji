@@ -1,0 +1,212 @@
+---
+import Base from "../layouts/Base.astro";
+import Panel from "@xoji/astro/Panel.astro";
+import Dock from "@xoji/astro/Dock.astro";
+import Toc from "@xoji/astro/Toc.astro";
+import Alert from "@xoji/astro/Alert.astro";
+import Link from "@xoji/astro/Link.astro";
+import Table from "@xoji/astro/Table.astro";
+import Code from "@xoji/astro/Code.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+
+const sections = [
+	{ id: "why", label: "When to extend" },
+	{ id: "contract", label: "The extension contract" },
+	{ id: "custom", label: "A custom element" },
+	{ id: "shipped", label: "Extending a shipped element" },
+	{ id: "coverage", label: "New tokens, same contract" },
+];
+
+const contractMembers = [
+	{ member: "root", type: "ShadowRoot", note: "the open shadow root; write your markup into it" },
+	{ member: "template()", type: "() => string", note: "required; the element's shadow markup" },
+	{ member: "styles()", type: "() => string", note: "per-element host-layout CSS (the shared token sheet is adopted for you)" },
+	{ member: "render()", type: "() => void", note: "paint the shadow; call it after a state change to re-render" },
+	{ member: "reflectBoolean(name, on)", type: "(string, boolean) => void", note: "reflect a boolean prop to a present/absent attribute" },
+	{ member: "reflectString(name, value)", type: "(string, string?) => void", note: "reflect a string prop, removing the attribute when empty" },
+];
+
+const customSnippet = `import { XojiElement, define } from "@xoji/core/elements";
+
+// A small custom element: a click-to-increment tally, themed entirely from
+// the token register the active algorithm derives.
+class TallyChip extends XojiElement {
+  static get observedAttributes() {
+    return ["count"];
+  }
+
+  get count(): number {
+    return Number(this.getAttribute("count") ?? "0");
+  }
+  set count(value: number) {
+    this.setAttribute("count", String(value));
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback(); // paints once
+    this.addEventListener("click", () => {
+      this.count += 1;
+      this.render(); // re-paint on the state change you care about
+    });
+  }
+
+  protected styles(): string {
+    return \`:host { display: inline-block; }
+      button {
+        font: inherit;
+        color: var(--accent-fg);
+        background: var(--accent);
+        border: var(--border-thin) solid var(--accent);
+        border-radius: var(--radius-md);
+        padding: var(--space-2) var(--space-3);
+        cursor: pointer;
+      }\`;
+  }
+
+  protected template(): string {
+    return \`<button part="chip" type="button">Tally: \${this.count}</button>\`;
+  }
+}
+
+define("xoji-tally-chip", TallyChip);`;
+
+const shippedSnippet = `import { XojiButton } from "@xoji/core/elements";
+
+// A controlled toggle built on the shipped button: it owns no new look, just
+// the behavior the base left to the consumer — a click flips \`pressed\`, which
+// the base already reflects to \`aria-pressed\` and paints as a sunken state.
+class ToggleButton extends XojiButton {
+  static get observedAttributes() {
+    return [...super.observedAttributes, "data-toggle"];
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener("click", () => {
+      this.pressed = !this.pressed;
+    });
+  }
+}
+
+customElements.define("x-toggle-button", ToggleButton);`;
+
+const coverageSnippet = `// A subclass that paints with a token the base never consumed declares it,
+// so the coverage check still holds: every token the CSS reads is one the
+// register produces.
+protected styles(): string {
+  return \`button { box-shadow: 0 0 0 2px var(--ring); }\`;
+  // → add "--ring" to this component's consumedTokens manifest entry
+}`;
+---
+
+<Base
+	title="Extending components: xoji"
+	description="Build on xoji's components instead of forking them: extend XojiElement for a fully custom element, or subclass a shipped element to add the behavior the base left to you. The shared token sheet and the coverage contract come with you."
+>
+	<Dock slot="right" side="right" size="sm" label="On this page" hideHeader class="docs-toc-rail">
+		<Toc items={sections} />
+	</Dock>
+
+	<div class="docs">
+		<Stack gap={8}>
+			<Stack gap={3}>
+				<Eyebrow>Extending components</Eyebrow>
+				<Heading level={1} size="3xl">Build on the components, don't fork them</Heading>
+				<Text size="lg" tone="muted">
+					Every xoji element extends one blessed base, <code>XojiElement</code>, and that
+					base is the extension contract too. So when a component is close to what you need
+					but not quite (you need a control that is semantically a toggle, or an element
+					the set doesn't ship), you build on top instead of rebuilding bespoke. The shared
+					token sheet and the <Link href="/components">coverage contract</Link> come with
+					you either way.
+				</Text>
+			</Stack>
+
+			<Panel title="When to extend" id="why" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						The components compose for <em>appearance</em> through <code>::part()</code>
+						hooks and slots: restyle internals, inject content, no fork required. This
+						page is the other axis: composing for <em>behavior or semantics</em>. Reach
+						for it when you need a control the set doesn't ship, or a richer state on one
+						it does.
+					</Text>
+					<Alert severity="info" variant="soft">
+						<span slot="title">Two paths, one base</span>
+						Extend <code>XojiElement</code> directly for a fully custom element, or
+						subclass a shipped element (<code>XojiButton</code>, <code>XojiField</code>, …)
+						to add behavior to what it already renders.
+					</Alert>
+				</Stack>
+			</Panel>
+
+			<Panel title="The extension contract" id="contract" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						These <code>protected</code> members are the stable surface a subclass builds
+						on. <code>render()</code> adopts the one shared component stylesheet for you,
+						then writes <code>styles()</code> + <code>template()</code> into the shadow
+						root, so a subclass never re-implements theming, only its own markup and the
+						state that drives it.
+					</Text>
+					<Table aria-label="The XojiElement extension contract">
+						<table>
+							<thead>
+								<tr><th>Member</th><th>Type</th><th>What it's for</th></tr>
+							</thead>
+							<tbody>
+								{contractMembers.map((m) => (
+									<tr>
+										<td><code>{m.member}</code></td>
+										<td><code>{m.type}</code></td>
+										<td>{m.note}</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</Table>
+				</Stack>
+			</Panel>
+
+			<Panel title="A custom element" id="custom" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						Extend <code>XojiElement</code>, declare the attributes you observe, override
+						<code>template()</code> and <code>styles()</code>, and call <code>render()</code>
+						on the state changes you care about. The markup reads straight from the token
+						register, so it re-themes with every other component when the theme changes.
+					</Text>
+					<Code lang="ts" code={customSnippet} />
+				</Stack>
+			</Panel>
+
+			<Panel title="Extending a shipped element" id="shipped" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						To add behavior to a component the set already ships, subclass its element and
+						widen <code>observedAttributes</code> by spreading the base's. The inherited
+						<code>render()</code> keeps painting the component's look; your subclass adds
+						only the new behavior, here the controlled toggle the base deliberately left
+						to the consumer.
+					</Text>
+					<Code lang="ts" code={shippedSnippet} />
+				</Stack>
+			</Panel>
+
+			<Panel title="New tokens, same contract" id="coverage" class="docs-anchor">
+				<Stack gap={4}>
+					<Text tone="muted">
+						A subclass is held to the same hard rule as a first-party component: every
+						theme token its CSS reads must be one the register produces. If your extension
+						paints with a token the base never consumed, declare it in the component's
+						manifest so the coverage check stays honest.
+					</Text>
+					<Code lang="ts" code={coverageSnippet} />
+				</Stack>
+			</Panel>
+		</Stack>
+	</div>
+</Base>

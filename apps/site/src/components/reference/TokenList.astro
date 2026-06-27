@@ -1,0 +1,36 @@
+---
+import Cluster from "@xoji/astro/Cluster.astro";
+import Badge from "@xoji/astro/Badge.astro";
+
+interface Props {
+	tokens: string[];
+	missing?: string[];
+}
+
+const { tokens, missing = [] } = Astro.props;
+const missingSet = new Set(missing);
+const sorted = [...tokens].sort();
+---
+
+{sorted.length > 0 && (
+	<Cluster gap={2}>
+		{sorted.map((t) => {
+			const isMissing = missingSet.has(t);
+			return (
+				<Badge tone={isMissing ? "warn" : "neutral"} variant="outline">
+					<code class="token-name">{t}</code>
+					{isMissing && <Badge tone="warn" size="sm" variant="solid">missing</Badge>}
+				</Badge>
+			);
+		})}
+	</Cluster>
+)}
+
+<style>
+	.token-name {
+		font-family: var(--font-mono);
+		background: none;
+		padding: 0;
+		color: inherit;
+	}
+</style>

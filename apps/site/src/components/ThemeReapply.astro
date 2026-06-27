@@ -1,0 +1,9 @@
+---
+---
+<script>
+	import { reapplyActiveTheme } from "../lib/theme-active.js";
+
+	reapplyActiveTheme();
+	document.addEventListener("astro:after-swap", reapplyActiveTheme);
+	document.addEventListener("astro:page-load", reapplyActiveTheme);
+</script>

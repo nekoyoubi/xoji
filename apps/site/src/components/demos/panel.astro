@@ -1,0 +1,96 @@
+---
+import Panel from "@xoji/astro/Panel.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Button from "@xoji/astro/Button.astro";
+import Separator from "@xoji/astro/Separator.astro";
+import { getStats } from "../../data/stats";
+
+const { components, tokens, coverage } = await getStats();
+const logLines = [
+	`12:04:01  build  resolving ${components} component manifests`,
+	`12:04:01  build  coverage check — ${coverage.covered}/${coverage.total} green`,
+	`12:04:02  emit   wrote tokens.css (${tokens} declarations)`,
+	"12:04:02  emit   wrote tokens.json",
+	"12:04:03  gauntlet  200 runs · 0 invariant breaks",
+	"12:04:03  gauntlet  contrast floor held at 4.51:1",
+	"12:04:04  site   37 pages rendered",
+	"12:04:04  done   build complete in 3.1s",
+];
+---
+
+<Stack gap={6}>
+	<Panel title="Project overview" level={3}>
+		<Button slot="actions" variant="outline" tone="neutral" size="sm">
+			Edit
+		</Button>
+		<Stack gap={3}>
+			<Text>
+				A panel is a titled region with a header, body, and optional footer. The
+				heading level is configurable so it slots cleanly into the document
+				outline, and the <code>actions</code> slot parks controls on the right of
+				the header.
+			</Text>
+			<Cluster gap={2}>
+				<Badge tone="info" variant="soft">section</Badge>
+				<Badge tone="neutral" variant="outline">level 3</Badge>
+			</Cluster>
+		</Stack>
+	</Panel>
+
+	<Grid minColWidth="18rem" gap={4}>
+		<Panel variant="collapsible" title="Closed by default" level={3}>
+			<Stack gap={2}>
+				<Text size="sm">
+					The collapsible variant turns the header into a disclosure toggle.
+					This one starts closed — click the header to open it.
+				</Text>
+				<Text tone="muted" size="sm">
+					Built on a real <code>&lt;details&gt;</code>, so it works without
+					JavaScript and stays keyboard-operable.
+				</Text>
+			</Stack>
+		</Panel>
+
+		<Panel variant="collapsible" title="Open by default" level={3} open>
+			<Button slot="actions" variant="ghost" tone="neutral" size="sm">
+				Reset
+			</Button>
+			<Stack gap={2}>
+				<Text size="sm">
+					Same disclosure, started expanded with <code>open</code>. Actions live
+					in the header alongside the marker.
+				</Text>
+			</Stack>
+		</Panel>
+	</Grid>
+
+	<Panel title="Build log" level={3} scroll>
+		<Badge slot="actions" tone="success" variant="soft" size="sm">live</Badge>
+		<Stack gap={1} class="demo-panel__log">
+			{logLines.map((line) => (
+				<Text size="sm" mono tone="muted">{line}</Text>
+			))}
+		</Stack>
+		<Cluster slot="footer" gap={2} justify="between" align="center">
+			<Text size="sm" tone="subtle">8 events</Text>
+			<Button variant="subtle" tone="neutral" size="sm">Clear</Button>
+		</Cluster>
+	</Panel>
+</Stack>
+
+<style>
+	:global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		background: var(--bg-2);
+		padding: 0.08em 0.32em;
+		border-radius: var(--radius-sm);
+	}
+	.demo-panel__log :global(.xoji-text) {
+		white-space: nowrap;
+	}
+</style>

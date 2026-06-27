@@ -1,0 +1,358 @@
+---
+import { getStats, displayStats, SITE_ANCHORS } from "../data/stats";
+import Base from "../layouts/Base.astro";
+import Button from "@xoji/astro/Button.astro";
+import Card from "@xoji/astro/Card.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Alert from "@xoji/astro/Alert.astro";
+import Field from "@xoji/astro/Field.astro";
+import Switch from "@xoji/astro/Switch.astro";
+import Progress from "@xoji/astro/Progress.astro";
+import Spinner from "@xoji/astro/Spinner.astro";
+import Avatar from "@xoji/astro/Avatar.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Grid from "@xoji/astro/Grid.astro";
+import Separator from "@xoji/astro/Separator.astro";
+import Section from "@xoji/astro/Section.astro";
+import Eyebrow from "@xoji/astro/Eyebrow.astro";
+
+const site = await getStats();
+const anchors = SITE_ANCHORS;
+const componentCount = site.components;
+const tokenCount = site.tokens;
+const coveredCount = site.coverage.covered;
+const totalCount = site.coverage.total;
+const coverageOk = site.coverage.ok;
+
+const anchorChips = [
+	{ label: "bg", value: anchors.bg, swatch: "var(--bg-0)", ink: "var(--fg-1)" },
+	{ label: "fg", value: anchors.fg, swatch: "var(--fg-0)", ink: "var(--bg-0)" },
+	{ label: "accent", value: anchors.accent, swatch: "var(--accent)", ink: "var(--accent-fg)" },
+] as const;
+
+const toneRow = ["accent", "success", "warn", "danger", "info", "neutral"] as const;
+const variantRow = ["solid", "outline", "ghost", "subtle"] as const;
+const sampleBadges = ["accent", "success", "warn", "danger", "info"] as const;
+
+const stats = displayStats(site).map((s) => ({
+	value: s.value,
+	label: s.label,
+	delta: site.delta(s.key),
+}));
+
+const pillars = [
+	{
+		title: "The algorithm is the durable part.",
+		body: "A named, swappable algorithm maps a few anchors and knobs into a full, internally-consistent token set. A theme invokes one: anywhere from a quick three-color pick to a design dialed in over days. Both are first-class.",
+	},
+	{
+		title: "The open register.",
+		body: "Not a fixed schema. Authors declare new tokens and rewire any derivation. The only hard contract is a coverage check between what components consume and what a module produces.",
+	},
+	{
+		title: "One contract, every binding.",
+		body: "A manifest-driven component library (HTML custom elements, a Svelte wrapper, and Astro) all honoring the same derived tokens. This whole site is one xoji theme.",
+	},
+];
+---
+
+<Base
+	title="xoji: an algorithmic theming and component engine"
+	description={`Derive a complete, internally-consistent token set from an algorithm you control, then build against a ${componentCount}-component contract made to honor it. The engine for consistent, accessible, extensible apps and sites.`}
+>
+	<Stack gap={8}>
+		<Section as="section" tone="accent" bordered class="hero-band">
+			<div class="hero">
+			<div class="hero__copy">
+				<Stack gap={5}>
+					<Eyebrow>Consistent, accessible, extensible</Eyebrow>
+					<Heading level={1} size="5xl" class="hero__title">
+						An algorithmic theming and <span class="hero__title-accent">component engine.</span>
+					</Heading>
+					<Text size="lg" tone="muted" class="hero__lede">
+						Derive a complete, internally-consistent token set from an algorithm you
+						control (a handful of anchor colors, or every last knob), and build apps
+						and sites against components made to honor it.
+					</Text>
+					<Cluster gap={3}>
+						<Button href="/generator" size="lg">Open the bench</Button>
+						<Button href="/components" size="lg" variant="ghost" tone="neutral" class="hero__cta-ghost">
+							Browse the components
+						</Button>
+					</Cluster>
+					<Cluster gap={3} align="center">
+						<Badge tone={coverageOk ? "success" : "warn"} variant="soft">
+							<span class="hero__coverage-dot" aria-hidden="true"></span>
+							coverage {coveredCount}/{totalCount}
+						</Badge>
+						<Text as="span" size="sm" tone="subtle">
+							{coverageOk
+								? "every consumed token is produced by the active register"
+								: "some consumed tokens are missing from the register"}
+						</Text>
+					</Cluster>
+				</Stack>
+			</div>
+
+			<Card class="hero__anchors" aria-label="The three anchors this theme is derived from">
+				<Stack gap={4}>
+					<span class="hero__anchors-label">derived from</span>
+					<Stack gap={4}>
+						{anchorChips.map((c) => (
+							<Cluster gap={3} align="center">
+								<span class="anchor-chip__swatch" style={`background:${c.swatch}`} aria-hidden="true"></span>
+								<Stack gap={0}>
+									<Text as="span" size="sm" weight="semibold">{c.label}</Text>
+									<Text as="span" size="xs" tone="muted" mono>{c.value}</Text>
+								</Stack>
+							</Cluster>
+						))}
+					</Stack>
+				</Stack>
+				<Text slot="footer" as="span" size="xs" tone="muted" mono>
+					→ {tokenCount} tokens · {componentCount} components
+				</Text>
+			</Card>
+			</div>
+		</Section>
+
+		<section class="stage-wrap">
+			<Stack gap={5}>
+				<div class="stage-wrap__head">
+					<Stack gap={2}>
+						<Heading level={2} size="2xl">Watch the whole system render together</Heading>
+						<Text size="lg" tone="muted">
+							Everything below is live: real <code>@xoji/astro</code> components,
+							rendered from the same register as the rest of the page.
+						</Text>
+					</Stack>
+				</div>
+
+				<Section variant="stage" as="div" label="live · xoji-default" class="stage">
+					<Grid columns={2} gap={6}>
+						<Stack gap={4}>
+							<Cluster gap={3} align="center">
+								<Avatar tone="accent" status="success" size="lg">xo</Avatar>
+								<Stack gap={0}>
+									<Text as="span" weight="semibold">Live sampler</Text>
+									<Text as="span" size="xs" tone="muted">rendered from the active theme</Text>
+								</Stack>
+								<Badge tone="info">xoji-default</Badge>
+							</Cluster>
+
+							<Field
+								label="Theme name"
+								name="hero-theme"
+								placeholder="midnight-ocean"
+								value="midnight-ocean"
+							/>
+
+							<Cluster justify="between" align="center" gap={3}>
+								<Text as="span" size="sm" tone="muted">Live derivation</Text>
+								<Switch checked label="Live derivation" />
+							</Cluster>
+
+							<Progress value={coverageOk ? 100 : Math.round((coveredCount / totalCount) * 100)} showValue aria-label="Coverage" />
+
+							<Alert tone={coverageOk ? "success" : "warn"}>
+								<strong slot="title">
+									{coverageOk ? "All components covered" : `${coveredCount} of ${totalCount} components covered`}
+								</strong>
+								Every consumed token is produced by the active register.
+							</Alert>
+						</Stack>
+
+						<Stack gap={4}>
+							<Cluster justify="between" align="center" gap={3}>
+								<Text as="span" size="sm" weight="semibold" tone="muted">Buttons · tone × variant</Text>
+								<Spinner size="sm" />
+							</Cluster>
+							<div class="x-scroll-x" role="group" aria-label="Button tone by variant matrix">
+								<Stack gap={2} class="stage__matrix-inner">
+									{variantRow.map((variant) => (
+										<Cluster gap={2} align="center" nowrap>
+											<span class="stage__matrix-rowlabel">{variant}</span>
+											{toneRow.map((tone) => (
+												<Button variant={variant} tone={tone} size="sm">{tone}</Button>
+											))}
+										</Cluster>
+									))}
+								</Stack>
+							</div>
+
+							<Cluster gap={2}>
+								{sampleBadges.map((tone) => (
+									<Badge tone={tone} variant="solid">{tone}</Badge>
+								))}
+								{sampleBadges.map((tone) => (
+									<Badge tone={tone} variant="soft">{tone}</Badge>
+								))}
+							</Cluster>
+						</Stack>
+					</Grid>
+				</Section>
+			</Stack>
+		</section>
+
+		<Section as="section" tone="quiet" bordered class="numbers" aria-label="xoji by the numbers">
+			<Stack gap={5} align="center">
+				<Eyebrow>By the numbers</Eyebrow>
+				<Grid columns={4} gap={5} class="numbers__grid">
+					{stats.map((stat) => (
+						<Stack gap={1} align="center">
+							<Heading level={3} size="3xl" tone="accent">{stat.value}</Heading>
+							<Text size="sm" tone="muted">{stat.label}</Text>
+							{stat.delta > 0 && (
+								<Badge tone="success" variant="soft">+{stat.delta} since v{site.baseline.version}</Badge>
+							)}
+						</Stack>
+					))}
+				</Grid>
+			</Stack>
+		</Section>
+
+		<section class="pillars">
+			<Stack gap={6}>
+				<div class="pillars__head">
+					<Stack gap={2}>
+						<Heading level={2} size="2xl">Why it works</Heading>
+						<Text size="lg" tone="muted">
+							The model rests on a few deliberate decisions, recorded so they don't drift.
+						</Text>
+					</Stack>
+				</div>
+				<Grid minColWidth="16rem" gap={4}>
+					{pillars.map((p, i) => (
+						<Card overlay={i === 0} class={i === 0 ? "pillar pillar--lead" : "pillar"}>
+							<Stack gap={3}>
+								{i === 0 && <Eyebrow as="span">core stance</Eyebrow>}
+								<Heading level={3} size={i === 0 ? "lg" : "body"}>{p.title}</Heading>
+								<Text size={i === 0 ? "body" : "sm"} tone="muted">{p.body}</Text>
+							</Stack>
+						</Card>
+					))}
+				</Grid>
+			</Stack>
+		</section>
+
+		<Separator />
+
+		<section class="closer">
+			<Section variant="stage" as="div" label={`${componentCount} components`} class="closer__card">
+				<Cluster justify="between" align="center" gap={5}>
+					<div class="closer__text">
+						<Stack gap={2}>
+							<Heading level={2} size="xl">See the whole contract</Heading>
+							<Text tone="muted">
+								{componentCount} components across {site.categories} categories, each with a live demo,
+								a full prop table, anatomy, and a live token-coverage check. All
+								generated from one manifest.
+							</Text>
+						</Stack>
+					</div>
+					<Button href="/components" size="lg">Explore components →</Button>
+				</Cluster>
+			</Section>
+		</section>
+	</Stack>
+</Base>
+
+<style>
+	.hero-band {
+		margin: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
+	}
+	.hero {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--space-6);
+		align-items: center;
+	}
+	@media (min-width: 64rem) {
+		.hero {
+			grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+			gap: var(--space-8);
+		}
+	}
+
+	.hero :global(.hero__title) {
+		letter-spacing: -0.02em;
+	}
+	.hero__title-accent {
+		color: var(--accent-text);
+	}
+	.hero :global(.hero__lede) {
+		max-width: 36rem;
+	}
+	.hero__coverage-dot {
+		display: inline-block;
+		width: 0.5em;
+		height: 0.5em;
+		margin-right: var(--space-1);
+		border-radius: var(--radius-full, 999px);
+		background: currentColor;
+		vertical-align: baseline;
+	}
+
+	.hero :global(.hero__anchors) {
+		border-color: var(--accent);
+	}
+	.hero__anchors-label {
+		display: block;
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--accent-text);
+	}
+	.anchor-chip__swatch {
+		width: 2.25rem;
+		height: 2.25rem;
+		border-radius: var(--radius-md);
+		border: var(--border-thin) solid var(--line-2);
+		flex: none;
+	}
+
+	.stage-wrap__head {
+		max-width: 44rem;
+	}
+
+	.stage__matrix-inner {
+		min-width: max-content;
+	}
+	/* gap: Cluster can't express a fixed-leading-cell row; the mono label is scoped. */
+	.stage__matrix-rowlabel {
+		width: 4rem;
+		flex: none;
+		font-family: var(--font-mono);
+		font-size: var(--text-xs);
+		color: var(--fg-2);
+		text-align: right;
+	}
+
+	.numbers {
+		text-align: center;
+	}
+	.numbers :global(.numbers__grid) {
+		width: 100%;
+	}
+
+	.pillars :global(.pillar) {
+		height: 100%;
+	}
+	.pillars :global(.pillar--lead) {
+		border-color: var(--accent);
+	}
+
+	@media (max-width: 40rem) {
+		.hero :global(.hero__cta-ghost) {
+			border-color: var(--line);
+		}
+	}
+
+	.closer__text {
+		max-width: 40rem;
+	}
+</style>

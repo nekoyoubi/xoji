@@ -1,0 +1,25 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type SkeletonShape = "text" | "line" | "block" | "circle";
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	shape?: SkeletonShape;
+	size?: Size;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { shape = "text", size = "md", static: isStatic = false, class: extra, ...rest } = Astro.props;
+
+const bindings = { shape, size };
+const composed = await renderFragmentLight("skeleton", bindings);
+---
+
+<xoji-skeleton shape={shape} size={size} class={extra} set:html={composed} {...rest} />
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

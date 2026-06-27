@@ -1,0 +1,92 @@
+---
+import Alert from "@xoji/astro/Alert.astro";
+import Button from "@xoji/astro/Button.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const tones = ["info", "success", "warn", "danger"] as const;
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">The four tones, soft</Heading>
+		<Stack gap={3}>
+			{
+				tones.map((tone) => (
+					<Alert tone={tone}>
+						<Fragment slot="title">{tone[0].toUpperCase() + tone.slice(1)} notice</Fragment>
+						A status-toned banner. Same anatomy, different semantic weight — danger and warn
+						announce assertively, info and success politely.
+					</Alert>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Solid variant</Heading>
+		<Stack gap={3}>
+			{
+				tones.map((tone) => (
+					<Alert tone={tone} variant="solid">
+						<Fragment slot="title">{tone[0].toUpperCase() + tone.slice(1)}</Fragment>
+						The solid treatment fills the surface for higher-priority moments.
+					</Alert>
+				))
+			}
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">With actions &amp; dismiss</Heading>
+		<Stack gap={3}>
+			<Alert tone="warn">
+				<Fragment slot="title">Storage almost full</Fragment>
+				You're using 94% of your quota. Archive old projects to free up space.
+				<Cluster slot="actions" gap={2}>
+					<Button size="sm" tone="warn" variant="solid">Manage storage</Button>
+					<Button size="sm" tone="warn" variant="ghost">Remind me later</Button>
+				</Cluster>
+			</Alert>
+
+			<Alert tone="success" dismissible>
+				<Fragment slot="title">Theme published</Fragment>
+				<Text as="span">Your algorithm is live in the marketplace. This banner is dismissible — close it.</Text>
+			</Alert>
+
+			<Alert tone="info" dismissible>
+				A bare, dismissible info note with no title. Click the × to retire it.
+			</Alert>
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Every tone</Heading>
+		<Text size="sm" tone="muted">The four status tones (<code>success</code>, <code>info</code>, <code>warn</code>, <code>danger</code>) carry a severity icon and announce assertively; every other tone is purely cosmetic — no icon, polite — so a <code>pink</code> awareness banner just works.</Text>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Stack gap={2}>
+						{group.tones.map((tone) => (
+							<Alert tone={tone}>
+								<Fragment slot="title">{tone}</Fragment>
+								Any tone renders cleanly.
+							</Alert>
+						))}
+					</Stack>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+</Stack>

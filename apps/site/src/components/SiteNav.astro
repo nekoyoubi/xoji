@@ -1,0 +1,56 @@
+---
+import { listComponents } from "@xoji/core";
+import Tree from "@xoji/astro/Tree.astro";
+import { categoryOrder, categoryMeta } from "./reference/categories.ts";
+
+interface Props {
+	currentPath: string;
+}
+const { currentPath } = Astro.props;
+
+const all = listComponents();
+const activeId = currentPath.startsWith("/components/")
+	? currentPath.slice("/components/".length)
+	: null;
+
+const categoryNodes = categoryOrder
+	.map((category) => {
+		const comps = all
+			.filter((c) => c.category === category)
+			.sort((a, b) => a.name.localeCompare(b.name));
+		if (comps.length === 0) return null;
+		return {
+			label: categoryMeta[category].label,
+			value: category,
+			expanded: comps.some((c) => c.id === activeId),
+			children: comps.map((c) => ({
+				label: c.name,
+				value: c.id,
+				href: `/components/${c.id}`,
+				selected: c.id === activeId,
+			})),
+		};
+	})
+	.filter((node): node is NonNullable<typeof node> => node !== null);
+
+const items = [
+	{ label: "Overview", value: "overview", href: "/", selected: currentPath === "/" },
+	{ label: "Getting started", value: "start", href: "/start", selected: currentPath === "/start" },
+	{ label: "The Bench", value: "bench", href: "/generator", selected: currentPath === "/generator" },
+	{ label: "Algorithms", value: "algorithms", href: "/algorithms", selected: currentPath === "/algorithms" },
+	{ label: "Extending", value: "extending", href: "/extending-components", selected: currentPath === "/extending-components" },
+	{
+		label: "Components",
+		value: "components",
+		href: "/components",
+		selected: currentPath === "/components",
+		expanded: true,
+		locked: true,
+		children: categoryNodes,
+	},
+];
+---
+
+<nav class="x-sitenav">
+	<Tree items={items} label="Site navigation" />
+</nav>

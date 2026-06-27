@@ -1,0 +1,107 @@
+---
+import Toolbar from "@xoji/astro/Toolbar.astro";
+import Button from "@xoji/astro/Button.astro";
+import Badge from "@xoji/astro/Badge.astro";
+import Link from "@xoji/astro/Link.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6} class="toolbar-demo">
+	<Stack gap={2}>
+		<Heading level={3} size="sm" tone="muted">Full bar — start · center · end</Heading>
+		<div class="toolbar-demo__frame">
+			<Toolbar heading="xoji" href="#" landmark>
+				<Button slot="start" variant="ghost" tone="neutral" iconOnly aria-label="Menu">
+					<svg slot="icon-start" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+				</Button>
+				<Cluster slot="center" gap={1} class="toolbar-demo__nav">
+					<Link href="#" variant="quiet">Overview</Link>
+					<Link href="#" variant="quiet">Generator</Link>
+					<Link href="#" variant="quiet">Components</Link>
+				</Cluster>
+				<Cluster slot="end" gap={2} align="center">
+					<Badge tone="success" variant="soft" dot>Live</Badge>
+					<Button variant="ghost" tone="neutral" size="sm">Docs</Button>
+					<Button variant="solid" tone="accent" size="sm">Sign in</Button>
+				</Cluster>
+			</Toolbar>
+		</div>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={3} size="sm" tone="muted">Density — sm · md · lg</Heading>
+		<Stack gap={3}>
+			<div class="toolbar-demo__frame">
+				<Toolbar heading="Compact" size="sm">
+					<Cluster slot="end" gap={1}>
+						<Button variant="ghost" tone="neutral" size="sm">Share</Button>
+						<Button variant="outline" tone="neutral" size="sm">Save</Button>
+					</Cluster>
+				</Toolbar>
+			</div>
+			<div class="toolbar-demo__frame">
+				<Toolbar heading="Default">
+					<Cluster slot="end" gap={2}>
+						<Button variant="ghost" tone="neutral" size="sm">Share</Button>
+						<Button variant="solid" tone="accent" size="sm">Save</Button>
+					</Cluster>
+				</Toolbar>
+			</div>
+			<div class="toolbar-demo__frame">
+				<Toolbar heading="Roomy" size="lg">
+					<Cluster slot="end" gap={2}>
+						<Button variant="ghost" tone="neutral">Share</Button>
+						<Button variant="solid" tone="accent">Save</Button>
+					</Cluster>
+				</Toolbar>
+			</div>
+		</Stack>
+	</Stack>
+
+	<Stack gap={2}>
+		<Heading level={3} size="sm" tone="muted">Bare — nested in a surface, no fill or divider</Heading>
+		<div class="toolbar-demo__card">
+			<Toolbar heading="Inbox" bare>
+				<Cluster slot="end" gap={1}>
+					<Badge tone="info" variant="soft" count="3">Unread</Badge>
+					<Button variant="ghost" tone="neutral" size="sm">Filter</Button>
+				</Cluster>
+			</Toolbar>
+			<Text size="sm" tone="muted" class="toolbar-demo__card-body">
+				A <code>bare</code> Toolbar reuses the region layout inside a Card or Panel header — no standalone chrome.
+			</Text>
+		</div>
+	</Stack>
+</Stack>
+
+<style>
+	.toolbar-demo__frame {
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+		background: var(--bg-0);
+	}
+	.toolbar-demo__nav {
+		justify-content: center;
+	}
+	.toolbar-demo__card {
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+		background: var(--bg-2);
+		overflow: hidden;
+	}
+	.toolbar-demo__card-body {
+		margin: 0;
+		padding: var(--space-4) var(--space-5) var(--space-5);
+	}
+	.toolbar-demo__card-body code {
+		font-family: var(--font-mono);
+		font-size: 0.9em;
+		background: var(--bg-1);
+		padding: 0.1em 0.35em;
+		border-radius: var(--radius-sm);
+	}
+</style>

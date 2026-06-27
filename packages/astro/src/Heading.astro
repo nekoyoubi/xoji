@@ -1,0 +1,34 @@
+---
+import { headingSizeForLevel } from "@xoji/core";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+import type { HeadingLevel, HeadingSize, HeadingTone } from "@xoji/core";
+
+interface Props {
+	level?: HeadingLevel;
+	size?: HeadingSize;
+	tone?: HeadingTone;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { level = 2, size, tone = "default", static: isStatic = false, class: extra, ...rest } =
+	Astro.props;
+
+const resolvedSize = size ?? headingSizeForLevel(level);
+
+const bindings = {
+	level,
+	size: resolvedSize,
+	tone,
+};
+const chrome = await renderFragmentLight("heading", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-heading level={level} size={resolvedSize} tone={tone} class={extra} set:html={composed} {...rest} />
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

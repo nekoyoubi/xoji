@@ -1,0 +1,138 @@
+---
+import ColorPicker from "@xoji/astro/ColorPicker.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6} class="demo">
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Pick a color</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker label="Brand" value="#5b8cff" />
+				<Text size="xs" tone="subtle">brand</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="Accent" value="#22c55e" modes="hex,rgb,cmyk" />
+				<Text size="xs" tone="subtle">web + print modes</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Presets &amp; formats</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker
+					label="Palette"
+					value="#5b8cff"
+					swatches="#ef4444, #f59e0b, #22c55e, #5b8cff, #a855f7, oklch(0.7 0.16 20)"
+				/>
+				<Text size="xs" tone="subtle">swatches</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker
+					label="Perceptual"
+					value="oklch(0.72 0.15 250)"
+					format="oklch"
+					modes="oklch,oklab,lch,lab"
+					contrastAgainst="#0b0d12"
+				/>
+				<Text size="xs" tone="subtle">perceptual modes · contrast</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="Harmony" value="#5b8cff" harmony="triadic" />
+				<Text size="xs" tone="subtle">triadic harmony</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Per-channel sliders</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker label="RGB channels" value="#5b8cff" channels="rgb" />
+				<Text size="xs" tone="subtle">rgb sliders</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="OKLCH channels" value="oklch(0.72 0.15 250)" format="oklch" channels="oklch" />
+				<Text size="xs" tone="subtle">perceptual sliders</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="CMYK channels" value="#22c55e" format="cmyk" channels="cmyk" />
+				<Text size="xs" tone="subtle">print sliders</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">OKLCH perceptual plane</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker label="Perceptual" value="oklch(0.72 0.15 250)" format="oklch" plane />
+				<Text size="xs" tone="subtle">lightness × chroma, gamut-shaded</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="Plane + channels" value="oklch(0.6 0.2 30)" format="oklch" plane channels="oklch" />
+				<Text size="xs" tone="subtle">plane + per-channel</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Palette snapping</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker label="Web-safe" value="#5b8cff" snap="web-safe" />
+				<Text size="xs" tone="subtle">216-color cube</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="Nearest named" value="#6a9bf4" snap="named" />
+				<Text size="xs" tone="subtle">nearest CSS name</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Popover trigger</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker label="Brand" value="#5b8cff" trigger />
+				<Text size="xs" tone="subtle">opens on click</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="Loaded" value="oklch(0.7 0.16 20)" format="oklch" trigger swatches="#ef4444, #f59e0b, #22c55e, #5b8cff" alpha />
+				<Text size="xs" tone="subtle">full UI in a popover</Text>
+			</Stack>
+		</Cluster>
+	</section>
+
+	<section class="demo__group">
+		<Heading level={2} size="sm" tone="muted">Transparency &amp; disabled</Heading>
+		<Cluster gap={6} align="start" class="demo__pickers">
+			<Stack gap={2} align="center">
+				<ColorPicker label="Translucent" value="#e25b9980" alpha />
+				<Text size="xs" tone="subtle">alpha (opt-in)</Text>
+			</Stack>
+			<Stack gap={2} align="center">
+				<ColorPicker label="Locked" value="#e25b99" disabled />
+				<Text size="xs" tone="subtle">disabled</Text>
+			</Stack>
+		</Cluster>
+	</section>
+</Stack>
+
+<style>
+	.demo {
+		width: 100%;
+	}
+	.demo__group {
+		display: grid;
+		gap: var(--space-3);
+	}
+	.demo__pickers {
+		flex-wrap: wrap;
+	}
+</style>

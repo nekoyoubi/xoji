@@ -1,0 +1,71 @@
+---
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+type Size = "sm" | "md" | "lg";
+
+interface Props {
+	label?: string;
+	description?: string;
+	error?: string;
+	size?: Size;
+	invalid?: boolean;
+	required?: boolean;
+	for?: string;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const {
+	label = "",
+	description = "",
+	error = "",
+	size = "md",
+	invalid = false,
+	required = false,
+	for: htmlFor,
+	static: isStatic = false,
+	class: extra,
+	...rest
+} = Astro.props;
+
+const seed = Math.random().toString(36).slice(2, 9);
+const labelId = `xoji-form-group-label-${seed}`;
+const descriptionId = `xoji-form-group-desc-${seed}`;
+const errorId = `xoji-form-group-error-${seed}`;
+const controlId = `xoji-form-group-control-${seed}`;
+
+const bindings = {
+	label,
+	description,
+	error,
+	size,
+	invalid,
+	required,
+	hasFor: htmlFor != null,
+	controlTarget: htmlFor ?? controlId,
+	labelId,
+	descriptionId,
+	errorId,
+};
+const chrome = await renderFragmentLight("form-group", bindings);
+const slotHtml = Astro.slots.has("default") ? await Astro.slots.render("default") : "";
+const composed = chrome.replace("<slot></slot>", () => slotHtml);
+---
+
+<xoji-form-group
+	label={label}
+	description={description}
+	error={error}
+	size={size}
+	invalid={invalid || undefined}
+	required={required || undefined}
+	for={htmlFor}
+	class={extra}
+	set:html={composed}
+	{...rest}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

@@ -1,0 +1,120 @@
+---
+import Toast from "@xoji/astro/Toast.astro";
+import Button from "@xoji/astro/Button.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { getStats } from "../../data/stats";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const tones = ["info", "success", "warn", "danger"] as const;
+const { tokens } = await getStats();
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Try it live</Heading>
+		<Text size="sm" tone="muted">
+			Push real toasts into a live-region stack. They auto-dismiss, announce politely (or
+			assertively for danger and warn), and stack from the bottom-right.
+		</Text>
+		<Cluster gap={2} class="demo-toast-triggers">
+			{
+				tones.map((tone) => (
+					<Button size="sm" tone={tone} variant="outline" data-toast={tone}>
+						Push {tone}
+					</Button>
+				))
+			}
+			<Button size="sm" tone="accent" data-toast="action">With action</Button>
+		</Cluster>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Soft, the four tones</Heading>
+		<Stack gap={3} class="demo-toast-static">
+			<Toast tone="info" actionLabel="View">Your export is ready to download.</Toast>
+			<Toast tone="success">Theme saved — all {tokens} tokens covered.</Toast>
+			<Toast tone="warn">Connection unstable. Retrying in the background.</Toast>
+			<Toast tone="danger" actionLabel="Retry">Failed to publish. Check your network.</Toast>
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Solid variant</Heading>
+		<Stack gap={3} class="demo-toast-static">
+			<Toast tone="success" variant="solid">Deployed to production.</Toast>
+			<Toast tone="danger" variant="solid" actionLabel="Undo">Project moved to trash.</Toast>
+		</Stack>
+	</Card>
+
+	<Card compact>
+		<Heading slot="header" level={3} size="sm">Every tone</Heading>
+		<Text size="sm" tone="muted">
+			Toast takes the full tone vocabulary. The four status tones carry a severity icon;
+			every other tone is purely cosmetic.
+		</Text>
+		<Stack gap={4} class="demo-toast-static">
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Stack gap={2}>
+						{group.tones.map((tone) => (
+							<Toast tone={tone}>{tone}</Toast>
+						))}
+					</Stack>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	.demo-toast-triggers {
+		margin-top: 1rem;
+	}
+	.demo-toast-static {
+		max-width: 26rem;
+	}
+</style>
+
+<script>
+	import { XojiToastRegion } from "@xoji/core/elements";
+
+	const region = new XojiToastRegion();
+	region.setAttribute("placement", "bottom-right");
+	document.body.appendChild(region);
+
+	const messages: Record<string, string> = {
+		info: "Heads up — a new algorithm landed in the marketplace.",
+		success: "Theme published. Coverage is fully green.",
+		warn: "Heads up — two tokens are missing producers.",
+		danger: "Something went wrong while saving.",
+	};
+
+	document.querySelectorAll<HTMLButtonElement>("[data-toast]").forEach((button) => {
+		button.addEventListener("click", () => {
+			const kind = button.dataset.toast;
+			if (kind === "action") {
+				region.toast({
+					message: "File deleted.",
+					tone: "danger",
+					actionLabel: "Undo",
+					onAction: () =>
+						region.toast({ message: "Restored.", tone: "success", duration: 3000 }),
+				});
+				return;
+			}
+			const tone = (kind ?? "info") as "info" | "success" | "warn" | "danger";
+			region.toast({ message: messages[tone], tone });
+		});
+	});
+</script>

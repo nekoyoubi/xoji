@@ -1,0 +1,29 @@
+{
+	"name": "@xoji/site",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"check": "astro check"
+	},
+	"dependencies": {
+		"@astrojs/sitemap": "^3.7.3",
+		"@astrojs/svelte": "^8.1.2",
+		"@fontsource-variable/rem": "^5.2.7",
+		"@fontsource/poppins": "^5.2.7",
+		"@fontsource/sigmar": "^5.2.7",
+		"@fontsource/teko": "^5.2.7",
+		"@xoji/astro": "^0.1.0",
+		"@xoji/core": "^0.1.0",
+		"@xoji/svelte": "^0.1.0",
+		"astro": "^6.4.8",
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.9",
+		"typescript": "^5.5.0"
+	}
+}

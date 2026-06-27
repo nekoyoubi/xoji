@@ -1,0 +1,120 @@
+---
+import Base from "../layouts/Base.astro";
+import Logo from "../components/Logo.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Button from "@xoji/astro/Button.astro";
+---
+
+<Base
+	title="404 · not found · xoji"
+	description="Dead link. This route isn't in the register; here's the way back."
+>
+	<div class="x-404">
+		<Stack gap={6} align="center">
+			<div class="x-404__lockup">
+				<Logo size={104} decorative class="x-404__mark" />
+				<span class="x-404__word">xoji</span>
+			</div>
+			<Stack gap={3} align="center">
+				<Text as="span" size="sm" tone="subtle" mono class="x-404__code">error 404</Text>
+				<Heading level={1} size="3xl" class="x-404__title">This route isn't in the register.</Heading>
+				<Text size="lg" tone="muted" class="x-404__lede">
+					Nothing resolves at this path. The link's broken, or it never
+					existed. Here's the way back.
+				</Text>
+			</Stack>
+			<code class="x-404__lookup"
+				>resolve(<span id="x-404-path">"this route"</span>) <span class="x-404__arrow" aria-hidden="true">&rarr;</span> <span class="x-404__nil">undefined</span></code
+			>
+			<Cluster gap={3} justify="center" class="x-404__actions">
+				<Button href="/" tone="accent">Overview</Button>
+				<Button href="/components" variant="ghost" tone="neutral">Browse components</Button>
+				<Button href="/generator" variant="ghost" tone="neutral">The Bench</Button>
+			</Cluster>
+		</Stack>
+	</div>
+</Base>
+
+<script is:inline>
+	(() => {
+		const el = document.getElementById("x-404-path");
+		if (el) el.textContent = JSON.stringify(location.pathname + location.search);
+	})();
+</script>
+
+<style>
+	.x-404 {
+		max-width: 40rem;
+		margin: var(--space-8) auto;
+		padding: var(--space-6) var(--space-5);
+		text-align: center;
+	}
+	.x-404__lockup {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-2);
+		filter: drop-shadow(0 0 3px color-mix(in oklab, var(--accent) 50%, transparent))
+			drop-shadow(0 0 9px color-mix(in oklab, var(--accent) 28%, transparent));
+		animation: x-404-glow 7s ease-in-out infinite;
+	}
+	.x-404__word {
+		font-family: "Teko", var(--font-sans);
+		font-weight: 600;
+		font-size: 4.25rem;
+		line-height: 1;
+		letter-spacing: 0.01em;
+		color: var(--fg-0);
+	}
+	@keyframes x-404-glow {
+		0%,
+		100% {
+			filter: drop-shadow(0 0 3px color-mix(in oklab, var(--accent) 50%, transparent))
+				drop-shadow(0 0 9px color-mix(in oklab, var(--accent) 28%, transparent));
+		}
+		50% {
+			filter: drop-shadow(0 0 5px color-mix(in oklab, var(--accent-2) 70%, transparent))
+				drop-shadow(0 0 13px color-mix(in oklab, var(--accent-2) 45%, transparent));
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.x-404__lockup {
+			animation: none;
+		}
+	}
+	.x-404__code {
+		display: block;
+		text-transform: uppercase;
+		letter-spacing: 0.16em;
+		color: var(--accent-text);
+	}
+	.x-404 :global(.x-404__lede) {
+		max-width: 32rem;
+		margin-inline: auto;
+	}
+	.x-404__lookup {
+		display: inline-block;
+		max-width: 100%;
+		padding: var(--space-2) var(--space-3);
+		border: var(--border-thin, 1px) solid var(--line);
+		border-radius: var(--radius-md, 8px);
+		background: var(--bg-1);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--fg-2);
+		overflow-wrap: anywhere;
+	}
+	.x-404__arrow {
+		color: var(--fg-3, var(--fg-2));
+		padding: 0 0.35em;
+	}
+	.x-404__nil {
+		color: var(--danger-text, var(--accent-text));
+	}
+	.x-404 :global(.x-404__actions) {
+		flex-wrap: wrap;
+	}
+</style>

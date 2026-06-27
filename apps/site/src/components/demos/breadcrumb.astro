@@ -1,0 +1,98 @@
+---
+import Breadcrumb from "@xoji/astro/Breadcrumb.astro";
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Cluster from "@xoji/astro/Cluster.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import { ACCENT_VARIANTS, HUES } from "@xoji/core";
+
+const trail = [
+	{ label: "Home", href: "#" },
+	{ label: "Components", href: "#" },
+	{ label: "Navigation", href: "#" },
+	{ label: "Breadcrumb" },
+];
+
+const toneTrail = [
+	{ label: "Home", href: "#" },
+	{ label: "Section" },
+];
+
+const TONE_GROUPS = [
+	{ label: "Accents", tones: ["accent", ...ACCENT_VARIANTS, "neutral"] },
+	{ label: "Statuses", tones: ["success", "info", "warn", "danger"] },
+	{ label: "Named hues", tones: [...HUES] },
+] as const;
+
+const sizes = [
+	{ name: "sm", label: "Small" },
+	{ name: "md", label: "Medium (default)" },
+	{ name: "lg", label: "Large" },
+] as const;
+---
+
+<Stack gap={6}>
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">A path through the app</Heading>
+			<Text size="sm" tone="muted">
+				The last crumb is marked <Text as="span" mono size="xs">aria-current="page"</Text> automatically.
+			</Text>
+		</Stack>
+		<Breadcrumb items={trail} label="Page location" />
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Every tone</Heading>
+			<Text size="sm" tone="muted">
+				The link tone tracks the active register — any tone in the roster, drawn at its
+				panel-readable <Text as="span" mono size="xs">--{"{tone}"}-vivid</Text> ink.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			{TONE_GROUPS.map((group) => (
+				<Stack gap={2}>
+					<Text size="xs" tone="subtle" weight="semibold">{group.label}</Text>
+					<Stack gap={2}>
+						{group.tones.map((tone) => (
+							<Cluster gap={3} align="baseline" justify="between">
+								<Breadcrumb items={toneTrail} tone={tone} label={`${tone} breadcrumb`} />
+								<Text as="span" size="xs" tone="subtle" mono>tone="{tone}"</Text>
+							</Cluster>
+						))}
+					</Stack>
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Sizes</Heading>
+			<Text size="sm" tone="muted">Three steps, scaled against the type ramp.</Text>
+		</Stack>
+		<Stack gap={4}>
+			{sizes.map((s) => (
+				<Stack gap={1}>
+					<Text as="span" size="xs" tone="subtle">{s.label}</Text>
+					<Breadcrumb items={trail} size={s.name} label={`${s.label} breadcrumb`} />
+				</Stack>
+			))}
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={3} slot="header">
+			<Heading level={3} size="lg">Custom separator</Heading>
+			<Text size="sm" tone="muted">
+				Any string works — swap the slash for a chevron.
+			</Text>
+		</Stack>
+		<Stack gap={4}>
+			<Breadcrumb items={trail} separator="›" tone="neutral" label="Chevron breadcrumb" />
+			<Breadcrumb items={trail} separator="•" tone="accent" label="Dot breadcrumb" />
+		</Stack>
+	</Card>
+</Stack>

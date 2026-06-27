@@ -1,0 +1,38 @@
+---
+import { type MenuItem } from "@xoji/core/markup";
+import { renderFragmentLight } from "@xoji/core/elements/ssr";
+
+interface Props {
+	items?: MenuItem[];
+	label?: string;
+	open?: boolean;
+	/** Render zero-JS: emit the resolved light-DOM markup but never load the runtime to hydrate it. */
+	static?: boolean;
+	class?: string;
+	/** Any other attribute (`id`, `title`, `data-*`, `aria-*`, …) passes through to the element. */
+	[key: string]: unknown;
+}
+
+const { items = [], label, open = false, static: isStatic = false, class: extra, ...rest } = Astro.props;
+
+const popupId = `xoji-menu-${Math.random().toString(36).slice(2, 9)}-popup`;
+
+const bindings = {
+	items,
+	label: label ?? null,
+	open,
+	popupId,
+};
+const light = await renderFragmentLight("menu", bindings);
+---
+
+<xoji-menu
+	items={items && items.length > 0 ? JSON.stringify(items) : undefined}
+	label={label}
+	open={open || undefined}
+	class={extra}
+	{...rest}
+	set:html={light}
+/>
+
+{!isStatic && <script>import "@xoji/core/elements";</script>}

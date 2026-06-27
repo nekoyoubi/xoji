@@ -1,0 +1,113 @@
+---
+import Grid from "@xoji/astro/Grid.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Card from "@xoji/astro/Card.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+import Badge from "@xoji/astro/Badge.astro";
+
+const cells = Array.from({ length: 8 }, (_, i) => i + 1);
+const stats = [
+	{ label: "components", value: "33" },
+	{ label: "categories", value: "8" },
+	{ label: "tokens produced", value: "216" },
+	{ label: "coverage", value: "100%" },
+];
+---
+
+<Stack gap={6} class="demo-grid">
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={3} size="md">Fixed columns</Heading>
+				<Text tone="muted" size="sm">
+					<code>columns={4}</code> lays out four equal-width tracks; cells flow
+					into the next row automatically.
+				</Text>
+			</div>
+			<Grid columns={4} gap={3}>
+				{cells.map((n) => (
+					<span class="demo-cell">{n}</span>
+				))}
+			</Grid>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={3} size="md">Responsive auto-fit</Heading>
+				<Text tone="muted" size="sm">
+					<code>minColWidth="14rem"</code> fits as many tracks as the container
+					allows — resize the page to watch the column count change.
+				</Text>
+			</div>
+			<Grid minColWidth="14rem" gap={4}>
+				{stats.map((s) => (
+					<div class="demo-grid__stat">
+						<Text size="xs" tone="subtle" mono>{s.label}</Text>
+						<Heading level={4} size="xl">{s.value}</Heading>
+					</div>
+				))}
+			</Grid>
+		</Stack>
+	</Card>
+
+	<Card>
+		<Stack gap={4}>
+			<div>
+				<Heading level={3} size="md">Real content grid</Heading>
+				<Text tone="muted" size="sm">
+					The same primitive composes cards into a gallery — every cell shares
+					one token-driven gutter.
+				</Text>
+			</div>
+			<Grid minColWidth="13rem" gap={4}>
+				{["xoji-default", "xoji-hc", "xoji-quiet"].map((algo) => (
+					<Card compact>
+						<Stack gap={2}>
+							<Heading level={4} size="md">{algo}</Heading>
+							<Badge tone="accent" variant="soft" size="sm">algorithm</Badge>
+							<Text tone="muted" size="sm">
+								A blessed derivation pack — anchors and knobs in, a full token
+								set out.
+							</Text>
+						</Stack>
+					</Card>
+				))}
+			</Grid>
+		</Stack>
+	</Card>
+</Stack>
+
+<style>
+	.demo-grid :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.88em;
+		background: var(--bg-2);
+		padding: 0.08em 0.32em;
+		border-radius: var(--radius-sm);
+	}
+	.demo-cell {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 3rem;
+		border-radius: var(--radius-md);
+		font-family: var(--font-mono);
+		font-size: var(--text-sm);
+		color: var(--accent-text);
+		background: color-mix(in oklch, var(--accent) 16%, var(--bg-2));
+		border: var(--border-thin) solid
+			color-mix(in oklch, var(--accent) 40%, var(--line));
+	}
+	.demo-grid__stat {
+		padding: var(--space-4);
+		background: var(--bg-2);
+		border: var(--border-thin) solid var(--line);
+		border-radius: var(--radius-md);
+	}
+	.demo-grid__stat :global(.xoji-heading) {
+		margin: var(--space-1) 0 0;
+	}
+</style>
