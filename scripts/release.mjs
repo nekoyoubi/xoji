@@ -42,8 +42,8 @@ const afterHeader = changelog.slice(headerIndex + match[0].length);
 const nextHeader = afterHeader.search(/^## /m);
 const body = (nextHeader === -1 ? afterHeader : afterHeader.slice(0, nextHeader)).trim();
 
-const theme = match[1].replace(/^\s*—\s*/, "").trim();
-const title = theme ? `${tag} — ${theme}` : tag;
+const theme = match[1].replace(/^\s*[—:]\s*/, "").trim();
+const title = theme ? `${tag}: ${theme}` : tag;
 
 console.log(`Releasing ${title}`);
 console.log(`  version: ${version} (from packages/xoji)`);

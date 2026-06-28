@@ -72,7 +72,7 @@ The `/start` command runs the whole version kickoff at the beginning of a cycle 
 Top-level `CHANGELOG.md`:
 
 - **When**: every PR shipping user-facing changes. Skip internal refactors, CI tweaks, doc typos.
-- **Format**: themed version header (`## v0.2.0 — Open Register`), past-tense bullets, sub-bullets for detail, backtick all code references.
+- **Format**: themed version header (`## v0.2.0: Open Register`), past-tense bullets, sub-bullets for detail, backtick all code references.
 - **Voice**: entries are user-facing copy — pass them through a voice review before committing.
 - **No dates in headers** — git tags them; dates rot in text.
 - **Test-count table** at the bottom of each version entry.

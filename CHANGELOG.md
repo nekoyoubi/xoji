@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0 — Genesis
+## v0.1.0: Genesis
 
 The spine chapter. The architecture settled and got written down, then went from spec to a working system: an OKLCH derivation engine mapping a small set of anchors and knobs into a full design-token register, a coverage contract as the one hard rule between what components consume and what an algorithm produces, the five blessed algorithms lifted into real xript mods that run in a zero-authority sandbox, a single-source custom-element component library with thin Svelte and Astro bindings, and a reference site that derives its own theme live. Everything below is the work that took each of those to green.
 
