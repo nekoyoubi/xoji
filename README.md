@@ -1,5 +1,10 @@
 # xoji
 
+[![deploy](https://github.com/nekoyoubi/xoji/actions/workflows/deploy.yml/badge.svg)](https://github.com/nekoyoubi/xoji/actions/workflows/deploy.yml)
+[![npm](https://img.shields.io/npm/v/@xoji/core?label=npm)](https://www.npmjs.com/package/@xoji/core)
+[![docs](https://img.shields.io/badge/docs-xoji.dev-blue)](https://xoji.dev)
+[![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 A **themable-derivation engine and component contract**. A small set of overridable anchors
 propagates algorithmically into a full, internally-consistent design-token set,
 co-designed against a component library so that any valid theme renders well out
