@@ -1,6 +1,6 @@
 import type { ComponentManifest } from "./types.js";
 
-const htmlExample = `<xoji-text>The quiet default — body copy at comfortable measure.</xoji-text>
+const htmlExample = `<xoji-text>The quiet default: body copy at comfortable measure.</xoji-text>
 
 <xoji-text size="lg" weight="semibold">A lead paragraph that sets up the section.</xoji-text>
 
@@ -14,7 +14,7 @@ const svelteExample = `<script lang="ts">
 	import { Text } from "@xoji/svelte";
 </script>
 
-<Text>The quiet default — body copy at comfortable measure.</Text>
+<Text>The quiet default: body copy at comfortable measure.</Text>
 
 <Text size="lg" weight="semibold">A lead paragraph that sets up the section.</Text>
 
@@ -28,7 +28,7 @@ const astroExample = `---
 import { Text } from "@xoji/astro";
 ---
 
-<Text>The quiet default — body copy at comfortable measure.</Text>
+<Text>The quiet default: body copy at comfortable measure.</Text>
 
 <Text size="lg" weight="semibold">A lead paragraph that sets up the section.</Text>
 

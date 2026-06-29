@@ -146,7 +146,7 @@ export const codeManifest: ComponentManifest = {
 			type: "boolean",
 			default: "true",
 			description:
-				"The copy-to-clipboard button. On by default; set `copy=\"false\"` to drop it. It only paints where it can work — hidden in an insecure context (no Clipboard API) and on the zero-JS Astro path.",
+				"The copy-to-clipboard button. On by default; set `copy=\"false\"` to drop it. It only paints where it can work: hidden in an insecure context (no Clipboard API) and on the zero-JS Astro path.",
 			bindings: ["html", "svelte", "astro"],
 		},
 		{
@@ -154,7 +154,7 @@ export const codeManifest: ComponentManifest = {
 			type: "boolean",
 			default: "false",
 			description:
-				"Soft-wrap long lines instead of scrolling them horizontally. Purely declarative — the host attribute drives a CSS rule, so it needs no JavaScript and works on the zero-JS Astro path.",
+				"Soft-wrap long lines instead of scrolling them horizontally. Purely declarative; the host attribute drives a CSS rule, so it needs no JavaScript and works on the zero-JS Astro path.",
 			bindings: ["html", "svelte", "astro"],
 		},
 		{
@@ -162,14 +162,14 @@ export const codeManifest: ComponentManifest = {
 			type: "boolean",
 			default: "false",
 			description:
-				"Number each line in a gutter that stays put while the code scrolls sideways. Tag-aware, so a token spanning lines (a block comment, a multi-line string) still numbers cleanly, and it co-operates with `wrap` — a wrapped line keeps a single number at its top. The gutter is pure derived chrome — it borrows `--code-comment` and `--field-border`, adding no tokens — and renders on the zero-JS Astro path too.",
+				"Number each line in a gutter that stays put while the code scrolls sideways. Tag-aware, so a token spanning lines (a block comment, a multi-line string) still numbers cleanly, and it co-operates with `wrap` (a wrapped line keeps a single number at its top). The gutter is pure derived chrome; it borrows `--code-comment` and `--field-border`, adding no tokens, and renders on the zero-JS Astro path too.",
 			bindings: ["html", "svelte", "astro"],
 		},
 		{
 			name: "highlight",
 			type: "string",
 			description:
-				"Tint chosen lines with `--code-line-highlight` to call out the ones that matter — a 1-based spec like `2`, `2,4`, or `4-6`, mixable as `1,3-5,8`. Pairs with `line-numbers`, works under `wrap`, and renders on the zero-JS Astro path; it reuses a token the algorithm already derives, so it adds none.",
+				"Tint chosen lines with `--code-line-highlight` to call out the ones that matter: a 1-based spec like `2`, `2,4`, or `4-6`, mixable as `1,3-5,8`. Pairs with `line-numbers`, works under `wrap`, and renders on the zero-JS Astro path; it reuses a token the algorithm already derives, so it adds none.",
 			bindings: ["html", "svelte", "astro"],
 		},
 	],

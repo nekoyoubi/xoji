@@ -112,7 +112,7 @@ export const badgeManifest: ComponentManifest = {
 			name: "tone",
 			type: "FullTone",
 			default: "neutral",
-			description: "Any color tone — a semantic role, an accent variant (accent-2/3/4), or a named hue (red … black).",
+			description: "Any color tone: a semantic role, an accent variant (accent-2/3/4), or a named hue (red … black).",
 			bindings: ["html", "svelte", "astro"],
 			options: [...FULL_TONES],
 		},

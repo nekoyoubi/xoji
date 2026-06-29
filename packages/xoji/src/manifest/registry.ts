@@ -1,5 +1,5 @@
 /**
- * The component manifest registry — the single source of truth that `coverage()`,
+ * The component manifest registry: the single source of truth that `coverage()`,
  * the reference site, and the theme studio all read.
  *
  * ## Registering a component
