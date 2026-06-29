@@ -64,7 +64,7 @@ export const codeCss = `
 	line-height: 1.4;
 }
 .xoji-code-caption:empty { display: none; }
-:host(:has(.xoji-code-caption:not(:empty))) .xoji-code {
+.xoji-code-caption:not(:empty) + .xoji-code {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }
