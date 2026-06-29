@@ -10,15 +10,37 @@
   function triggerLabel(bindings) {
     return bindings.label ?? "Menu";
   }
+  function action(item) {
+    const label = item.label ?? "";
+    const value = item.value ?? label;
+    const disabledAttr = item.disabled ? ` aria-disabled="true"` : "";
+    const hint = item.hint ? `<span class="xoji-menu__item-hint" part="item-hint" aria-hidden="true">${escapeHtml(item.hint)}</span>` : "";
+    return `<button type="button" class="xoji-menu__item" role="menuitem" tabindex="-1"${disabledAttr} data-value="${escapeAttr(value)}" data-label="${escapeAttr(label)}"><span class="xoji-menu__item-label">${escapeHtml(label)}</span>${hint}</button>`;
+  }
   function items(bindings) {
-    return (bindings.items ?? []).map((item) => {
-      if (item.separator) {
-        return `<div class="xoji-menu__separator" role="separator"></div>`;
+    let out = "";
+    let groupOpen = false;
+    const closeGroup = () => {
+      if (groupOpen) {
+        out += "</div>";
+        groupOpen = false;
       }
-      const value = item.value ?? item.label;
-      const disabledAttr = item.disabled ? ` aria-disabled="true"` : "";
-      return `<button type="button" class="xoji-menu__item" role="menuitem" tabindex="-1"${disabledAttr} data-value="${escapeAttr(value)}" data-label="${escapeAttr(item.label)}">${escapeHtml(item.label)}</button>`;
-    }).join("");
+    };
+    for (const item of bindings.items ?? []) {
+      if (item.heading !== void 0) {
+        closeGroup();
+        out += `<div class="xoji-menu__group" role="group" aria-label="${escapeAttr(item.heading)}"><div class="xoji-menu__heading" aria-hidden="true">${escapeHtml(item.heading)}</div>`;
+        groupOpen = true;
+        continue;
+      }
+      if (item.separator) {
+        out += `<div class="xoji-menu__separator" role="separator"></div>`;
+        continue;
+      }
+      out += action(item);
+    }
+    closeGroup();
+    return out;
   }
   hooks.fragment.mount("menu", (bindings, ops) => {
     const label = triggerLabel(bindings);

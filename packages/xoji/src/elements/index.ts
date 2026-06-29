@@ -91,7 +91,7 @@ export type { TocItem } from "./toc.js";
 export { XojiKbd } from "./kbd.js";
 export { XojiSwatch } from "./swatch.js";
 export { XojiMenu } from "./menu.js";
-export type { MenuItem } from "./menu.js";
+export type { MenuItem, MenuAction } from "./menu.js";
 export { XojiCode } from "./code.js";
 export { XojiPagination } from "./pagination.js";
 

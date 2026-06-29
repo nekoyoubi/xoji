@@ -50,7 +50,7 @@ export const menuCss = `
 	display: flex;
 	align-items: center;
 	width: 100%;
-	gap: var(--space-2);
+	gap: var(--space-3);
 	padding-block: var(--space-1);
 	padding-inline: var(--space-3);
 	font: inherit;
@@ -61,6 +61,29 @@ export const menuCss = `
 	border-radius: var(--radius-sm);
 	cursor: pointer;
 	transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.xoji-menu__item-label {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.xoji-menu__item-hint {
+	flex: none;
+	font-family: var(--font-mono);
+	font-size: var(--text-xs);
+	color: inherit;
+	opacity: 0.65;
+}
+.xoji-menu__group {
+	display: contents;
+}
+.xoji-menu__heading {
+	padding-block: var(--space-1);
+	padding-inline: var(--space-3);
+	font-size: var(--text-xs);
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--fg-2);
 }
 .xoji-menu__item:hover,
 .xoji-menu__item:focus-visible {
