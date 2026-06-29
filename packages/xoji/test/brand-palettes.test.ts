@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contrast, derive } from "../src/index.js";
+import { contrast, derive, FULL_TONES } from "../src/index.js";
 import { algorithms } from "../src/batteries.js";
 
 // The gauntlet fires random and extreme constraint sets, but never these specific
@@ -34,6 +34,16 @@ for (const [id, algorithm] of Object.entries(algorithms)) {
 					expect(solid, `--${tone}-fg on --${tone}`).toBeGreaterThanOrEqual(AA);
 					const soft = contrast(register[`--${tone}-text`]!, register[`--${tone}-bg`]!);
 					expect(soft, `--${tone}-text on --${tone}-bg`).toBeGreaterThanOrEqual(AA);
+				}
+			});
+
+			// Colored typography (Heading / Text / Eyebrow with a non-emphasis tone) paints
+			// the text with `--{tone}-vivid` directly on the page surface, so every tone in
+			// the full roster must clear AA against `--bg-0`.
+			it(`${name}: every tone's vivid ink clears AA on the surface`, () => {
+				for (const tone of FULL_TONES) {
+					const ratio = contrast(register[`--${tone}-vivid`]!, register["--bg-0"]!);
+					expect(ratio, `--${tone}-vivid on --bg-0`).toBeGreaterThanOrEqual(AA);
 				}
 			});
 		}
