@@ -1,0 +1,37 @@
+---
+import Card from "@xoji/astro/Card.astro";
+import Stack from "@xoji/astro/Stack.astro";
+import Heading from "@xoji/astro/Heading.astro";
+import Text from "@xoji/astro/Text.astro";
+---
+
+<Stack gap={6}>
+	<Card>
+		<Heading slot="header" level={2} size="sm">A movable-panel workspace</Heading>
+		<Stack gap={3}>
+			<Text tone="muted">
+				Drag a tab onto another zone: drop it over the center to join as a tab, or against an
+				edge to split the zone. The layout is the drag physics only; the panels are your own
+				content.
+			</Text>
+			<xoji-dock-zone style="height: 360px; display: flex;">
+				<section data-panel-id="files" data-title="Files">
+					The project tree. Drag this tab to rearrange the workspace.
+				</section>
+				<section data-panel-id="outline" data-title="Outline">
+					The document outline for the active file.
+				</section>
+				<section data-panel-id="preview" data-title="Preview">
+					A live preview of the rendered result.
+				</section>
+				<section data-panel-id="problems" data-title="Problems">
+					Diagnostics and warnings.
+				</section>
+			</xoji-dock-zone>
+		</Stack>
+	</Card>
+</Stack>
+
+<script>
+	import "@xoji/core/elements";
+</script>
