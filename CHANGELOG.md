@@ -4,6 +4,7 @@
 
 ### Components
 
+- `<xoji-splitter>` resets its size on a double-click of the handle, mirroring `<xoji-slider>`: it restores the `default` size, or the size it first rendered with when `default` is omitted. The keyboard reset now follows the same fallback.
 - `<xoji-code>` took a `caption` attribute: a header strip above the block (a filename, say) that rounds the block's top corners into it and reads in the mono face. It renders on the runtime and the zero-JS Astro paths, threads through the Svelte and Astro bindings, and reuses chrome tokens so coverage is unchanged.
 
 ### Tooling
