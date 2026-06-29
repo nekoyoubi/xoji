@@ -26,6 +26,7 @@ interface ParsedArgs {
 	depth?: string;
 	mode: GauntletMode;
 	algorithm: string;
+	overrides?: Record<string, string>;
 }
 
 function parse(argv: string[]): ParsedArgs {
@@ -51,6 +52,19 @@ function parse(argv: string[]): ParsedArgs {
 				args.accent = next;
 				i++;
 				break;
+			case "--set":
+			case "--constraint": {
+				const eq = next?.indexOf("=") ?? -1;
+				if (next && eq > 0) {
+					const rawKey = next.slice(0, eq).trim();
+					const key = rawKey.startsWith("--") ? rawKey : `--${rawKey}`;
+					(args.overrides ??= {})[key] = next.slice(eq + 1);
+				} else if (next !== undefined) {
+					process.stderr.write(`xoji: ignoring malformed --set "${next}" (expected token=value)\n`);
+				}
+				i++;
+				break;
+			}
 			case "--format":
 			case "-f":
 				args.format = (next as CliFormat) ?? "css";
@@ -97,9 +111,12 @@ function usage(): void {
 			"xoji: themable-derivation engine",
 			"",
 			"usage:",
-			"  xoji derive [-a <algorithm>] [--bg <c>] [--fg <c>] [--accent <c>] [--format css|json|theme|prism|monaco] [--name <s>] [--out <file>]",
+			"  xoji derive [-a <algorithm>] [--bg <c>] [--fg <c>] [--accent <c>] [--set <token>=<value>]... [--format css|json|theme|prism|monaco] [--name <s>] [--out <file>]",
 			"  xoji gauntlet [-a <algorithm>|all] [--mode baked|hosted] [--depth quick|standard|full] [--runs <n>]",
-			"  xoji coverage --consumed <a,b,c> [-a <algorithm>] [--bg <c>] [--accent <c>]",
+			"  xoji coverage --consumed <a,b,c> [-a <algorithm>] [--bg <c>] [--accent <c>] [--set <token>=<value>]...",
+			"",
+			"  --set pins any token (repeatable): --set --accent-2=#7c3aed --set font-sans='Inter, sans-serif'",
+			"        the leading -- is optional (--set radius-md=10px). Alias: --constraint.",
 			"  xoji list",
 			"  xoji mcp",
 			"",

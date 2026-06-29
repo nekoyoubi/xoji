@@ -26,6 +26,8 @@
   - tools for `xoji_derive`, `xoji_coverage`, `xoji_components` (list a component or describe its full manifest), `xoji_gauntlet`, and `xoji_list_algorithms`, each running the same code the matching CLI path runs
   - resources serving the concept docs and every component manifest, so an agent answers from what ships rather than from memory
 - consolidated the concept narrative into `@xoji/core` (the new `@xoji/core/concepts` entry), one source read by both the MCP and the site's `llms` generator
+- `xoji derive` (and `xoji coverage`) took a repeatable `--set <token>=<value>` flag (alias `--constraint`) that pins any token, not just the three `--bg`/`--fg`/`--accent` headline anchors, so a full multi-anchor recipe (a secondary accent, font stacks, radii) bakes straight from the CLI instead of dropping to the importable `derive` API
+  - the leading `--` on the token is optional (`--set radius-md=10px` and `--set --radius-md=10px` both pin `--radius-md`), and the pins feed back into derivation like any constraint, so pinning `--accent-2` re-coheres its `-bg`/`-fg`/`-text` family
 
 ### Docs
 

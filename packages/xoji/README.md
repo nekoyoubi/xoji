@@ -69,6 +69,18 @@ xoji coverage --consumed "--bg-0,--fg-0,--accent" --bg "#0f1115"
 xoji gauntlet --runs 200
 ```
 
+`--bg` / `--fg` / `--accent` are shorthands for the three headline anchors; `--set <token>=<value>`
+(repeatable, alias `--constraint`) pins *any* token, so a full multi-anchor recipe bakes straight
+from the CLI without dropping to the importable API. The leading `--` on the token is optional.
+
+```sh
+xoji derive --accent "#2d5a9e" \
+  --set --accent-2=#7c3aed \
+  --set font-sans="Inter, system-ui, sans-serif" \
+  --set radius-md=10px \
+  --format css
+```
+
 ## The seven-dimension contract
 
 `xoji-default` produces 276 tokens. A representative tour follows; see
