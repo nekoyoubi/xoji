@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0: Dock & Tell
+## v0.2.0: Docking & MCP
 
 ### Components
 
