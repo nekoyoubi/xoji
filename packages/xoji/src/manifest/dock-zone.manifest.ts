@@ -19,7 +19,7 @@ const htmlExample = `<xoji-dock-zone style="height: 320px;">
 export const dockZoneManifest: ComponentManifest = {
 	id: "dock-zone",
 	name: "Dock Zone",
-	category: "layout",
+	category: "shell",
 	summary: "A drag-and-drop dockable-panel workspace: tabbed zones that rearrange by dragging.",
 	description:
 		"Dock Zone is a movable-panel workspace, the editor-style chrome an app builds its layout from. Its direct children are the panels: any element with a `data-panel-id` and a `data-title` (or `title`) for its tab. The zone reads them, arranges them into a layout of tabbed zones, and renders the tab strips and splits around them. Dragging a tab re-docks its panel onto another zone, joining it as a tab when dropped over the center or splitting the zone when dropped against an edge. Every rearrangement dispatches a `layout-change` event carrying the serializable layout tree, and setting the `layout` property restores a saved one, so a workspace persists across reloads. The layout physics are xoji's own headless engine (`resolveDrop` for the drop geometry, `dockPanel` for the tree), the same primitives a consumer can drive directly from `@xoji/core/elements`. The Svelte binding surfaces `layout` as a prop and reports each rearrangement through an `onLayoutChange` callback; the Astro binding renders the panels and upgrades the workspace on the client.",
@@ -29,7 +29,7 @@ export const dockZoneManifest: ComponentManifest = {
 			name: "zone",
 			description: "A leaf of the layout: a tab strip over the active panel's body.",
 			selector: ".xoji-dock-zone__leaf",
-			tokens: ["--bg-1", "--border", "--radius-md"],
+			tokens: ["--bg-1", "--line", "--radius-md"],
 		},
 		{
 			name: "tab",
@@ -39,9 +39,9 @@ export const dockZoneManifest: ComponentManifest = {
 		},
 		{
 			name: "highlight",
-			description: "The drop preview that tracks the drag, an accent-tinted rectangle over the target region.",
-			selector: ".xoji-dock-zone__highlight",
-			tokens: ["--accent", "--border-normal"],
+			description: "The drag-preview films over the live zones: the drop target (`--accent`), the remnant a split would leave (`--accent-2`), and every other zone (`--accent-3`).",
+			selector: ".xoji-dock-zone__film",
+			tokens: ["--accent", "--accent-2", "--accent-3", "--border-normal"],
 		},
 	],
 	props: [
@@ -49,7 +49,7 @@ export const dockZoneManifest: ComponentManifest = {
 			name: "layout",
 			type: "DockNode",
 			default: "all panels in one zone",
-			description: "The layout tree (a `DockNode` from `@xoji/core/elements`). A JS property, not an attribute; set it to restore a persisted layout, read it from `layout-change.detail`.",
+			description: "The layout tree (a `DockNode` from `@xoji/core/elements`). Set the JS property to restore a persisted layout and read it back from `layout-change.detail`; for a declarative start, pass the same tree as a JSON `layout` attribute.",
 			bindings: ["html", "svelte"],
 		},
 	],
@@ -65,9 +65,10 @@ export const dockZoneManifest: ComponentManifest = {
 	],
 	consumedTokens: [
 		"--accent",
+		"--accent-2",
+		"--accent-3",
 		"--bg-1",
 		"--bg-2",
-		"--border",
 		"--border-normal",
 		"--border-thick",
 		"--border-thin",
@@ -77,6 +78,7 @@ export const dockZoneManifest: ComponentManifest = {
 		"--fg-1",
 		"--fg-2",
 		"--font-sans",
+		"--line",
 		"--radius-md",
 		"--radius-sm",
 		"--ring",

@@ -24,7 +24,7 @@ xoji-dock-zone {
 	min-width: 0;
 	min-height: 0;
 	background: var(--bg-1);
-	border: var(--border-thin) solid var(--border);
+	border: var(--border-thin) solid var(--line);
 	border-radius: var(--radius-md);
 	overflow: hidden;
 }
@@ -33,7 +33,7 @@ xoji-dock-zone {
 	gap: var(--space-0);
 	padding: var(--space-1) var(--space-1) 0;
 	background: var(--bg-2);
-	border-bottom: var(--border-thin) solid var(--border);
+	border-bottom: var(--border-thin) solid var(--line);
 	overflow-x: auto;
 }
 .xoji-dock-zone__tab {
@@ -67,13 +67,23 @@ xoji-dock-zone {
 	color: var(--fg-1);
 }
 [data-dock-panel-host] { display: block; }
-.xoji-dock-zone__highlight {
+.xoji-dock-zone__film {
 	position: absolute;
 	pointer-events: none;
 	z-index: 2;
-	background: color-mix(in oklch, var(--accent) 28%, transparent);
-	border: var(--border-normal) solid var(--accent);
 	border-radius: var(--radius-md);
 	transition: top var(--duration-fast) var(--ease-standard), left var(--duration-fast) var(--ease-standard), width var(--duration-fast) var(--ease-standard), height var(--duration-fast) var(--ease-standard);
+}
+.xoji-dock-zone__film--drop {
+	background: color-mix(in oklch, var(--accent) 26%, transparent);
+	border: var(--border-normal) solid var(--accent);
+}
+.xoji-dock-zone__film--remnant {
+	background: color-mix(in oklch, var(--accent-2) 18%, transparent);
+	border: var(--border-thin) solid var(--accent-2);
+}
+.xoji-dock-zone__film--rest {
+	background: color-mix(in oklch, var(--accent-3) 13%, transparent);
+	border: var(--border-thin) solid color-mix(in oklch, var(--accent-3) 45%, transparent);
 }
 `.trim();

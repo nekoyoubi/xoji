@@ -1,9 +1,11 @@
 import { define } from "./base.js";
-import { resolveDrop, type DockRect } from "./dock-layout.js";
+import { resolveDrop, type DockRect, type DockRegion } from "./dock-layout.js";
 import {
 	dockPanel,
 	allPanels,
+	allLeaves,
 	singleZone,
+	parseLayout,
 	type DockNode,
 	type DockLeaf,
 } from "./dock-model.js";
@@ -28,8 +30,19 @@ interface PanelMeta {
 export class XojiDockZone extends HTMLElement {
 	private _layout: DockNode | null = null;
 	private panels = new Map<string, PanelMeta>();
-	private highlight: HTMLDivElement | null = null;
-	private dragging: string | null = null;
+	/** Drag-preview films painted over the live zones during a drag: the drop target (`--accent`),
+	 * the remnant a split would leave behind (`--accent-3`), and a pooled film over every other zone
+	 * (`--accent-2`). All inert; re-attached above the zones after each render replaces the children. */
+	private dropFilm: HTMLDivElement | null = null;
+	private remnantFilm: HTMLDivElement | null = null;
+	private restFilms: HTMLDivElement[] = [];
+	/** An in-flight tab gesture. `active` flips true only once the pointer travels past
+	 * `DRAG_THRESHOLD`, so a click (no travel) activates the tab instead of re-docking it. */
+	private drag: { panelId: string; zoneId: string; index: number; startX: number; startY: number; active: boolean } | null =
+		null;
+
+	/** Pointer travel, in px, before a tab press becomes a drag rather than a click. */
+	private static readonly DRAG_THRESHOLD = 5;
 
 	get layout(): DockNode | null {
 		return this._layout;
@@ -41,8 +54,35 @@ export class XojiDockZone extends HTMLElement {
 
 	connectedCallback(): void {
 		this.collectPanels();
-		if (!this._layout) this._layout = singleZone("zone-0", [...this.panels.keys()]);
+		if (!this._layout) this._layout = this.initialLayout();
 		this.render();
+	}
+
+	/** The starting tree: a `layout` attribute (a JSON {@link DockNode}) when present and valid, so a
+	 * split workspace can be authored declaratively; otherwise one zone holding every panel. */
+	private initialLayout(): DockNode {
+		const attr = this.getAttribute("layout");
+		if (attr) {
+			try {
+				const parsed = parseLayout(attr);
+				this.seedLeafCounter(parsed);
+				return parsed;
+			} catch {
+				// Malformed authored layout: fall back to a single zone rather than render nothing.
+			}
+		}
+		return singleZone("zone-0", [...this.panels.keys()]);
+	}
+
+	/** Advance the new-zone counter past the highest `zone-N` already in the tree, so a split made from
+	 * an authored layout never reuses an existing id. */
+	private seedLeafCounter(node: DockNode): void {
+		let max = 0;
+		for (const l of allLeaves(node)) {
+			const m = /^zone-(\d+)$/.exec(l.id);
+			if (m) max = Math.max(max, Number(m[1]));
+		}
+		this.leafId = max;
 	}
 
 	private collectPanels(): void {
@@ -74,7 +114,7 @@ export class XojiDockZone extends HTMLElement {
 			if (!live.includes(id)) this._layout = dockPanel(this._layout, { panel: id, target: this.rootLeafId(), region: "center" });
 		}
 		this.replaceChildren(this.renderNode(this._layout));
-		this.ensureHighlight();
+		this.ensureOverlays();
 		this.placeActivePanels();
 	}
 
@@ -117,8 +157,12 @@ export class XojiDockZone extends HTMLElement {
 			tab.dataset.panelId = pid;
 			tab.setAttribute("role", "tab");
 			tab.setAttribute("aria-selected", String(i === node.active));
-			tab.addEventListener("pointerdown", (e) => this.onTabPointerdown(e as PointerEvent, pid));
-			tab.addEventListener("click", () => this.activate(node.id, i));
+			tab.addEventListener("pointerdown", (e) => this.onTabPointerdown(e as PointerEvent, pid, node.id, i));
+			// Keyboard activation only (`detail === 0`); pointer presses route through the drag gesture
+			// so a click-vs-drag is decided by travel, not by a second, racing handler.
+			tab.addEventListener("click", (e) => {
+				if (e.detail === 0) this.activate(node.id, i);
+			});
 			tabs.appendChild(tab);
 		});
 		const body = document.createElement("div");
@@ -155,14 +199,65 @@ export class XojiDockZone extends HTMLElement {
 		walk(this._layout!);
 	}
 
-	private ensureHighlight(): void {
-		if (!this.highlight) {
-			this.highlight = document.createElement("div");
-			this.highlight.className = "xoji-dock-zone__highlight";
-			this.highlight.dataset.dockChrome = "";
-			this.highlight.hidden = true;
+	private film(modifier: string): HTMLDivElement {
+		const el = document.createElement("div");
+		el.className = `xoji-dock-zone__film xoji-dock-zone__film--${modifier}`;
+		el.dataset.dockChrome = "";
+		el.hidden = true;
+		return el;
+	}
+
+	private ensureOverlays(): void {
+		if (!this.dropFilm) this.dropFilm = this.film("drop");
+		if (!this.remnantFilm) this.remnantFilm = this.film("remnant");
+		// Re-attach last so the films layer above the freshly rendered zones.
+		this.appendChild(this.dropFilm);
+		this.appendChild(this.remnantFilm);
+		for (const f of this.restFilms) this.appendChild(f);
+	}
+
+	private placeFilm(el: HTMLElement, rect: DockRect, host: DOMRect): void {
+		Object.assign(el.style, {
+			top: `${rect.top - host.top}px`,
+			left: `${rect.left - host.left}px`,
+			width: `${rect.width}px`,
+			height: `${rect.height}px`,
+		});
+		el.hidden = false;
+	}
+
+	private hideFilms(): void {
+		if (this.dropFilm) this.dropFilm.hidden = true;
+		if (this.remnantFilm) this.remnantFilm.hidden = true;
+		for (const f of this.restFilms) f.hidden = true;
+	}
+
+	/** Grow the accent-2 film pool to cover every non-target zone, hiding any surplus. */
+	private placeRestFilms(rects: DockRect[], host: DOMRect): void {
+		while (this.restFilms.length < rects.length) {
+			const f = this.film("rest");
+			this.restFilms.push(f);
+			this.appendChild(f);
 		}
-		this.appendChild(this.highlight);
+		rects.forEach((r, i) => this.placeFilm(this.restFilms[i]!, r, host));
+		for (let i = rects.length; i < this.restFilms.length; i += 1) this.restFilms[i]!.hidden = true;
+	}
+
+	/** The half of `zone` a split would leave in place — the complement of the drop `highlight`. A
+	 * center (tab) drop splits nothing, so it has no remnant. */
+	private remnantRect(zone: DockRect, drop: DockRect, region: DockRegion): DockRect | null {
+		switch (region) {
+			case "left":
+				return { top: zone.top, left: drop.left + drop.width, width: zone.width - drop.width, height: zone.height };
+			case "right":
+				return { top: zone.top, left: zone.left, width: zone.width - drop.width, height: zone.height };
+			case "top":
+				return { top: drop.top + drop.height, left: zone.left, width: zone.width, height: zone.height - drop.height };
+			case "bottom":
+				return { top: zone.top, left: zone.left, width: zone.width, height: zone.height - drop.height };
+			default:
+				return null;
+		}
 	}
 
 	private zoneTargets(): Array<{ id: string; rect: DockRect }> {
@@ -172,9 +267,9 @@ export class XojiDockZone extends HTMLElement {
 		});
 	}
 
-	private onTabPointerdown(event: PointerEvent, panelId: string): void {
-		event.preventDefault();
-		this.dragging = panelId;
+	private onTabPointerdown(event: PointerEvent, panelId: string, zoneId: string, index: number): void {
+		if (event.button !== 0) return;
+		this.drag = { panelId, zoneId, index, startX: event.clientX, startY: event.clientY, active: false };
 		const move = (e: PointerEvent) => this.onDragMove(e);
 		const up = (e: PointerEvent) => {
 			window.removeEventListener("pointermove", move);
@@ -187,32 +282,59 @@ export class XojiDockZone extends HTMLElement {
 		window.addEventListener("pointercancel", up);
 	}
 
+	/** Promote the gesture to a drag once the pointer has traveled past the threshold. */
+	private armDrag(event: PointerEvent): boolean {
+		const d = this.drag;
+		if (!d) return false;
+		if (d.active) return true;
+		if (Math.hypot(event.clientX - d.startX, event.clientY - d.startY) < XojiDockZone.DRAG_THRESHOLD) return false;
+		d.active = true;
+		event.preventDefault();
+		return true;
+	}
+
 	private onDragMove(event: PointerEvent): void {
-		if (!this.dragging || !this.highlight) return;
-		const res = resolveDrop({ pointer: { x: event.clientX, y: event.clientY }, targets: this.zoneTargets() });
+		if (!this.armDrag(event)) return;
+		this.ensureOverlays();
+		const zones = this.zoneTargets();
+		const res = resolveDrop({ pointer: { x: event.clientX, y: event.clientY }, targets: zones });
 		if (!res) {
-			this.highlight.hidden = true;
+			this.hideFilms();
 			return;
 		}
 		const host = this.getBoundingClientRect();
-		const h = res.highlight;
-		Object.assign(this.highlight.style, {
-			top: `${h.top - host.top}px`,
-			left: `${h.left - host.left}px`,
-			width: `${h.width}px`,
-			height: `${h.height}px`,
-		});
-		this.highlight.hidden = false;
+		// The drop target itself takes the accent film.
+		this.placeFilm(this.dropFilm!, res.highlight, host);
+		// What a split would leave behind takes accent-3; a tab drop leaves no remnant.
+		const zoneRect = zones.find((z) => z.id === res.targetId)?.rect;
+		const remnant = zoneRect ? this.remnantRect(zoneRect, res.highlight, res.region) : null;
+		if (remnant) this.placeFilm(this.remnantFilm!, remnant, host);
+		else if (this.remnantFilm) this.remnantFilm.hidden = true;
+		// Every other zone takes the accent-2 film.
+		this.placeRestFilms(
+			zones.filter((z) => z.id !== res.targetId).map((z) => z.rect),
+			host,
+		);
 	}
 
 	private onDrop(event: PointerEvent): void {
-		const panel = this.dragging;
-		this.dragging = null;
-		if (this.highlight) this.highlight.hidden = true;
-		if (!panel || !this._layout) return;
+		const d = this.drag;
+		this.drag = null;
+		this.hideFilms();
+		if (!d || !this._layout) return;
+		// A press that never crossed the threshold is a click: just activate the tab, never re-dock.
+		if (!d.active) {
+			this.activate(d.zoneId, d.index);
+			return;
+		}
 		const res = resolveDrop({ pointer: { x: event.clientX, y: event.clientY }, targets: this.zoneTargets() });
 		if (!res) return;
-		this._layout = dockPanel(this._layout, { panel, target: res.targetId, region: res.region, newLeafId: this.nextLeafId() });
+		this._layout = dockPanel(this._layout, {
+			panel: d.panelId,
+			target: res.targetId,
+			region: res.region,
+			newLeafId: this.nextLeafId(),
+		});
 		this.render();
 		this.dispatchEvent(new CustomEvent("layout-change", { bubbles: true, composed: true, detail: { layout: this._layout } }));
 	}
