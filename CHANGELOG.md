@@ -4,6 +4,9 @@
 
 ### Components
 
+- `<xoji-progress>` took a `meter` attribute that reports `role="meter"` (a measurement against a capacity, like disk used) instead of the default `role="progressbar"` (a task advancing), so a capacity bar reads correctly to assistive tech; the visual treatment is unchanged
+  - its already-built threshold engine is now documented and demoed: `<threshold below tone pulse>` children recolor the bar by value (green under a band, amber past it, red and pulsing when critical), and the `value-format` / `value-position` / `colorize-value` readout options join them on the reference page, which had shipped them silently
+  - the Svelte `Progress` wrapper reached parity with the element and the Astro wrapper, which had pulled ahead: it now surfaces `valueFormat`, `valuePosition`, and `colorizeValue` (plus `meter`) as typed props instead of dropping them
 - `<xoji-menu>` grew the shape a real app menu needs: a `{ heading: string }` item opens a labeled section (a `role="group"` named by the heading) that the following actions sit under, and an action takes a `hint` for a trailing accelerator keycap like `Ctrl+S`, rendered muted and monospaced at the end of the row
   - the heading is `aria-hidden` so it shows without a double read, and it is not a focus target, so arrow navigation walks only the actions; the hint is `aria-hidden` too, so the keycap shows visually while the action's accessible name stays the bare label
   - both render through the one fragment fill, so the runtime, the zero-JS Astro path, and the Svelte and Astro bindings all carry them with no per-binding work; the keycap reads in the theme's mono face and the heading in its muted ink, and there is a `::part(item-hint)` to restyle the keycap
