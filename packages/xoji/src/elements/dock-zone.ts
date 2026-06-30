@@ -30,9 +30,9 @@ interface PanelMeta {
 export class XojiDockZone extends HTMLElement {
 	private _layout: DockNode | null = null;
 	private panels = new Map<string, PanelMeta>();
-	/** Drag-preview films painted over the live zones during a drag: the drop target (`--accent`),
-	 * the remnant a split would leave behind (`--accent-3`), and a pooled film over every other zone
-	 * (`--accent-2`). All inert; re-attached above the zones after each render replaces the children. */
+	/** Drag-preview films painted over the live zones during a drag: the drop target, the remnant a
+	 * split would leave behind, and a pooled film over every other zone (each tinted by its modifier
+	 * class). All inert; re-attached above the zones after each render replaces the children. */
 	private dropFilm: HTMLDivElement | null = null;
 	private remnantFilm: HTMLDivElement | null = null;
 	private restFilms: HTMLDivElement[] = [];
@@ -68,7 +68,9 @@ export class XojiDockZone extends HTMLElement {
 				this.seedLeafCounter(parsed);
 				return parsed;
 			} catch {
-				// Malformed authored layout: fall back to a single zone rather than render nothing.
+				// Malformed authored layout: warn so the declarative path stays debuggable, then fall
+				// back to a single zone rather than render nothing.
+				console.warn("xoji-dock-zone: malformed `layout` attribute; falling back to a single zone.", attr);
 			}
 		}
 		return singleZone("zone-0", [...this.panels.keys()]);
@@ -232,7 +234,7 @@ export class XojiDockZone extends HTMLElement {
 		for (const f of this.restFilms) f.hidden = true;
 	}
 
-	/** Grow the accent-2 film pool to cover every non-target zone, hiding any surplus. */
+	/** Grow the film pool to cover every non-target zone, hiding any surplus. */
 	private placeRestFilms(rects: DockRect[], host: DOMRect): void {
 		while (this.restFilms.length < rects.length) {
 			const f = this.film("rest");
@@ -303,14 +305,12 @@ export class XojiDockZone extends HTMLElement {
 			return;
 		}
 		const host = this.getBoundingClientRect();
-		// The drop target itself takes the accent film.
 		this.placeFilm(this.dropFilm!, res.highlight, host);
-		// What a split would leave behind takes accent-3; a tab drop leaves no remnant.
+		// A split leaves a remnant; a center (tab) drop leaves none.
 		const zoneRect = zones.find((z) => z.id === res.targetId)?.rect;
 		const remnant = zoneRect ? this.remnantRect(zoneRect, res.highlight, res.region) : null;
 		if (remnant) this.placeFilm(this.remnantFilm!, remnant, host);
 		else if (this.remnantFilm) this.remnantFilm.hidden = true;
-		// Every other zone takes the accent-2 film.
 		this.placeRestFilms(
 			zones.filter((z) => z.id !== res.targetId).map((z) => z.rect),
 			host,
